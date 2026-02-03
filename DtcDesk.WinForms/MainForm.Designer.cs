@@ -33,6 +33,9 @@ namespace DtcDesk.WinForms
             btnExport = new Button();
             btnEdit = new Button();
             btnAdd = new Button();
+            panelFilter = new Panel();
+            lblCategoryFilter = new Label();
+            cmbCategoryFilter = new ComboBox();
             lblResults = new Label();
             panelTop.SuspendLayout();
             panelLeft.SuspendLayout();
@@ -141,6 +144,7 @@ namespace DtcDesk.WinForms
             // 
             panelRight.Controls.Add(dgvCodes);
             panelRight.Controls.Add(panelButtons);
+            panelRight.Controls.Add(panelFilter);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
             panelRight.Location = new Point(450, 80);
@@ -153,10 +157,10 @@ namespace DtcDesk.WinForms
             // 
             dgvCodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvCodes.Dock = DockStyle.Fill;
-            dgvCodes.Location = new Point(10, 40);
+            dgvCodes.Location = new Point(10, 80);
             dgvCodes.Name = "dgvCodes";
             dgvCodes.RowTemplate.Height = 35;
-            dgvCodes.Size = new Size(930, 520);
+            dgvCodes.Size = new Size(930, 480);
             dgvCodes.TabIndex = 2;
             // 
             // panelButtons
@@ -209,6 +213,39 @@ namespace DtcDesk.WinForms
             btnAdd.TabIndex = 0;
             btnAdd.Text = "Añadir";
             btnAdd.UseVisualStyleBackColor = true;
+            // 
+            // lblResults
+            // 
+            // panelFilter
+            // 
+            panelFilter.Controls.Add(cmbCategoryFilter);
+            panelFilter.Controls.Add(lblCategoryFilter);
+            panelFilter.Dock = DockStyle.Top;
+            panelFilter.Location = new Point(10, 40);
+            panelFilter.Name = "panelFilter";
+            panelFilter.Size = new Size(930, 40);
+            panelFilter.TabIndex = 3;
+            // 
+            // lblCategoryFilter
+            // 
+            lblCategoryFilter.AutoSize = true;
+            lblCategoryFilter.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblCategoryFilter.Location = new Point(5, 12);
+            lblCategoryFilter.Name = "lblCategoryFilter";
+            lblCategoryFilter.Size = new Size(70, 15);
+            lblCategoryFilter.TabIndex = 0;
+            lblCategoryFilter.Text = "Categoría:";
+            // 
+            // cmbCategoryFilter
+            // 
+            cmbCategoryFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCategoryFilter.Font = new Font("Segoe UI", 9F);
+            cmbCategoryFilter.FormattingEnabled = true;
+            cmbCategoryFilter.Items.AddRange(new object[] { "Automático", "P - Powertrain", "C - Chassis", "B - Body", "U - Network" });
+            cmbCategoryFilter.Location = new Point(85, 8);
+            cmbCategoryFilter.Name = "cmbCategoryFilter";
+            cmbCategoryFilter.Size = new Size(200, 23);
+            cmbCategoryFilter.TabIndex = 1;
             // 
             // lblResults
             // 
@@ -265,5 +302,8 @@ namespace DtcDesk.WinForms
         private Button btnEdit;
         private Button btnExport;
         private Button btnImport;
+        private Panel panelFilter;
+        private Label lblCategoryFilter;
+        private ComboBox cmbCategoryFilter;
     }
 }

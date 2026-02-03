@@ -55,6 +55,10 @@ public partial class MainForm : Form
         dgvCodes.CellDoubleClick += DgvCodes_CellDoubleClick;
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         
+        // Configurar filtro de categoría
+        cmbCategoryFilter.SelectedIndex = 0; // "Automático" por defecto
+        cmbCategoryFilter.SelectedIndexChanged += CmbCategoryFilter_SelectedIndexChanged;
+        
         txtInput.Font = new Font("Consolas", 10F);
     }
 
@@ -135,6 +139,13 @@ public partial class MainForm : Form
         StyleButton(btnEdit, accentHover, Color.Black);
         StyleButton(btnExport, ColorTranslator.FromHtml("#5CB85C"), Color.White);
         StyleButton(btnImport, bgSide, textMain);
+        
+        // Estilo del filtro de categoría
+        panelFilter.BackColor = bgTop;
+        lblCategoryFilter.ForeColor = textMain;
+        cmbCategoryFilter.BackColor = bgSide;
+        cmbCategoryFilter.ForeColor = textMain;
+        cmbCategoryFilter.FlatStyle = FlatStyle.Flat;
     }
 
     private void StyleButton(Button btn, Color backColor, Color foreColor)
@@ -476,41 +487,58 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
-            // Parsear códigos (incluyendo duplicados)
-            var codes = _parser.Parse(txtInput.Text, removeDuplicates: false);
+            // Parsear códigos hexadecimales puros (sin prefijo P/C/B/U)
+            var hexCodes = ParseHexCodesOnly(txtInput.Text);
             
-            if (codes.Count == 0)
+            if (hexCodes.Count == 0)
             {
                 MessageBox.Show("No se encontraron códigos DTC válidos en el texto pegado.", 
                     "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
+            // Buscar en TODAS las categorías para cada código hexadecimal
+            var allCodesToSearch = new List<string>();
+            foreach (var hexCode in hexCodes)
+            {
+                // Buscar en todas las categorías: P, C, B, U
+                allCodesToSearch.Add("P" + hexCode);
+                allCodesToSearch.Add("C" + hexCode);
+                allCodesToSearch.Add("B" + hexCode);
+                allCodesToSearch.Add("U" + hexCode);
+            }
+
             // Buscar en base de datos
-            var dbCodes = await _repository.GetByCodesAsync(codes);
+            var dbCodes = await _repository.GetByCodesAsync(allCodesToSearch);
+            
+            // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
 
-            // Crear resultados
-            _currentResults = codes.Select(code => new DtcLookupResult
+            // Crear resultados para TODOS los códigos y categorías
+            _currentResults = new List<DtcLookupResult>();
+            
+            foreach (var hexCode in hexCodes)
             {
-                Code = code,
-                Found = dbCodesDict.ContainsKey(code),
-                Description = dbCodesDict.ContainsKey(code) ? dbCodesDict[code].Description : null,
-                Category = dbCodesDict.ContainsKey(code) ? dbCodesDict[code].Category : _parser.GetCodeCategory(code),
-                Source = dbCodesDict.ContainsKey(code) ? dbCodesDict[code].Source : null,
-                Notes = dbCodesDict.ContainsKey(code) ? dbCodesDict[code].Notes : null,
-                DtcId = dbCodesDict.ContainsKey(code) ? dbCodesDict[code].Id : null
-            }).ToList();
+                foreach (var prefix in new[] { "P", "C", "B", "U" })
+                {
+                    var fullCode = prefix + hexCode;
+                    var found = dbCodesDict.ContainsKey(fullCode);
+                    
+                    _currentResults.Add(new DtcLookupResult
+                    {
+                        Code = fullCode,
+                        Found = found,
+                        Description = found ? dbCodesDict[fullCode].Description : null,
+                        Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
+                        Source = found ? dbCodesDict[fullCode].Source : null,
+                        Notes = found ? dbCodesDict[fullCode].Notes : null,
+                        DtcId = found ? dbCodesDict[fullCode].Id : null
+                    });
+                }
+            }
 
-            // Mostrar en grid
-            dgvCodes.DataSource = null;
-            dgvCodes.DataSource = _currentResults;
-
-            // Actualizar estadísticas (contar duplicados también)
-            var found = _currentResults.Count(r => r.Found);
-            var notFound = _currentResults.Count - found;
-            var uniqueCodes = _currentResults.Select(r => r.Code).Distinct().Count();
-            lblStats.Text = $"Total: {_currentResults.Count} ({uniqueCodes} únicos) | Encontrados: {found} | No encontrados: {notFound}";
+            // Aplicar filtro de categoría
+            ApplyCategoryFilter();
         }
         catch (Exception ex)
         {
@@ -524,11 +552,95 @@ public partial class MainForm : Form
         }
     }
 
+    private List<string> ParseHexCodesOnly(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return new List<string>();
+
+        // Patrón para códigos hexadecimales de 4 caracteres (sin prefijo P/C/B/U)
+        var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        
+        var matches = hexPattern.Matches(input);
+        var codes = new List<string>();
+
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            codes.Add(match.Value.ToUpperInvariant());
+        }
+
+        return codes;
+    }
+
+    private string GetCategoryFromPrefix(string prefix)
+    {
+        return prefix switch
+        {
+            "P" => "Powertrain",
+            "C" => "Chassis",
+            "B" => "Body",
+            "U" => "Network",
+            _ => "Unknown"
+        };
+    }
+
+    private void CmbCategoryFilter_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_currentResults != null && _currentResults.Count > 0)
+        {
+            ApplyCategoryFilter();
+        }
+    }
+
+    private void ApplyCategoryFilter()
+    {
+        if (_currentResults == null || _currentResults.Count == 0)
+            return;
+
+        var selectedFilter = cmbCategoryFilter.SelectedIndex;
+        List<DtcLookupResult> filteredResults;
+
+        switch (selectedFilter)
+        {
+            case 0: // Automático - mostrar solo los encontrados
+                filteredResults = _currentResults.Where(r => r.Found).ToList();
+                break;
+            case 1: // P - Powertrain
+                filteredResults = _currentResults.Where(r => r.Code.StartsWith("P")).ToList();
+                break;
+            case 2: // C - Chassis
+                filteredResults = _currentResults.Where(r => r.Code.StartsWith("C")).ToList();
+                break;
+            case 3: // B - Body
+                filteredResults = _currentResults.Where(r => r.Code.StartsWith("B")).ToList();
+                break;
+            case 4: // U - Network
+                filteredResults = _currentResults.Where(r => r.Code.StartsWith("U")).ToList();
+                break;
+            default:
+                filteredResults = _currentResults;
+                break;
+        }
+
+        // Mostrar resultados filtrados
+        dgvCodes.DataSource = null;
+        dgvCodes.DataSource = filteredResults;
+
+        // Actualizar estadísticas
+        var found = filteredResults.Count(r => r.Found);
+        var notFound = filteredResults.Count - found;
+        var totalAll = _currentResults.Count;
+        var foundAll = _currentResults.Count(r => r.Found);
+        
+        lblStats.Text = $"Mostrando: {filteredResults.Count} | Encontrados: {found} | No encontrados: {notFound} | Total general: {foundAll} de {totalAll}";
+    }
+
     private void BtnClear_Click(object? sender, EventArgs e)
     {
         txtInput.Clear();
         dgvCodes.DataSource = null;
         _currentResults.Clear();
+        cmbCategoryFilter.SelectedIndex = 0; // Reset a "Automático"
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
     }
