@@ -127,9 +127,13 @@ public partial class MainForm : Form
         dgvCodes.AllowUserToAddRows = false;
         dgvCodes.AllowUserToDeleteRows = false;
         dgvCodes.ReadOnly = true;
-        dgvCodes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvCodes.MultiSelect = false;
+        dgvCodes.SelectionMode = DataGridViewSelectionMode.CellSelect;
+        dgvCodes.MultiSelect = true;
         dgvCodes.RowHeadersVisible = false;
+        dgvCodes.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+        
+        // Menú contextual para copiar
+        SetupContextMenu();
         
         // Columnas
         dgvCodes.Columns.Clear();
@@ -169,6 +173,224 @@ public partial class MainForm : Form
         
         // Formato condicional para el estado
         dgvCodes.CellFormatting += DgvCodes_CellFormatting;
+    }
+
+    private void SetupContextMenu()
+    {
+        var contextMenu = new ContextMenuStrip();
+        
+        // Configurar renderer personalizado para colores
+        contextMenu.Renderer = new ToolStripProfessionalRenderer(new CustomMenuColorTable());
+        
+        // Opción Copiar
+        var copyMenuItem = new ToolStripMenuItem("Copiar");
+        copyMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+        copyMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard();
+        
+        // Opción Copiar Todo
+        var copyAllMenuItem = new ToolStripMenuItem("Copiar Todo (Tabla Completa)");
+        copyAllMenuItem.Click += (sender, e) => CopyAllDataToClipboard();
+        
+        contextMenu.Items.Add(copyMenuItem);
+        contextMenu.Items.Add(copyAllMenuItem);
+        
+        // Aplicar tema oscuro al menú contextual
+        contextMenu.BackColor = ColorTranslator.FromHtml("#102C44");
+        contextMenu.ForeColor = ColorTranslator.FromHtml("#EAEAEA");
+        
+        dgvCodes.ContextMenuStrip = contextMenu;
+        
+        // También permitir Ctrl+C directamente y Backspace para borrar/reemplazar códigos
+        dgvCodes.KeyDown += DgvCodes_KeyDown;
+    }
+
+    private void DgvCodes_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // Copiar con Ctrl+C
+        if (e.Control && e.KeyCode == Keys.C)
+        {
+            CopySelectedCellsToClipboard();
+            e.Handled = true;
+        }
+        
+        // Borrar/Reemplazar códigos con Backspace
+        if (e.KeyCode == Keys.Back)
+        {
+            DeleteAndReplaceSelectedCodes();
+            e.Handled = true;
+        }
+    }
+
+    private void DeleteAndReplaceSelectedCodes()
+    {
+        if (dgvCodes.SelectedCells.Count == 0 || _currentResults == null || _currentResults.Count == 0)
+            return;
+
+        // Obtener solo las celdas de la columna CÓDIGO que están seleccionadas
+        var selectedCodeCells = dgvCodes.SelectedCells
+            .Cast<DataGridViewCell>()
+            .Where(cell => cell.OwningColumn.Name == "colCode")
+            .ToList();
+
+        if (selectedCodeCells.Count == 0)
+        {
+            MessageBox.Show("Por favor, selecciona códigos de la columna CÓDIGO para reemplazar.",
+                "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // Mostrar diálogo para elegir el reemplazo
+        var dialog = new Form
+        {
+            Text = "Reemplazar Códigos",
+            Width = 400,
+            Height = 200,
+            StartPosition = FormStartPosition.CenterParent,
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            MaximizeBox = false,
+            MinimizeBox = false,
+            BackColor = ColorTranslator.FromHtml("#0F1E2B")
+        };
+
+        var label = new Label
+        {
+            Text = $"¿Con qué valor deseas reemplazar los {selectedCodeCells.Count} código(s) seleccionado(s)?",
+            ForeColor = ColorTranslator.FromHtml("#EAEAEA"),
+            Location = new Point(20, 20),
+            AutoSize = false,
+            Width = 360,
+            Height = 40,
+            Font = new Font("Segoe UI", 9.5F)
+        };
+
+        var btn00000 = new Button
+        {
+            Text = "0000",
+            Location = new Point(50, 80),
+            Width = 120,
+            Height = 40,
+            BackColor = ColorTranslator.FromHtml("#F8B41C"),
+            ForeColor = Color.Black,
+            Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+            Cursor = Cursors.Hand,
+            FlatStyle = FlatStyle.Flat
+        };
+        btn00000.FlatAppearance.BorderSize = 0;
+
+        var btnFFFFF = new Button
+        {
+            Text = "FFFF",
+            Location = new Point(220, 80),
+            Width = 120,
+            Height = 40,
+            BackColor = ColorTranslator.FromHtml("#F8B41C"),
+            ForeColor = Color.Black,
+            Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+            Cursor = Cursors.Hand,
+            FlatStyle = FlatStyle.Flat
+        };
+        btnFFFFF.FlatAppearance.BorderSize = 0;
+
+        string? selectedReplacement = null;
+
+        btn00000.Click += (s, e) =>
+        {
+            selectedReplacement = "0000";
+            dialog.DialogResult = DialogResult.OK;
+            dialog.Close();
+        };
+
+        btnFFFFF.Click += (s, e) =>
+        {
+            selectedReplacement = "FFFF";
+            dialog.DialogResult = DialogResult.OK;
+            dialog.Close();
+        };
+
+        dialog.Controls.Add(label);
+        dialog.Controls.Add(btn00000);
+        dialog.Controls.Add(btnFFFFF);
+
+        if (dialog.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(selectedReplacement))
+        {
+            // Reemplazar los códigos en los resultados
+            foreach (var cell in selectedCodeCells)
+            {
+                if (cell.RowIndex >= 0 && cell.RowIndex < _currentResults.Count)
+                {
+                    var result = _currentResults[cell.RowIndex];
+                    result.Code = selectedReplacement;
+                    result.Description = "Sin resultados";
+                    result.Found = false;
+                    result.Category = "Hex";
+                    result.Source = null;
+                    result.Notes = null;
+                }
+            }
+
+            // Refrescar el DataGridView
+            dgvCodes.DataSource = null;
+            dgvCodes.DataSource = _currentResults;
+
+            // Actualizar estadísticas
+            var found = _currentResults.Count(r => r.Found);
+            var notFound = _currentResults.Count - found;
+            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+
+            MessageBox.Show($"Se reemplazaron {selectedCodeCells.Count} código(s) con '{selectedReplacement}'.",
+                "Códigos Reemplazados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+    }
+
+    private void CopySelectedCellsToClipboard()
+    {
+        if (dgvCodes.GetCellCount(DataGridViewElementStates.Selected) == 0)
+            return;
+
+        try
+        {
+            // Obtener el contenido copiado del DataGridView
+            DataObject dataObj = dgvCodes.GetClipboardContent();
+            if (dataObj != null)
+            {
+                Clipboard.SetDataObject(dataObj);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al copiar: {ex.Message}", "Error", 
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void CopyAllDataToClipboard()
+    {
+        if (_currentResults == null || _currentResults.Count == 0)
+            return;
+
+        try
+        {
+            // Seleccionar todas las celdas temporalmente
+            dgvCodes.SelectAll();
+            
+            // Copiar
+            DataObject dataObj = dgvCodes.GetClipboardContent();
+            if (dataObj != null)
+            {
+                Clipboard.SetDataObject(dataObj);
+            }
+            
+            // Limpiar selección
+            dgvCodes.ClearSelection();
+            
+            MessageBox.Show($"Se copiaron {_currentResults.Count} filas al portapapeles.", 
+                "Copiado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al copiar: {ex.Message}", "Error", 
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -270,9 +492,9 @@ public partial class MainForm : Form
         // Si hay un código seleccionado sin descripción, pre-llenarlo
         string? prefilledCode = null;
         
-        if (dgvCodes.SelectedRows.Count > 0)
+        if (dgvCodes.CurrentRow != null)
         {
-            var selectedResult = dgvCodes.SelectedRows[0].DataBoundItem as DtcLookupResult;
+            var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
             if (selectedResult != null && !selectedResult.Found)
             {
                 prefilledCode = selectedResult.Code;
@@ -294,14 +516,14 @@ public partial class MainForm : Form
 
     private async void BtnEdit_Click(object? sender, EventArgs e)
     {
-        if (dgvCodes.SelectedRows.Count == 0)
+        if (dgvCodes.CurrentRow == null)
         {
             MessageBox.Show("Por favor, selecciona un código para editar.", 
                 "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
-        var selectedResult = dgvCodes.SelectedRows[0].DataBoundItem as DtcLookupResult;
+        var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
         if (selectedResult == null || !selectedResult.Found || !selectedResult.DtcId.HasValue)
         {
             MessageBox.Show("Este código no existe en la base de datos. Usa 'Añadir' para agregarlo.", 
@@ -331,14 +553,14 @@ public partial class MainForm : Form
 
     private async void BtnDelete_Click(object? sender, EventArgs e)
     {
-        if (dgvCodes.SelectedRows.Count == 0)
+        if (dgvCodes.CurrentRow == null)
         {
             MessageBox.Show("Por favor, selecciona un código para eliminar.", 
                 "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
-        var selectedResult = dgvCodes.SelectedRows[0].DataBoundItem as DtcLookupResult;
+        var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
         if (selectedResult == null || !selectedResult.Found || !selectedResult.DtcId.HasValue)
         {
             MessageBox.Show("Este código no existe en la base de datos.", 
@@ -426,16 +648,30 @@ public partial class MainForm : Form
     private void DgvCodes_SelectionChanged(object? sender, EventArgs e)
     {
         // Habilitar/deshabilitar botones según selección
-        var hasSelection = dgvCodes.SelectedRows.Count > 0;
+        var hasSelection = dgvCodes.CurrentRow != null;
         var isFound = false;
 
         if (hasSelection)
         {
-            var selectedResult = dgvCodes.SelectedRows[0].DataBoundItem as DtcLookupResult;
+            var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
             isFound = selectedResult?.Found ?? false;
         }
 
         btnEdit.Enabled = hasSelection && isFound;
         btnDelete.Enabled = hasSelection && isFound;
     }
+}
+
+// Clase para personalizar los colores del menú contextual
+internal class CustomMenuColorTable : ProfessionalColorTable
+{
+    public override Color MenuItemSelected => ColorTranslator.FromHtml("#F8B41C"); // Amarillo marca
+    public override Color MenuItemSelectedGradientBegin => ColorTranslator.FromHtml("#F8B41C");
+    public override Color MenuItemSelectedGradientEnd => ColorTranslator.FromHtml("#F8B41C");
+    public override Color MenuItemBorder => ColorTranslator.FromHtml("#D89C17");
+    public override Color MenuItemPressedGradientBegin => ColorTranslator.FromHtml("#D89C17");
+    public override Color MenuItemPressedGradientEnd => ColorTranslator.FromHtml("#D89C17");
+    public override Color ImageMarginGradientBegin => ColorTranslator.FromHtml("#102C44");
+    public override Color ImageMarginGradientEnd => ColorTranslator.FromHtml("#102C44");
+    public override Color ToolStripDropDownBackground => ColorTranslator.FromHtml("#102C44");
 }

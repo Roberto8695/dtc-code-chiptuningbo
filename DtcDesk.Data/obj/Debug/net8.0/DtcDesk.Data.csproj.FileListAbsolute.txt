@@ -14,3 +14,19 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\refint\DtcDesk.
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\ref\DtcDesk.Data.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.sourcelink.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.deps.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.pdb
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Core.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Core.pdb
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.csproj.AssemblyReference.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.AssemblyInfoInputs.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.AssemblyInfo.cs
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.csproj.CoreCompileInputs.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.sourcelink.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk..FB96DA91.Up2Date
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\refint\DtcDesk.Data.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.pdb
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Data\obj\Debug\net8.0\ref\DtcDesk.Data.dll

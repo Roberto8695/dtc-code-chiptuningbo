@@ -11,3 +11,16 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\refint\
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.sourcelink.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.deps.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.pdb
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.csproj.AssemblyReference.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.AssemblyInfoInputs.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.AssemblyInfo.cs
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.csproj.CoreCompileInputs.cache
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.sourcelink.json
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\refint\DtcDesk.Core.dll
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
+D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
