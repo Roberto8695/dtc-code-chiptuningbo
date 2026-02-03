@@ -48,3 +48,4 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\Dtc
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.genruntimeconfig.cache
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DtcDesk.WinForms.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.sourcelink.json
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\logo.jpg

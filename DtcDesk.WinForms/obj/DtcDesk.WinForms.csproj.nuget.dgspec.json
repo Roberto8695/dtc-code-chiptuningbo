@@ -1,27 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {}
+    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {}
   },
   "projects": {
-    "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "projectUniqueName": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
         "projectName": "DtcDesk.Core",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
+        "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "packagesPath": "C:\\Users\\rober\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\rober\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0",
           "net8.0-windows"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,7 +49,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -70,7 +77,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         },
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
@@ -96,34 +103,40 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
+    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
+        "projectUniqueName": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj",
         "projectName": "DtcDesk.Data",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\obj\\",
+        "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj",
+        "packagesPath": "C:\\Users\\rober\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\rober\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
+              "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+                "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj"
               }
             }
           }
@@ -137,7 +150,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -168,37 +182,43 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {
+    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+        "projectUniqueName": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
         "projectName": "DtcDesk.WinForms",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",
+        "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+        "packagesPath": "C:\\Users\\rober\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.WinForms\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\rober\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0-windows"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0-windows7.0": {
             "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
+              "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+                "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj"
               },
-              "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj"
+              "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj": {
+                "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj"
               }
             }
           }
@@ -212,7 +232,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0-windows7.0": {
@@ -236,7 +257,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

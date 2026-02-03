@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "bhoyKydzK00=",
+  "dgSpecHash": "lGUt4l0UW2c=",
   "success": true,
-  "projectFilePath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+  "projectFilePath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Home\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
+    "C:\\Users\\rober\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
   ],
   "logs": []
 }
