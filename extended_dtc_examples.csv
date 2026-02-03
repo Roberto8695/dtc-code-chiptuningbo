@@ -1,0 +1,121 @@
+Code,Description,Category,Source,Notes
+P0001,Regulador de volumen de combustible - Circuito abierto,Powertrain,OBD-II Standard,Verificar cableado del regulador
+P0002,Regulador de volumen de combustible - Rango/rendimiento,Powertrain,OBD-II Standard,
+P0003,Regulador de volumen de combustible - Circuito bajo,Powertrain,OBD-II Standard,
+P0004,Regulador de volumen de combustible - Circuito alto,Powertrain,OBD-II Standard,
+P0005,Válvula de corte de combustible - Circuito abierto,Powertrain,OBD-II Standard,
+P0010,Actuador de posición del árbol de levas A Banco 1 - Circuito,Powertrain,OBD-II Standard,Sistema VVT-i/VANOS
+P0011,Actuador de posición del árbol de levas A Banco 1 - Avance excesivo,Powertrain,OBD-II Standard,Verificar válvula VVT
+P0012,Actuador de posición del árbol de levas A Banco 1 - Retraso excesivo,Powertrain,OBD-II Standard,
+P0013,Actuador de posición del árbol de levas B Banco 1 - Circuito,Powertrain,OBD-II Standard,
+P0014,Actuador de posición del árbol de levas B Banco 1 - Avance excesivo,Powertrain,OBD-II Standard,
+P0015,Actuador de posición del árbol de levas B Banco 1 - Retraso excesivo,Powertrain,OBD-II Standard,
+P0016,Posición del cigüeñal/árbol de levas - Correlación Banco 1 Sensor A,Powertrain,OBD-II Standard,Verificar sincronización
+P0017,Posición del cigüeñal/árbol de levas - Correlación Banco 1 Sensor B,Powertrain,OBD-II Standard,
+P0018,Posición del cigüeñal/árbol de levas - Correlación Banco 2 Sensor A,Powertrain,OBD-II Standard,
+P0019,Posición del cigüeñal/árbol de levas - Correlación Banco 2 Sensor B,Powertrain,OBD-II Standard,
+P0020,Actuador de posición del árbol de levas A Banco 2 - Circuito,Powertrain,OBD-II Standard,
+P0030,Calentador de sonda lambda O2 Banco 1 Sensor 1 - Circuito,Powertrain,OBD-II Standard,Verificar fusible y relé
+P0031,Calentador de sonda lambda O2 Banco 1 Sensor 1 - Circuito bajo,Powertrain,OBD-II Standard,
+P0032,Calentador de sonda lambda O2 Banco 1 Sensor 1 - Circuito alto,Powertrain,OBD-II Standard,
+P0033,Válvula de derivación del turbo/sobrealimentador - Circuito,Powertrain,OBD-II Standard,
+P0034,Válvula de derivación del turbo/sobrealimentador - Circuito bajo,Powertrain,OBD-II Standard,
+P0035,Válvula de derivación del turbo/sobrealimentador - Circuito alto,Powertrain,OBD-II Standard,
+P0036,Calentador de sonda lambda O2 Banco 1 Sensor 2 - Circuito,Powertrain,OBD-II Standard,
+P0037,Calentador de sonda lambda O2 Banco 1 Sensor 2 - Circuito bajo,Powertrain,OBD-II Standard,
+P0038,Calentador de sonda lambda O2 Banco 1 Sensor 2 - Circuito alto,Powertrain,OBD-II Standard,
+P0040,Señales de sonda lambda O2 intercambiadas Banco 1 Sensor 1 / Banco 2 Sensor 1,Powertrain,OBD-II Standard,
+P0050,Calentador de sonda lambda O2 Banco 2 Sensor 1 - Circuito,Powertrain,OBD-II Standard,
+P0100,Circuito del sensor de flujo de aire masivo (MAF),Powertrain,OBD-II Standard,Limpiar o reemplazar MAF
+P0101,Sensor MAF - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,MAF sucio o defectuoso
+P0102,Sensor MAF - Entrada de circuito baja,Powertrain,OBD-II Standard,
+P0103,Sensor MAF - Entrada de circuito alta,Powertrain,OBD-II Standard,
+P0104,Sensor MAF - Circuito intermitente,Powertrain,OBD-II Standard,Verificar conectores
+P0105,Presión absoluta del colector (MAP) - Mal funcionamiento del circuito,Powertrain,OBD-II Standard,
+P0106,Sensor MAP - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,
+P0107,Sensor MAP - Entrada de circuito baja,Powertrain,OBD-II Standard,
+P0108,Sensor MAP - Entrada de circuito alta,Powertrain,OBD-II Standard,
+P0110,Sensor de temperatura del aire de admisión - Mal funcionamiento,Powertrain,OBD-II Standard,
+P0111,Sensor IAT - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,
+P0112,Sensor IAT - Entrada de circuito baja,Powertrain,OBD-II Standard,
+P0113,Sensor IAT - Entrada de circuito alta,Powertrain,OBD-II Standard,
+P0114,Sensor IAT - Circuito intermitente,Powertrain,OBD-II Standard,
+P0115,Sensor de temperatura del refrigerante del motor (ECT) - Circuito,Powertrain,OBD-II Standard,
+P0116,Sensor ECT - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,
+P0117,Sensor ECT - Entrada de circuito baja,Powertrain,OBD-II Standard,
+P0118,Sensor ECT - Entrada de circuito alta,Powertrain,OBD-II Standard,
+P0119,Sensor ECT - Circuito intermitente,Powertrain,OBD-II Standard,
+P0120,Sensor de posición del acelerador/pedal A - Circuito,Powertrain,OBD-II Standard,
+P0121,Sensor TPS A - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,Calibrar o reemplazar TPS
+P0122,Sensor TPS A - Entrada de circuito baja,Powertrain,OBD-II Standard,
+P0123,Sensor TPS A - Entrada de circuito alta,Powertrain,OBD-II Standard,
+P0125,Temperatura insuficiente del refrigerante para control de combustible en bucle cerrado,Powertrain,OBD-II Standard,Termostato defectuoso
+P0130,Circuito de sonda lambda O2 Banco 1 Sensor 1,Powertrain,OBD-II Standard,
+P0131,Sonda lambda O2 Banco 1 Sensor 1 - Voltaje bajo,Powertrain,OBD-II Standard,
+P0132,Sonda lambda O2 Banco 1 Sensor 1 - Voltaje alto,Powertrain,OBD-II Standard,
+P0133,Sonda lambda O2 Banco 1 Sensor 1 - Respuesta lenta,Powertrain,OBD-II Standard,Sonda envejecida
+P0134,Sonda lambda O2 Banco 1 Sensor 1 - Sin actividad,Powertrain,OBD-II Standard,
+P0135,Calentador de sonda lambda O2 Banco 1 Sensor 1 - Mal funcionamiento,Powertrain,OBD-II Standard,
+P0140,Circuito de sonda lambda O2 Banco 1 Sensor 2,Powertrain,OBD-II Standard,
+P0141,Calentador de sonda lambda O2 Banco 1 Sensor 2 - Mal funcionamiento,Powertrain,OBD-II Standard,
+P0171,Sistema demasiado pobre - Banco 1,Powertrain,OBD-II Standard,Fugas de vacío o MAF sucio
+P0172,Sistema demasiado rico - Banco 1,Powertrain,OBD-II Standard,Inyectores con fuga o presión de combustible alta
+P0174,Sistema demasiado pobre - Banco 2,Powertrain,OBD-II Standard,
+P0175,Sistema demasiado rico - Banco 2,Powertrain,OBD-II Standard,
+P0200,Circuito de inyector - Mal funcionamiento,Powertrain,OBD-II Standard,
+P0201,Circuito de inyector 1 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 1
+P0202,Circuito de inyector 2 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 2
+P0203,Circuito de inyector 3 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 3
+P0204,Circuito de inyector 4 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 4
+P0205,Circuito de inyector 5 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 5
+P0206,Circuito de inyector 6 - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar inyector cilindro 6
+P0300,Fallo de encendido aleatorio detectado,Powertrain,OBD-II Standard,Revisar bujías y bobinas
+P0301,Cilindro 1 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 1
+P0302,Cilindro 2 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 2
+P0303,Cilindro 3 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 3
+P0304,Cilindro 4 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 4
+P0305,Cilindro 5 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 5
+P0306,Cilindro 6 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Bujía o bobina cilindro 6
+P0325,Sensor de detonación 1 - Circuito Banco 1,Powertrain,OBD-II Standard,
+P0335,Sensor de posición del cigüeñal A - Circuito,Powertrain,OBD-II Standard,Motor no arranca
+P0340,Sensor de posición del árbol de levas A Banco 1 - Circuito,Powertrain,OBD-II Standard,
+P0401,Flujo insuficiente de EGR detectado,Powertrain,OBD-II Standard,Limpiar válvula EGR
+P0402,Flujo excesivo de EGR detectado,Powertrain,OBD-II Standard,
+P0403,Circuito de recirculación de gases de escape (EGR),Powertrain,OBD-II Standard,
+P0420,Eficiencia del sistema del catalizador por debajo del umbral - Banco 1,Powertrain,OBD-II Standard,Catalizador deteriorado o sondas lambda
+P0430,Eficiencia del sistema del catalizador por debajo del umbral - Banco 2,Powertrain,OBD-II Standard,
+P0440,Sistema de control de emisiones evaporativas - Mal funcionamiento,Powertrain,OBD-II Standard,Verificar tapón de combustible
+P0441,Sistema de control de emisiones evaporativas - Flujo incorrecto de purga,Powertrain,OBD-II Standard,
+P0442,Sistema de control de emisiones evaporativas - Fuga pequeña detectada,Powertrain,OBD-II Standard,
+P0443,Válvula de purga de emisiones evaporativas - Circuito,Powertrain,OBD-II Standard,
+P0500,Sensor de velocidad del vehículo A,Powertrain,OBD-II Standard,Velocímetro no funciona
+P0505,Control de ralentí - Mal funcionamiento,Powertrain,OBD-II Standard,Limpiar válvula IAC
+P0506,Control de ralentí - RPM más bajas de lo esperado,Powertrain,OBD-II Standard,
+P0507,Control de ralentí - RPM más altas de lo esperado,Powertrain,OBD-II Standard,Fuga de vacío
+P0562,Voltaje del sistema - Bajo,Powertrain,OBD-II Standard,Batería o alternador defectuoso
+P0563,Voltaje del sistema - Alto,Powertrain,OBD-II Standard,Regulador de voltaje defectuoso
+P0601,Módulo de control del motor - Error de memoria,Powertrain,OBD-II Standard,Reprogramar o reemplazar ECU
+P0602,Módulo de control del motor - Error de programación,Powertrain,OBD-II Standard,
+P0603,Módulo de control del motor - Error de memoria KAM,Powertrain,OBD-II Standard,
+P0606,Módulo de control del motor - Error de procesador,Powertrain,OBD-II Standard,
+C0035,Velocidad de rueda delantera izquierda - Señal incorrecta,Chassis,VAG Group,Sensor ABS defectuoso
+C0040,Velocidad de rueda delantera derecha - Señal incorrecta,Chassis,VAG Group,
+C0045,Velocidad de rueda trasera izquierda - Señal incorrecta,Chassis,VAG Group,
+C0050,Velocidad de rueda trasera derecha - Señal incorrecta,Chassis,VAG Group,
+C0073,Sensor de velocidad de rueda delantero izquierdo - Señal inválida,Chassis,VAG Group,
+C0121,Válvula ABS delantera izquierda - Circuito abierto,Chassis,OBD-II Standard,
+C0131,Válvula ABS delantera derecha - Circuito abierto,Chassis,OBD-II Standard,
+C0141,Válvula ABS trasera izquierda - Circuito abierto,Chassis,OBD-II Standard,
+C0151,Válvula ABS trasera derecha - Circuito abierto,Chassis,OBD-II Standard,
+B0001,Resistencia del airbag del conductor - Circuito abierto,Body,OBD-II Standard,Verificar conectores bajo el asiento
+B0002,Resistencia del airbag del conductor - Cortocircuito a tierra,Body,OBD-II Standard,
+B0010,Resistencia del airbag del pasajero - Circuito abierto,Body,OBD-II Standard,
+B0081,Sensor de ocupación del asiento del pasajero - Circuito,Body,OBD-II Standard,
+B1234,Fallo en el circuito del airbag del conductor,Body,OBD-II Standard,
+U0100,Comunicación perdida con ECM/PCM,Network,OBD-II Standard,Revisar bus CAN y conectores
+U0101,Comunicación perdida con TCM,Network,OBD-II Standard,
+U0102,Comunicación perdida con módulo de transferencia,Network,OBD-II Standard,
+U0103,Comunicación perdida con módulo de control de cambios,Network,OBD-II Standard,
+U0121,Comunicación perdida con módulo de control de frenos antibloqueo,Network,OBD-II Standard,
+U0140,Comunicación perdida con módulo de control de carrocería,Network,OBD-II Standard,
+U0155,Comunicación perdida con módulo de control del panel de instrumentos,Network,OBD-II Standard,

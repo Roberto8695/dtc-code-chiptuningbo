@@ -1,0 +1,12 @@
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.deps.json
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.csproj.AssemblyReference.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.AssemblyInfoInputs.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.AssemblyInfo.cs
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.csproj.CoreCompileInputs.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\refint\DtcDesk.Core.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0\ref\DtcDesk.Core.dll

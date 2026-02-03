@@ -1,0 +1,15 @@
+Code,Description,Category,Source,Notes
+P0420,Eficiencia del catalizador por debajo del umbral - Banco 1,Powertrain,OBD-II Standard,Verificar convertidor catalítico
+P0300,Fallo de encendido aleatorio detectado,Powertrain,OBD-II Standard,Revisar bujías y bobinas
+C073,Sensor de velocidad de rueda delantero izquierdo - Señal inválida,Chassis,VAG Group,Sistema ABS
+B1234,Fallo en el circuito del airbag del conductor,Body,OBD-II Standard,Verificar conectores del airbag
+U0100,Comunicación perdida con ECM/PCM,Network,OBD-II Standard,Revisar bus CAN
+P0101,Sensor de flujo de aire (MAF) - Rango/rendimiento del circuito,Powertrain,OBD-II Standard,Limpiar o reemplazar MAF
+P0171,Sistema demasiado pobre - Banco 1,Powertrain,OBD-II Standard,Verificar fugas de vacío
+P0172,Sistema demasiado rico - Banco 1,Powertrain,OBD-II Standard,Verificar inyectores
+P0201,Circuito de inyector 1 - Mal funcionamiento,Powertrain,OBD-II Standard,Revisar cableado del inyector
+P0301,Cilindro 1 - Fallo de encendido detectado,Powertrain,OBD-II Standard,Verificar bujía y bobina del cilindro 1
+P0401,Flujo insuficiente de EGR detectado,Powertrain,OBD-II Standard,Limpiar válvula EGR
+P0500,Sensor de velocidad del vehículo - Mal funcionamiento,Powertrain,OBD-II Standard,Revisar sensor VSS
+P0562,Voltaje del sistema bajo,Powertrain,OBD-II Standard,Verificar batería y alternador
+P0563,Voltaje del sistema alto,Powertrain,OBD-II Standard,Verificar regulador de voltaje

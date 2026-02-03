@@ -1,0 +1,15 @@
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.deps.json
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Data.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Core.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\bin\Debug\net8.0\DtcDesk.Core.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.csproj.AssemblyReference.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.AssemblyInfoInputs.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.AssemblyInfo.cs
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.csproj.CoreCompileInputs.cache
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk..FB96DA91.Up2Date
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\refint\DtcDesk.Data.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\ref\DtcDesk.Data.dll
