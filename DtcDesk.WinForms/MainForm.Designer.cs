@@ -31,7 +31,6 @@ namespace DtcDesk.WinForms
             panelButtons = new Panel();
             btnImport = new Button();
             btnExport = new Button();
-            btnDelete = new Button();
             btnEdit = new Button();
             btnAdd = new Button();
             lblResults = new Label();
@@ -164,7 +163,6 @@ namespace DtcDesk.WinForms
             // 
             panelButtons.Controls.Add(btnImport);
             panelButtons.Controls.Add(btnExport);
-            panelButtons.Controls.Add(btnDelete);
             panelButtons.Controls.Add(btnEdit);
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Dock = DockStyle.Bottom;
@@ -192,15 +190,6 @@ namespace DtcDesk.WinForms
             btnExport.TabIndex = 3;
             btnExport.Text = "Exportar";
             btnExport.UseVisualStyleBackColor = true;
-            // 
-            // btnDelete
-            // 
-            btnDelete.Location = new Point(230, 10);
-            btnDelete.Name = "btnDelete";
-            btnDelete.Size = new Size(100, 40);
-            btnDelete.TabIndex = 2;
-            btnDelete.Text = "Eliminar";
-            btnDelete.UseVisualStyleBackColor = true;
             // 
             // btnEdit
             // 
@@ -274,7 +263,6 @@ namespace DtcDesk.WinForms
         private Panel panelButtons;
         private Button btnAdd;
         private Button btnEdit;
-        private Button btnDelete;
         private Button btnExport;
         private Button btnImport;
     }
