@@ -49,7 +49,6 @@ public partial class MainForm : Form
         btnClear.Click += BtnClear_Click;
         btnAdd.Click += BtnAdd_Click;
         btnEdit.Click += BtnEdit_Click;
-        btnDelete.Click += BtnDelete_Click;
         btnExport.Click += BtnExport_Click;
         btnImport.Click += BtnImport_Click;
         
@@ -134,7 +133,6 @@ public partial class MainForm : Form
         StyleButton(btnClear, separator, textMain);
         StyleButton(btnAdd, accentYellow, Color.Black);
         StyleButton(btnEdit, accentHover, Color.Black);
-        StyleButton(btnDelete, ColorTranslator.FromHtml("#D9534F"), Color.White);
         StyleButton(btnExport, ColorTranslator.FromHtml("#5CB85C"), Color.White);
         StyleButton(btnImport, bgSide, textMain);
     }
@@ -377,11 +375,30 @@ public partial class MainForm : Form
 
         try
         {
-            // Obtener el contenido copiado del DataGridView
-            DataObject dataObj = dgvCodes.GetClipboardContent();
-            if (dataObj != null)
+            // Obtener las celdas seleccionadas y ordenarlas
+            var selectedCells = dgvCodes.SelectedCells
+                .Cast<DataGridViewCell>()
+                .OrderBy(cell => cell.RowIndex)
+                .ThenBy(cell => cell.ColumnIndex)
+                .ToList();
+
+            // Recopilar los valores
+            var values = new List<string>();
+            foreach (var cell in selectedCells)
             {
-                Clipboard.SetDataObject(dataObj);
+                var value = cell.Value?.ToString() ?? "";
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    values.Add(value);
+                }
+            }
+
+            // Convertir a formato horizontal (separado por espacios)
+            var horizontalText = string.Join(" ", values);
+
+            if (!string.IsNullOrEmpty(horizontalText))
+            {
+                Clipboard.SetText(horizontalText);
             }
         }
         catch (Exception ex)
@@ -580,47 +597,6 @@ public partial class MainForm : Form
         }
     }
 
-    private async void BtnDelete_Click(object? sender, EventArgs e)
-    {
-        if (dgvCodes.CurrentRow == null)
-        {
-            MessageBox.Show("Por favor, selecciona un código para eliminar.", 
-                "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
-        if (selectedResult == null || !selectedResult.Found || !selectedResult.DtcId.HasValue)
-        {
-            MessageBox.Show("Este código no existe en la base de datos.", 
-                "Código no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
-        var result = MessageBox.Show(
-            $"¿Estás seguro de eliminar el código {selectedResult.Code}?\n\nDescripción: {selectedResult.Description}",
-            "Confirmar eliminación",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Warning);
-
-        if (result == DialogResult.Yes)
-        {
-            try
-            {
-                await _repository.DeleteAsync(selectedResult.DtcId.Value);
-                MessageBox.Show("Código eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                BtnParse_Click(sender, e); // Re-parsear para actualizar
-                LoadStatistics();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al eliminar el código: {ex.Message}", 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-    }
-
     private void BtnExport_Click(object? sender, EventArgs e)
     {
         if (_currentResults.Count == 0)
@@ -687,7 +663,6 @@ public partial class MainForm : Form
         }
 
         btnEdit.Enabled = hasSelection && isFound;
-        btnDelete.Enabled = hasSelection && isFound;
     }
 }
 

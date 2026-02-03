@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DtcDesk.WinForms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ca638621e5df0a7f6b1fd6907bd3b00ecab7551")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+af04bde887be1bec2a5b69efc0bd60e53008de5e")]
 [assembly: System.Reflection.AssemblyProductAttribute("DtcDesk.WinForms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DtcDesk.WinForms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
