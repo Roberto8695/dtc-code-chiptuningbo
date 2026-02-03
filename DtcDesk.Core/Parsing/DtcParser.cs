@@ -8,12 +8,13 @@ namespace DtcDesk.Core.Parsing;
 public class DtcParser
 {
     // Patrones de regex para diferentes formatos de códigos DTC
-    private static readonly Regex PCodePattern = new(@"\b[PCBU]\d{4}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    // Acepta P/C/B/U seguido de 4 caracteres hexadecimales (0-9 o A-F)
+    private static readonly Regex PCodePattern = new(@"\b[PCBU][0-9A-F]{4}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex HexCodePattern = new(@"\b[0-9A-F]{4}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     
-    // Patrón combinado para detectar cualquier código válido
+    // Patrón combinado para detectar cualquier código válido (con hex completo)
     private static readonly Regex AllCodesPattern = new(
-        @"\b(?:[PCBU]\d{4}|[0-9A-F]{4})\b",
+        @"\b(?:[PCBU][0-9A-F]{4}|[0-9A-F]{4})\b",
         RegexOptions.IgnoreCase | RegexOptions.Compiled
     );
 
@@ -74,8 +75,8 @@ public class DtcParser
 
         code = code.Trim().ToUpperInvariant();
 
-        // Validar P-codes, C-codes, B-codes, U-codes (letra + 4 dígitos)
-        if (Regex.IsMatch(code, @"^[PCBU]\d{4}$"))
+        // Validar P-codes, C-codes, B-codes, U-codes (letra + 4 caracteres hexadecimales)
+        if (Regex.IsMatch(code, @"^[PCBU][0-9A-F]{4}$"))
             return true;
 
         // Validar códigos hexadecimales de 4 caracteres

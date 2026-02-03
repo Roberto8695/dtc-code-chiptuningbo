@@ -237,8 +237,8 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
-            // Parsear códigos
-            var codes = _parser.Parse(txtInput.Text, removeDuplicates: true);
+            // Parsear códigos (incluyendo duplicados)
+            var codes = _parser.Parse(txtInput.Text, removeDuplicates: false);
             
             if (codes.Count == 0)
             {
@@ -267,10 +267,11 @@ public partial class MainForm : Form
             dgvCodes.DataSource = null;
             dgvCodes.DataSource = _currentResults;
 
-            // Actualizar estadísticas
+            // Actualizar estadísticas (contar duplicados también)
             var found = _currentResults.Count(r => r.Found);
             var notFound = _currentResults.Count - found;
-            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+            var uniqueCodes = _currentResults.Select(r => r.Code).Distinct().Count();
+            lblStats.Text = $"Total: {_currentResults.Count} ({uniqueCodes} únicos) | Encontrados: {found} | No encontrados: {notFound}";
         }
         catch (Exception ex)
         {
