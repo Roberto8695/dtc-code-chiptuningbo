@@ -10,3 +10,4 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\refint\DtcDesk.Core.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.sourcelink.json

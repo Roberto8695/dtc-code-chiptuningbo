@@ -13,3 +13,4 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.dl
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\refint\DtcDesk.Data.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\ref\DtcDesk.Data.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.Data\obj\Debug\net8.0\DtcDesk.Data.sourcelink.json
