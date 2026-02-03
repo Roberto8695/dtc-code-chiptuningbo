@@ -46,18 +46,19 @@ public class ConnectionFactory
     }
 
     /// <summary>
-    /// Ruta por defecto de la base de datos (en AppData)
+    /// Ruta por defecto de la base de datos (en carpeta Data del programa)
     /// </summary>
     public static string GetDefaultDatabasePath()
     {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        var appFolder = Path.Combine(appDataPath, "DtcDesk");
+        // Obtener el directorio base de la aplicación
+        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        var dataFolder = Path.Combine(baseDirectory, "Data");
         
-        if (!Directory.Exists(appFolder))
+        if (!Directory.Exists(dataFolder))
         {
-            Directory.CreateDirectory(appFolder);
+            Directory.CreateDirectory(dataFolder);
         }
 
-        return Path.Combine(appFolder, "dtc_codes.db");
+        return Path.Combine(dataFolder, "dtc_codes.db");
     }
 }

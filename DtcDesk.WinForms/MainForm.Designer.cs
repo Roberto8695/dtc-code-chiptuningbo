@@ -20,6 +20,7 @@ namespace DtcDesk.WinForms
             panelTop = new Panel();
             lblStats = new Label();
             lblTitle = new Label();
+            picLogo = new PictureBox();
             panelLeft = new Panel();
             btnClear = new Button();
             btnParse = new Button();
@@ -38,17 +39,19 @@ namespace DtcDesk.WinForms
             panelLeft.SuspendLayout();
             panelRight.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCodes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             panelButtons.SuspendLayout();
             SuspendLayout();
             // 
             // panelTop
             // 
+            panelTop.Controls.Add(picLogo);
             panelTop.Controls.Add(lblStats);
             panelTop.Controls.Add(lblTitle);
             panelTop.Dock = DockStyle.Top;
             panelTop.Location = new Point(0, 0);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(1400, 70);
+            panelTop.Size = new Size(1400, 80);
             panelTop.TabIndex = 0;
             // 
             // lblStats
@@ -64,12 +67,22 @@ namespace DtcDesk.WinForms
             // lblTitle
             // 
             lblTitle.AutoSize = true;
-            lblTitle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            lblTitle.Location = new Point(15, 10);
+            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblTitle.Location = new Point(15, 15);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(390, 32);
+            lblTitle.Size = new Size(350, 30);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "DTC DESK - Diccionario de Códigos";
+            // 
+            // picLogo
+            // 
+            picLogo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            picLogo.Location = new Point(1230, 10);
+            picLogo.Name = "picLogo";
+            picLogo.Size = new Size(160, 60);
+            picLogo.SizeMode = PictureBoxSizeMode.Zoom;
+            picLogo.TabIndex = 2;
+            picLogo.TabStop = false;
             // 
             // panelLeft
             // 
@@ -78,10 +91,10 @@ namespace DtcDesk.WinForms
             panelLeft.Controls.Add(txtInput);
             panelLeft.Controls.Add(lblInput);
             panelLeft.Dock = DockStyle.Left;
-            panelLeft.Location = new Point(0, 70);
+            panelLeft.Location = new Point(0, 80);
             panelLeft.Name = "panelLeft";
             panelLeft.Padding = new Padding(10);
-            panelLeft.Size = new Size(450, 630);
+            panelLeft.Size = new Size(450, 620);
             panelLeft.TabIndex = 1;
             // 
             // btnClear
@@ -131,10 +144,10 @@ namespace DtcDesk.WinForms
             panelRight.Controls.Add(panelButtons);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
-            panelRight.Location = new Point(450, 70);
+            panelRight.Location = new Point(450, 80);
             panelRight.Name = "panelRight";
             panelRight.Padding = new Padding(10);
-            panelRight.Size = new Size(950, 630);
+            panelRight.Size = new Size(950, 620);
             panelRight.TabIndex = 2;
             // 
             // dgvCodes
@@ -239,6 +252,7 @@ namespace DtcDesk.WinForms
             panelRight.ResumeLayout(false);
             panelRight.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCodes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             panelButtons.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -248,6 +262,7 @@ namespace DtcDesk.WinForms
         private Panel panelTop;
         private Label lblTitle;
         private Label lblStats;
+        private PictureBox picLogo;
         private Panel panelLeft;
         private Label lblInput;
         private TextBox txtInput;
