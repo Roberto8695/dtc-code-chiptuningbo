@@ -41,6 +41,9 @@ public partial class MainForm : Form
         // Configurar DataGridView
         SetupDataGridView();
         
+        // Cargar logo
+        LoadLogo();
+        
         // Configurar eventos
         btnParse.Click += BtnParse_Click;
         btnClear.Click += BtnClear_Click;
@@ -54,6 +57,31 @@ public partial class MainForm : Form
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         
         txtInput.Font = new Font("Consolas", 10F);
+    }
+
+    private void LoadLogo()
+    {
+        try
+        {
+            // Intentar cargar el logo desde el directorio de la aplicación
+            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.jpg");
+            
+            if (File.Exists(logoPath))
+            {
+                picLogo.Image = Image.FromFile(logoPath);
+                picLogo.BackColor = Color.Transparent;
+            }
+            else
+            {
+                // Si no existe el logo, usar el título sin logo
+                picLogo.Visible = false;
+            }
+        }
+        catch
+        {
+            // Si hay error al cargar, ocultar el PictureBox
+            picLogo.Visible = false;
+        }
     }
 
     private void ApplyDarkTheme()
@@ -431,8 +459,8 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
-            // Parsear códigos
-            var codes = _parser.Parse(txtInput.Text, removeDuplicates: true);
+            // Parsear códigos (incluyendo duplicados)
+            var codes = _parser.Parse(txtInput.Text, removeDuplicates: false);
             
             if (codes.Count == 0)
             {
@@ -461,10 +489,11 @@ public partial class MainForm : Form
             dgvCodes.DataSource = null;
             dgvCodes.DataSource = _currentResults;
 
-            // Actualizar estadísticas
+            // Actualizar estadísticas (contar duplicados también)
             var found = _currentResults.Count(r => r.Found);
             var notFound = _currentResults.Count - found;
-            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+            var uniqueCodes = _currentResults.Select(r => r.Code).Distinct().Count();
+            lblStats.Text = $"Total: {_currentResults.Count} ({uniqueCodes} únicos) | Encontrados: {found} | No encontrados: {notFound}";
         }
         catch (Exception ex)
         {
