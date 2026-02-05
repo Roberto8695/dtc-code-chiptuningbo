@@ -41,6 +41,7 @@ namespace DtcDesk.WinForms
             lblInstructions.Location = new Point(20, 55);
             lblInstructions.Name = "lblInstructions";
             lblInstructions.Size = new Size(560, 60);
+            lblInstructions.ForeColor = Color.White;
             lblInstructions.TabIndex = 1;
             lblInstructions.Text = "El archivo CSV debe tener las siguientes columnas:\n" +
                 "• Code (obligatorio): código DTC\n" +

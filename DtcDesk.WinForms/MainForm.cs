@@ -49,14 +49,19 @@ public partial class MainForm : Form
         btnClear.Click += BtnClear_Click;
         btnAdd.Click += BtnAdd_Click;
         btnEdit.Click += BtnEdit_Click;
-        btnExport.Click += BtnExport_Click;
-        btnImport.Click += BtnImport_Click;
+        
+        // Configurar eventos del menú
+        menuImportar.Click += MenuImportar_Click;
+        menuExportar.Click += MenuExportar_Click;
+        menuLimpiarDB.Click += MenuLimpiarDB_Click;
+        menuSalir.Click += MenuSalir_Click;
+        menuEstadisticas.Click += MenuEstadisticas_Click;
         
         dgvCodes.CellDoubleClick += DgvCodes_CellDoubleClick;
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         
         // Configurar filtro de categoría
-        cmbCategoryFilter.SelectedIndex = 0; // "Automático" por defecto
+        cmbCategoryFilter.SelectedIndex = 0; // "Todos" por defecto
         cmbCategoryFilter.SelectedIndexChanged += CmbCategoryFilter_SelectedIndexChanged;
         
         txtInput.Font = new Font("Consolas", 10F);
@@ -137,8 +142,6 @@ public partial class MainForm : Form
         StyleButton(btnClear, separator, textMain);
         StyleButton(btnAdd, accentYellow, Color.Black);
         StyleButton(btnEdit, accentHover, Color.Black);
-        StyleButton(btnExport, ColorTranslator.FromHtml("#5CB85C"), Color.White);
-        StyleButton(btnImport, bgSide, textMain);
         
         // Estilo del filtro de categoría
         panelFilter.BackColor = bgTop;
@@ -146,6 +149,12 @@ public partial class MainForm : Form
         cmbCategoryFilter.BackColor = bgSide;
         cmbCategoryFilter.ForeColor = textMain;
         cmbCategoryFilter.FlatStyle = FlatStyle.Flat;
+        
+        // Estilo del menú
+        menuStrip.BackColor = bgSide;
+        menuStrip.ForeColor = textMain;
+        menuArchivo.ForeColor = textMain;
+        menuHerramientas.ForeColor = textMain;
     }
 
     private void StyleButton(Button btn, Color backColor, Color foreColor)
@@ -400,6 +409,11 @@ public partial class MainForm : Form
                 var value = cell.Value?.ToString() ?? "";
                 if (!string.IsNullOrWhiteSpace(value))
                 {
+                    // Si es la columna de código, quitar el prefijo (P, U, etc.)
+                    if (cell.OwningColumn.Name == "colCode" && value.Length > 1 && char.IsLetter(value[0]))
+                    {
+                        value = value.Substring(1);
+                    }
                     values.Add(value);
                 }
             }
@@ -451,6 +465,20 @@ public partial class MainForm : Form
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
+        // Mostrar código sin el prefijo P o U
+        if (dgvCodes.Columns[e.ColumnIndex].Name == "colCode" && e.Value != null)
+        {
+            var code = e.Value.ToString();
+            if (!string.IsNullOrEmpty(code) && code.Length > 1)
+            {
+                // Quitar la primera letra (P, U, C, B, etc.)
+                if (char.IsLetter(code[0]))
+                {
+                    e.Value = code.Substring(1);
+                }
+            }
+        }
+        
         if (dgvCodes.Columns[e.ColumnIndex].Name == "colStatus" && e.Value != null)
         {
             var found = (bool)e.Value;
@@ -487,25 +515,30 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
-            // Parsear códigos hexadecimales puros (sin prefijo P/C/B/U)
-            var hexCodes = ParseHexCodesOnly(txtInput.Text);
+            // Parsear códigos con información de categoría
+            var parsedCodes = ParseCodesWithCategory(txtInput.Text);
             
-            if (hexCodes.Count == 0)
+            if (parsedCodes.Count == 0)
             {
                 MessageBox.Show("No se encontraron códigos DTC válidos en el texto pegado.", 
                     "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // Buscar en TODAS las categorías para cada código hexadecimal
+            // Construir lista de códigos a buscar según su origen
             var allCodesToSearch = new List<string>();
-            foreach (var hexCode in hexCodes)
+            foreach (var parsed in parsedCodes)
             {
-                // Buscar en todas las categorías: P, C, B, U
-                allCodesToSearch.Add("P" + hexCode);
-                allCodesToSearch.Add("C" + hexCode);
-                allCodesToSearch.Add("B" + hexCode);
-                allCodesToSearch.Add("U" + hexCode);
+                if (parsed.WasCOrD)
+                {
+                    // Si empezaba con C o D, solo buscar en categoría U
+                    allCodesToSearch.Add("U" + parsed.ConvertedCode);
+                }
+                else
+                {
+                    // Si no empezaba con C o D, solo buscar en categoría P
+                    allCodesToSearch.Add("P" + parsed.ConvertedCode);
+                }
             }
 
             // Buscar en base de datos
@@ -514,27 +547,26 @@ public partial class MainForm : Form
             // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
 
-            // Crear resultados para TODOS los códigos y categorías
+            // Crear resultados solo para la categoría correspondiente
             _currentResults = new List<DtcLookupResult>();
             
-            foreach (var hexCode in hexCodes)
+            foreach (var parsed in parsedCodes)
             {
-                foreach (var prefix in new[] { "P", "C", "B", "U" })
+                // Determinar la categoría según el código original
+                var prefix = parsed.WasCOrD ? "U" : "P";
+                var fullCode = prefix + parsed.ConvertedCode;
+                var found = dbCodesDict.ContainsKey(fullCode);
+                
+                _currentResults.Add(new DtcLookupResult
                 {
-                    var fullCode = prefix + hexCode;
-                    var found = dbCodesDict.ContainsKey(fullCode);
-                    
-                    _currentResults.Add(new DtcLookupResult
-                    {
-                        Code = fullCode,
-                        Found = found,
-                        Description = found ? dbCodesDict[fullCode].Description : null,
-                        Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
-                        Source = found ? dbCodesDict[fullCode].Source : null,
-                        Notes = found ? dbCodesDict[fullCode].Notes : null,
-                        DtcId = found ? dbCodesDict[fullCode].Id : null
-                    });
-                }
+                    Code = fullCode,
+                    Found = found,
+                    Description = found ? dbCodesDict[fullCode].Description : null,
+                    Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
+                    Source = found ? dbCodesDict[fullCode].Source : null,
+                    Notes = found ? dbCodesDict[fullCode].Notes : null,
+                    DtcId = found ? dbCodesDict[fullCode].Id : null
+                });
             }
 
             // Aplicar filtro de categoría
@@ -557,7 +589,7 @@ public partial class MainForm : Form
         if (string.IsNullOrWhiteSpace(input))
             return new List<string>();
 
-        // Patrón para códigos hexadecimales de 4 caracteres (sin prefijo P/C/B/U)
+        // Patrón para códigos: 4 caracteres hex O códigos que empiezan con C/D seguidos de 3 hex
         var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         
@@ -566,7 +598,66 @@ public partial class MainForm : Form
 
         foreach (System.Text.RegularExpressions.Match match in matches)
         {
-            codes.Add(match.Value.ToUpperInvariant());
+            var code = match.Value.ToUpperInvariant();
+            
+            // Convertir códigos C→0 y D→1 (ej: C29E→029E, D11E→111E)
+            if (code.StartsWith("C"))
+            {
+                code = "0" + code.Substring(1);
+            }
+            else if (code.StartsWith("D"))
+            {
+                code = "1" + code.Substring(1);
+            }
+            
+            codes.Add(code);
+        }
+
+        return codes;
+    }
+
+    private class ParsedCodeInfo
+    {
+        public string OriginalCode { get; set; } = "";
+        public string ConvertedCode { get; set; } = "";
+        public bool WasCOrD { get; set; }
+    }
+
+    private List<ParsedCodeInfo> ParseCodesWithCategory(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return new List<ParsedCodeInfo>();
+
+        var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        
+        var matches = hexPattern.Matches(input);
+        var codes = new List<ParsedCodeInfo>();
+
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            var originalCode = match.Value.ToUpperInvariant();
+            var convertedCode = originalCode;
+            var wasCOrD = false;
+            
+            // Convertir códigos C→0 y D→1 y marcar que eran C o D
+            if (originalCode.StartsWith("C"))
+            {
+                convertedCode = "0" + originalCode.Substring(1);
+                wasCOrD = true;
+            }
+            else if (originalCode.StartsWith("D"))
+            {
+                convertedCode = "1" + originalCode.Substring(1);
+                wasCOrD = true;
+            }
+            
+            codes.Add(new ParsedCodeInfo
+            {
+                OriginalCode = originalCode,
+                ConvertedCode = convertedCode,
+                WasCOrD = wasCOrD
+            });
         }
 
         return codes;
@@ -577,8 +668,6 @@ public partial class MainForm : Form
         return prefix switch
         {
             "P" => "Powertrain",
-            "C" => "Chassis",
-            "B" => "Body",
             "U" => "Network",
             _ => "Unknown"
         };
@@ -602,19 +691,13 @@ public partial class MainForm : Form
 
         switch (selectedFilter)
         {
-            case 0: // Automático - mostrar solo los encontrados
-                filteredResults = _currentResults.Where(r => r.Found).ToList();
+            case 0: // Todos
+                filteredResults = _currentResults;
                 break;
-            case 1: // P - Powertrain
+            case 1: // P
                 filteredResults = _currentResults.Where(r => r.Code.StartsWith("P")).ToList();
                 break;
-            case 2: // C - Chassis
-                filteredResults = _currentResults.Where(r => r.Code.StartsWith("C")).ToList();
-                break;
-            case 3: // B - Body
-                filteredResults = _currentResults.Where(r => r.Code.StartsWith("B")).ToList();
-                break;
-            case 4: // U - Network
+            case 2: // U
                 filteredResults = _currentResults.Where(r => r.Code.StartsWith("U")).ToList();
                 break;
             default:
@@ -640,7 +723,7 @@ public partial class MainForm : Form
         txtInput.Clear();
         dgvCodes.DataSource = null;
         _currentResults.Clear();
-        cmbCategoryFilter.SelectedIndex = 0; // Reset a "Automático"
+        cmbCategoryFilter.SelectedIndex = 0; // Reset a "Todos"
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
     }
@@ -729,6 +812,104 @@ public partial class MainForm : Form
         {
             LoadStatistics();
         }
+    }
+
+    // Métodos del menú
+    private void MenuImportar_Click(object? sender, EventArgs e)
+    {
+        BtnImport_Click(sender, e);
+    }
+
+    private void MenuExportar_Click(object? sender, EventArgs e)
+    {
+        BtnExport_Click(sender, e);
+    }
+
+    private async void MenuLimpiarDB_Click(object? sender, EventArgs e)
+    {
+        var result = MessageBox.Show(
+            "¿Estás seguro de que deseas eliminar TODOS los códigos de la base de datos?\n\n" +
+            "Esta acción NO se puede deshacer.",
+            "Confirmar eliminación",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2
+        );
+
+        if (result != DialogResult.Yes)
+            return;
+
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+            
+            var deleted = await _repository.DeleteAllAsync();
+            
+            MessageBox.Show($"Se eliminaron {deleted:N0} códigos de la base de datos.",
+                "Eliminación exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            // Limpiar resultados y actualizar estadísticas
+            BtnClear_Click(sender, e);
+            LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al limpiar la base de datos: {ex.Message}",
+                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    private void MenuSalir_Click(object? sender, EventArgs e)
+    {
+        Application.Exit();
+    }
+
+    private async void MenuEstadisticas_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+            
+            var total = await _repository.GetCountAsync();
+            
+            // Obtener conteo por categorías
+            var categoryCounts = await GetCategoryCountsAsync();
+            
+            var message = $"ESTADÍSTICAS DE LA BASE DE DATOS\n\n" +
+                         $"Total de códigos: {total:N0}\n\n" +
+                         $"Por categoría:\n" +
+                         $"  • Powertrain (P): {categoryCounts["Powertrain"]:N0}\n" +
+                         $"  • Network (U): {categoryCounts["Network"]:N0}\n" +
+                         $"  • Otros: {categoryCounts["Other"]:N0}";
+            
+            MessageBox.Show(message, "Estadísticas de la Base de Datos",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al obtener estadísticas: {ex.Message}",
+                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    private async Task<Dictionary<string, int>> GetCategoryCountsAsync()
+    {
+        var allCodes = await _repository.GetAllAsync();
+        
+        return new Dictionary<string, int>
+        {
+            ["Powertrain"] = allCodes.Count(c => c.Category == "Powertrain"),
+            ["Network"] = allCodes.Count(c => c.Category == "Network"),
+            ["Other"] = allCodes.Count(c => c.Category != "Powertrain" && c.Category != "Network")
+        };
     }
 
     private async void LoadStatistics()

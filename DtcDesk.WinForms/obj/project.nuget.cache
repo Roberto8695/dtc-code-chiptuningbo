@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Wn+uZCdQqi4=",
+  "dgSpecHash": "n91d6zrdUDw=",
   "success": true,
   "projectFilePath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
   "expectedPackageFiles": [
@@ -14,5 +14,12 @@
     "C:\\Users\\Home\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema al leer el archivo de caché D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

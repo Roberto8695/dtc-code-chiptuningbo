@@ -17,6 +17,16 @@ namespace DtcDesk.WinForms
 
         private void InitializeComponent()
         {
+            menuStrip = new MenuStrip();
+            menuArchivo = new ToolStripMenuItem();
+            menuImportar = new ToolStripMenuItem();
+            menuExportar = new ToolStripMenuItem();
+            menuSeparador1 = new ToolStripSeparator();
+            menuLimpiarDB = new ToolStripMenuItem();
+            menuSeparador2 = new ToolStripSeparator();
+            menuSalir = new ToolStripMenuItem();
+            menuHerramientas = new ToolStripMenuItem();
+            menuEstadisticas = new ToolStripMenuItem();
             panelTop = new Panel();
             lblStats = new Label();
             lblTitle = new Label();
@@ -29,14 +39,13 @@ namespace DtcDesk.WinForms
             panelRight = new Panel();
             dgvCodes = new DataGridView();
             panelButtons = new Panel();
-            btnImport = new Button();
-            btnExport = new Button();
             btnEdit = new Button();
             btnAdd = new Button();
             panelFilter = new Panel();
             lblCategoryFilter = new Label();
             cmbCategoryFilter = new ComboBox();
             lblResults = new Label();
+            menuStrip.SuspendLayout();
             panelTop.SuspendLayout();
             panelLeft.SuspendLayout();
             panelRight.SuspendLayout();
@@ -45,16 +54,78 @@ namespace DtcDesk.WinForms
             panelButtons.SuspendLayout();
             SuspendLayout();
             // 
+            // menuStrip
+            // 
+            menuStrip.Items.AddRange(new ToolStripItem[] { menuArchivo, menuHerramientas });
+            menuStrip.Location = new Point(0, 0);
+            menuStrip.Name = "menuStrip";
+            menuStrip.Size = new Size(1400, 24);
+            menuStrip.TabIndex = 0;
+            // 
+            // menuArchivo
+            // 
+            menuArchivo.DropDownItems.AddRange(new ToolStripItem[] { menuImportar, menuExportar, menuSeparador1, menuLimpiarDB, menuSeparador2, menuSalir });
+            menuArchivo.Name = "menuArchivo";
+            menuArchivo.Size = new Size(60, 20);
+            menuArchivo.Text = "Archivo";
+            // 
+            // menuImportar
+            // 
+            menuImportar.Name = "menuImportar";
+            menuImportar.Size = new Size(200, 22);
+            menuImportar.Text = "Importar CSV...";
+            // 
+            // menuExportar
+            // 
+            menuExportar.Name = "menuExportar";
+            menuExportar.Size = new Size(200, 22);
+            menuExportar.Text = "Exportar...";
+            // 
+            // menuSeparador1
+            // 
+            menuSeparador1.Name = "menuSeparador1";
+            menuSeparador1.Size = new Size(197, 6);
+            // 
+            // menuLimpiarDB
+            // 
+            menuLimpiarDB.Name = "menuLimpiarDB";
+            menuLimpiarDB.Size = new Size(200, 22);
+            menuLimpiarDB.Text = "Limpiar Base de Datos...";
+            // 
+            // menuSeparador2
+            // 
+            menuSeparador2.Name = "menuSeparador2";
+            menuSeparador2.Size = new Size(197, 6);
+            // 
+            // menuSalir
+            // 
+            menuSalir.Name = "menuSalir";
+            menuSalir.Size = new Size(200, 22);
+            menuSalir.Text = "Salir";
+            // 
+            // menuHerramientas
+            // 
+            menuHerramientas.DropDownItems.AddRange(new ToolStripItem[] { menuEstadisticas });
+            menuHerramientas.Name = "menuHerramientas";
+            menuHerramientas.Size = new Size(90, 20);
+            menuHerramientas.Text = "Herramientas";
+            // 
+            // menuEstadisticas
+            // 
+            menuEstadisticas.Name = "menuEstadisticas";
+            menuEstadisticas.Size = new Size(200, 22);
+            menuEstadisticas.Text = "Ver Estadísticas DB";
+            // 
             // panelTop
             // 
             panelTop.Controls.Add(picLogo);
             panelTop.Controls.Add(lblStats);
             panelTop.Controls.Add(lblTitle);
             panelTop.Dock = DockStyle.Top;
-            panelTop.Location = new Point(0, 0);
+            panelTop.Location = new Point(0, 24);
             panelTop.Name = "panelTop";
             panelTop.Size = new Size(1400, 80);
-            panelTop.TabIndex = 0;
+            panelTop.TabIndex = 1;
             // 
             // lblStats
             // 
@@ -93,18 +164,18 @@ namespace DtcDesk.WinForms
             panelLeft.Controls.Add(txtInput);
             panelLeft.Controls.Add(lblInput);
             panelLeft.Dock = DockStyle.Left;
-            panelLeft.Location = new Point(0, 80);
+            panelLeft.Location = new Point(0, 104);
             panelLeft.Name = "panelLeft";
             panelLeft.Padding = new Padding(10);
-            panelLeft.Size = new Size(450, 620);
-            panelLeft.TabIndex = 1;
+            panelLeft.Size = new Size(450, 596);
+            panelLeft.TabIndex = 2;
             // 
             // btnClear
             // 
             btnClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnClear.Location = new Point(332, 575);
+            btnClear.Location = new Point(330, 540);
             btnClear.Name = "btnClear";
-            btnClear.Size = new Size(100, 40);
+            btnClear.Size = new Size(102, 40);
             btnClear.TabIndex = 3;
             btnClear.Text = "Limpiar";
             btnClear.UseVisualStyleBackColor = true;
@@ -112,9 +183,9 @@ namespace DtcDesk.WinForms
             // btnParse
             // 
             btnParse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            btnParse.Location = new Point(20, 575);
+            btnParse.Location = new Point(20, 540);
             btnParse.Name = "btnParse";
-            btnParse.Size = new Size(300, 40);
+            btnParse.Size = new Size(304, 40);
             btnParse.TabIndex = 2;
             btnParse.Text = "PROCESAR CÓDIGOS";
             btnParse.UseVisualStyleBackColor = true;
@@ -126,7 +197,7 @@ namespace DtcDesk.WinForms
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(412, 510);
+            txtInput.Size = new Size(412, 480);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             // 
@@ -147,11 +218,11 @@ namespace DtcDesk.WinForms
             panelRight.Controls.Add(panelFilter);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
-            panelRight.Location = new Point(450, 80);
+            panelRight.Location = new Point(450, 104);
             panelRight.Name = "panelRight";
             panelRight.Padding = new Padding(10);
-            panelRight.Size = new Size(950, 620);
-            panelRight.TabIndex = 2;
+            panelRight.Size = new Size(950, 596);
+            panelRight.TabIndex = 3;
             // 
             // dgvCodes
             // 
@@ -165,8 +236,6 @@ namespace DtcDesk.WinForms
             // 
             // panelButtons
             // 
-            panelButtons.Controls.Add(btnImport);
-            panelButtons.Controls.Add(btnExport);
             panelButtons.Controls.Add(btnEdit);
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Dock = DockStyle.Bottom;
@@ -175,27 +244,17 @@ namespace DtcDesk.WinForms
             panelButtons.Size = new Size(930, 60);
             panelButtons.TabIndex = 1;
             // 
-            // btnImport
-            // 
-            btnImport.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnImport.Location = new Point(820, 10);
-            btnImport.Name = "btnImport";
-            btnImport.Size = new Size(100, 40);
-            btnImport.TabIndex = 4;
-            btnImport.Text = "Importar";
-            btnImport.UseVisualStyleBackColor = true;
-            // 
-            // btnExport
-            // 
-            btnExport.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnExport.Location = new Point(700, 10);
-            btnExport.Name = "btnExport";
-            btnExport.Size = new Size(110, 40);
-            btnExport.TabIndex = 3;
-            btnExport.Text = "Exportar";
-            btnExport.UseVisualStyleBackColor = true;
-            // 
             // btnEdit
+            // 
+            btnEdit.Location = new Point(120, 10);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(100, 40);
+            btnEdit.TabIndex = 1;
+            btnEdit.Text = "Editar";
+            btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Enabled = false;
+            // 
+            // btnAdd
             // 
             btnEdit.Location = new Point(120, 10);
             btnEdit.Name = "btnEdit";
@@ -241,7 +300,7 @@ namespace DtcDesk.WinForms
             cmbCategoryFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCategoryFilter.Font = new Font("Segoe UI", 9F);
             cmbCategoryFilter.FormattingEnabled = true;
-            cmbCategoryFilter.Items.AddRange(new object[] { "Automático", "P - Powertrain", "C - Chassis", "B - Body", "U - Network" });
+            cmbCategoryFilter.Items.AddRange(new object[] { "Todos", "P", "U" });
             cmbCategoryFilter.Location = new Point(85, 8);
             cmbCategoryFilter.Name = "cmbCategoryFilter";
             cmbCategoryFilter.Size = new Size(200, 23);
@@ -267,10 +326,14 @@ namespace DtcDesk.WinForms
             Controls.Add(panelRight);
             Controls.Add(panelLeft);
             Controls.Add(panelTop);
+            Controls.Add(menuStrip);
+            MainMenuStrip = menuStrip;
             MinimumSize = new Size(1200, 600);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "DtcDesk - Diccionario de Códigos DTC";
+            menuStrip.ResumeLayout(false);
+            menuStrip.PerformLayout();
             panelTop.ResumeLayout(false);
             panelTop.PerformLayout();
             panelLeft.ResumeLayout(false);
@@ -281,6 +344,7 @@ namespace DtcDesk.WinForms
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             panelButtons.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -300,10 +364,18 @@ namespace DtcDesk.WinForms
         private Panel panelButtons;
         private Button btnAdd;
         private Button btnEdit;
-        private Button btnExport;
-        private Button btnImport;
         private Panel panelFilter;
         private Label lblCategoryFilter;
         private ComboBox cmbCategoryFilter;
+        private MenuStrip menuStrip;
+        private ToolStripMenuItem menuArchivo;
+        private ToolStripMenuItem menuImportar;
+        private ToolStripMenuItem menuExportar;
+        private ToolStripSeparator menuSeparador1;
+        private ToolStripMenuItem menuLimpiarDB;
+        private ToolStripSeparator menuSeparador2;
+        private ToolStripMenuItem menuSalir;
+        private ToolStripMenuItem menuHerramientas;
+        private ToolStripMenuItem menuEstadisticas;
     }
 }

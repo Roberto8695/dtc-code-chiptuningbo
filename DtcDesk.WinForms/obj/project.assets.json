@@ -456,7 +456,7 @@
     "version": "1.0.0",
     "restore": {
       "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
-      "projectName": "DtcDesk.WinForms",
+      "projectName": "DTCDesk",
       "projectPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
       "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
       "outputPath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",
@@ -519,5 +519,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema al leer el archivo de caché D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }
