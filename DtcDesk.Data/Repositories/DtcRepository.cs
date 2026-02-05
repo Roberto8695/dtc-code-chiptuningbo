@@ -239,4 +239,16 @@ public class DtcRepository
 
         return await connection.ExecuteScalarAsync<int>(sql);
     }
+
+    /// <summary>
+    /// Elimina todos los códigos DTC de la base de datos
+    /// </summary>
+    public async Task<int> DeleteAllAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        
+        const string sql = "DELETE FROM DtcCodes;";
+        
+        return await connection.ExecuteAsync(sql);
+    }
 }

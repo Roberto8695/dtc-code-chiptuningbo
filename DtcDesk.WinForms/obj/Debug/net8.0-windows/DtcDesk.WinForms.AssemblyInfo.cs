@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("DtcDesk.WinForms")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("DTCDesk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fad06b248a814047a453d36e92aedb2aced75ead")]
-[assembly: System.Reflection.AssemblyProductAttribute("DtcDesk.WinForms")]
-[assembly: System.Reflection.AssemblyTitleAttribute("DtcDesk.WinForms")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+888fb9d43fd90fb7d3b079617743bf1d66b52aeb")]
+[assembly: System.Reflection.AssemblyProductAttribute("DTCDesk")]
+[assembly: System.Reflection.AssemblyTitleAttribute("DTCDesk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
