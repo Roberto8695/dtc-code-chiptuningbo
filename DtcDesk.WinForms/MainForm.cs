@@ -61,7 +61,7 @@ public partial class MainForm : Form
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         
         // Configurar filtro de categoría
-        cmbCategoryFilter.SelectedIndex = 0; // "Automático" por defecto
+        cmbCategoryFilter.SelectedIndex = 0; // "Todos" por defecto
         cmbCategoryFilter.SelectedIndexChanged += CmbCategoryFilter_SelectedIndexChanged;
         
         txtInput.Font = new Font("Consolas", 10F);
@@ -496,23 +496,30 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
-            // Parsear códigos hexadecimales puros (sin prefijo P/C/B/U)
-            var hexCodes = ParseHexCodesOnly(txtInput.Text);
+            // Parsear códigos con información de categoría
+            var parsedCodes = ParseCodesWithCategory(txtInput.Text);
             
-            if (hexCodes.Count == 0)
+            if (parsedCodes.Count == 0)
             {
                 MessageBox.Show("No se encontraron códigos DTC válidos en el texto pegado.", 
                     "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // Buscar solo en categorías P y U para cada código hexadecimal
+            // Construir lista de códigos a buscar según su origen
             var allCodesToSearch = new List<string>();
-            foreach (var hexCode in hexCodes)
+            foreach (var parsed in parsedCodes)
             {
-                // Buscar solo en categorías: P (Powertrain) y U (Network)
-                allCodesToSearch.Add("P" + hexCode);
-                allCodesToSearch.Add("U" + hexCode);
+                if (parsed.WasCOrD)
+                {
+                    // Si empezaba con C o D, solo buscar en categoría U
+                    allCodesToSearch.Add("U" + parsed.ConvertedCode);
+                }
+                else
+                {
+                    // Si no empezaba con C o D, solo buscar en categoría P
+                    allCodesToSearch.Add("P" + parsed.ConvertedCode);
+                }
             }
 
             // Buscar en base de datos
@@ -521,27 +528,26 @@ public partial class MainForm : Form
             // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
 
-            // Crear resultados para TODOS los códigos y categorías
+            // Crear resultados solo para la categoría correspondiente
             _currentResults = new List<DtcLookupResult>();
             
-            foreach (var hexCode in hexCodes)
+            foreach (var parsed in parsedCodes)
             {
-                foreach (var prefix in new[] { "P", "U" })
+                // Determinar la categoría según el código original
+                var prefix = parsed.WasCOrD ? "U" : "P";
+                var fullCode = prefix + parsed.ConvertedCode;
+                var found = dbCodesDict.ContainsKey(fullCode);
+                
+                _currentResults.Add(new DtcLookupResult
                 {
-                    var fullCode = prefix + hexCode;
-                    var found = dbCodesDict.ContainsKey(fullCode);
-                    
-                    _currentResults.Add(new DtcLookupResult
-                    {
-                        Code = fullCode,
-                        Found = found,
-                        Description = found ? dbCodesDict[fullCode].Description : null,
-                        Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
-                        Source = found ? dbCodesDict[fullCode].Source : null,
-                        Notes = found ? dbCodesDict[fullCode].Notes : null,
-                        DtcId = found ? dbCodesDict[fullCode].Id : null
-                    });
-                }
+                    Code = fullCode,
+                    Found = found,
+                    Description = found ? dbCodesDict[fullCode].Description : null,
+                    Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
+                    Source = found ? dbCodesDict[fullCode].Source : null,
+                    Notes = found ? dbCodesDict[fullCode].Notes : null,
+                    DtcId = found ? dbCodesDict[fullCode].Id : null
+                });
             }
 
             // Aplicar filtro de categoría
@@ -564,7 +570,7 @@ public partial class MainForm : Form
         if (string.IsNullOrWhiteSpace(input))
             return new List<string>();
 
-        // Patrón para códigos hexadecimales de 4 caracteres (sin prefijo P/C/B/U)
+        // Patrón para códigos: 4 caracteres hex O códigos que empiezan con C/D seguidos de 3 hex
         var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         
@@ -573,7 +579,66 @@ public partial class MainForm : Form
 
         foreach (System.Text.RegularExpressions.Match match in matches)
         {
-            codes.Add(match.Value.ToUpperInvariant());
+            var code = match.Value.ToUpperInvariant();
+            
+            // Convertir códigos C→0 y D→1 (ej: C29E→029E, D11E→111E)
+            if (code.StartsWith("C"))
+            {
+                code = "0" + code.Substring(1);
+            }
+            else if (code.StartsWith("D"))
+            {
+                code = "1" + code.Substring(1);
+            }
+            
+            codes.Add(code);
+        }
+
+        return codes;
+    }
+
+    private class ParsedCodeInfo
+    {
+        public string OriginalCode { get; set; } = "";
+        public string ConvertedCode { get; set; } = "";
+        public bool WasCOrD { get; set; }
+    }
+
+    private List<ParsedCodeInfo> ParseCodesWithCategory(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return new List<ParsedCodeInfo>();
+
+        var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        
+        var matches = hexPattern.Matches(input);
+        var codes = new List<ParsedCodeInfo>();
+
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            var originalCode = match.Value.ToUpperInvariant();
+            var convertedCode = originalCode;
+            var wasCOrD = false;
+            
+            // Convertir códigos C→0 y D→1 y marcar que eran C o D
+            if (originalCode.StartsWith("C"))
+            {
+                convertedCode = "0" + originalCode.Substring(1);
+                wasCOrD = true;
+            }
+            else if (originalCode.StartsWith("D"))
+            {
+                convertedCode = "1" + originalCode.Substring(1);
+                wasCOrD = true;
+            }
+            
+            codes.Add(new ParsedCodeInfo
+            {
+                OriginalCode = originalCode,
+                ConvertedCode = convertedCode,
+                WasCOrD = wasCOrD
+            });
         }
 
         return codes;
@@ -607,13 +672,13 @@ public partial class MainForm : Form
 
         switch (selectedFilter)
         {
-            case 0: // Automático - mostrar solo los encontrados
-                filteredResults = _currentResults.Where(r => r.Found).ToList();
+            case 0: // Todos
+                filteredResults = _currentResults;
                 break;
-            case 1: // P - Powertrain
+            case 1: // P
                 filteredResults = _currentResults.Where(r => r.Code.StartsWith("P")).ToList();
                 break;
-            case 2: // U - Network
+            case 2: // U
                 filteredResults = _currentResults.Where(r => r.Code.StartsWith("U")).ToList();
                 break;
             default:
@@ -639,7 +704,7 @@ public partial class MainForm : Form
         txtInput.Clear();
         dgvCodes.DataSource = null;
         _currentResults.Clear();
-        cmbCategoryFilter.SelectedIndex = 0; // Reset a "Automático"
+        cmbCategoryFilter.SelectedIndex = 0; // Reset a "Todos"
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
     }

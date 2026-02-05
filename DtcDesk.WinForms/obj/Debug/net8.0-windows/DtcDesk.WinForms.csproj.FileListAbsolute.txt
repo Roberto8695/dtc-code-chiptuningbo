@@ -1,8 +1,3 @@
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.exe
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.deps.json
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.runtimeconfig.json
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.dll
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\CsvHelper.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\Dapper.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\Microsoft.Data.Sqlite.dll
@@ -42,11 +37,7 @@ C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\Dtc
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.AssemblyInfo.cs
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.csproj.CoreCompileInputs.cache
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk..4D1AF348.Up2Date
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.dll
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DtcDesk.WinForms.dll
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.pdb
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.genruntimeconfig.cache
-C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DtcDesk.WinForms.dll
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.sourcelink.json
 <<<<<<< HEAD
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\logo.jpg
@@ -103,3 +94,12 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\ne
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.genruntimeconfig.cache
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DtcDesk.WinForms.dll
 >>>>>>> 52b686244b99b35695a2c7379bc7aa9471f27d72
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.exe
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.deps.json
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.runtimeconfig.json
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DTCDesk.dll
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.pdb
+C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DTCDesk.dll

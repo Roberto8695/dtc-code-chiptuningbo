@@ -300,7 +300,7 @@ namespace DtcDesk.WinForms
             cmbCategoryFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCategoryFilter.Font = new Font("Segoe UI", 9F);
             cmbCategoryFilter.FormattingEnabled = true;
-            cmbCategoryFilter.Items.AddRange(new object[] { "Automático", "P - Powertrain", "U - Network" });
+            cmbCategoryFilter.Items.AddRange(new object[] { "Todos", "P", "U" });
             cmbCategoryFilter.Location = new Point(85, 8);
             cmbCategoryFilter.Name = "cmbCategoryFilter";
             cmbCategoryFilter.Size = new Size(200, 23);
