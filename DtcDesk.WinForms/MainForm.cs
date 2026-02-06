@@ -409,6 +409,11 @@ public partial class MainForm : Form
                 var value = cell.Value?.ToString() ?? "";
                 if (!string.IsNullOrWhiteSpace(value))
                 {
+                    // Si es la columna de código, quitar el prefijo (P, U, etc.)
+                    if (cell.OwningColumn.Name == "colCode" && value.Length > 1 && char.IsLetter(value[0]))
+                    {
+                        value = value.Substring(1);
+                    }
                     values.Add(value);
                 }
             }
@@ -460,6 +465,8 @@ public partial class MainForm : Form
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
+        // Mantener el código tal como se pegó (no quitar prefijos)
+        
         if (dgvCodes.Columns[e.ColumnIndex].Name == "colStatus" && e.Value != null)
         {
             var found = (bool)e.Value;
@@ -512,13 +519,20 @@ public partial class MainForm : Form
             {
                 if (parsed.WasCOrD)
                 {
-                    // Si empezaba con C o D, solo buscar en categoría U
+                    // Si empezaba con C o D, buscar tanto el original como el transformado en categoría U
+                    allCodesToSearch.Add(parsed.OriginalCode);
                     allCodesToSearch.Add("U" + parsed.ConvertedCode);
+                }
+                else if (parsed.OriginalCode.StartsWith("P") || parsed.OriginalCode.StartsWith("U"))
+                {
+                    // Si ya tiene prefijo P o U, usar tal cual
+                    allCodesToSearch.Add(parsed.OriginalCode);
                 }
                 else
                 {
-                    // Si no empezaba con C o D, solo buscar en categoría P
+                    // Si es hex puro (4 dígitos), buscar con P y sin prefijo
                     allCodesToSearch.Add("P" + parsed.ConvertedCode);
+                    allCodesToSearch.Add(parsed.ConvertedCode);
                 }
             }
 
@@ -533,20 +547,61 @@ public partial class MainForm : Form
             
             foreach (var parsed in parsedCodes)
             {
-                // Determinar la categoría según el código original
-                var prefix = parsed.WasCOrD ? "U" : "P";
-                var fullCode = prefix + parsed.ConvertedCode;
-                var found = dbCodesDict.ContainsKey(fullCode);
+                // Determinar la categoría y código de búsqueda según el código original
+                string prefix;
+                string searchCode;
+                
+                if (parsed.WasCOrD)
+                {
+                    // Códigos C/D → Network (U)
+                    prefix = "U";
+                    searchCode = "U" + parsed.ConvertedCode;
+                }
+                else if (parsed.OriginalCode.StartsWith("P"))
+                {
+                    // Ya tiene prefijo P → Powertrain
+                    prefix = "P";
+                    searchCode = parsed.OriginalCode;
+                }
+                else if (parsed.OriginalCode.StartsWith("U"))
+                {
+                    // Ya tiene prefijo U → Network
+                    prefix = "U";
+                    searchCode = parsed.OriginalCode;
+                }
+                else
+                {
+                    // Hex puro → Powertrain por defecto
+                    prefix = "P";
+                    searchCode = "P" + parsed.ConvertedCode;
+                }
+                
+                // Buscar en múltiples variantes
+                DtcCode? foundCode = null;
+                if (dbCodesDict.ContainsKey(parsed.OriginalCode))
+                {
+                    foundCode = dbCodesDict[parsed.OriginalCode];
+                }
+                else if (dbCodesDict.ContainsKey(searchCode))
+                {
+                    foundCode = dbCodesDict[searchCode];
+                }
+                else if (dbCodesDict.ContainsKey(parsed.ConvertedCode))
+                {
+                    foundCode = dbCodesDict[parsed.ConvertedCode];
+                }
+                
+                var found = foundCode != null;
                 
                 _currentResults.Add(new DtcLookupResult
                 {
-                    Code = fullCode,
+                    Code = parsed.OriginalCode, // Mantener formato original (C301, P0420, etc.)
                     Found = found,
-                    Description = found ? dbCodesDict[fullCode].Description : null,
-                    Category = found ? dbCodesDict[fullCode].Category : GetCategoryFromPrefix(prefix),
-                    Source = found ? dbCodesDict[fullCode].Source : null,
-                    Notes = found ? dbCodesDict[fullCode].Notes : null,
-                    DtcId = found ? dbCodesDict[fullCode].Id : null
+                    Description = found ? foundCode!.Description : null,
+                    Category = found ? foundCode!.Category : GetCategoryFromPrefix(prefix),
+                    Source = found ? foundCode!.Source : null,
+                    Notes = found ? foundCode!.Notes : null,
+                    DtcId = found ? foundCode!.Id : null
                 });
             }
 
@@ -609,7 +664,11 @@ public partial class MainForm : Form
         if (string.IsNullOrWhiteSpace(input))
             return new List<ParsedCodeInfo>();
 
-        var hexPattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-F]{4}\b", 
+        // Patrón que captura: 
+        // - P/U + 4 hex (P0420, U0360)
+        // - C/D + 3 hex (C301, D11E)  
+        // - 4 hex puros (0420, 079A)
+        var hexPattern = new System.Text.RegularExpressions.Regex(@"\b(?:[PU][0-9A-F]{4}|[CD][0-9A-F]{3}|[0-9A-F]{4})\b", 
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         
         var matches = hexPattern.Matches(input);
@@ -676,10 +735,17 @@ public partial class MainForm : Form
                 filteredResults = _currentResults;
                 break;
             case 1: // P
-                filteredResults = _currentResults.Where(r => r.Code.StartsWith("P")).ToList();
+                filteredResults = _currentResults.Where(r => 
+                    r.Code.StartsWith("P") || 
+                    (!r.Code.StartsWith("C") && !r.Code.StartsWith("D") && !r.Code.StartsWith("U"))
+                ).ToList();
                 break;
             case 2: // U
-                filteredResults = _currentResults.Where(r => r.Code.StartsWith("U")).ToList();
+                filteredResults = _currentResults.Where(r => 
+                    r.Code.StartsWith("U") || 
+                    r.Code.StartsWith("C") || 
+                    r.Code.StartsWith("D")
+                ).ToList();
                 break;
             default:
                 filteredResults = _currentResults;
