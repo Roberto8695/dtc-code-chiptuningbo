@@ -812,7 +812,7 @@ public partial class MainForm : Form
         }
 
         var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
-        if (selectedResult == null || !selectedResult.Found || !selectedResult.DtcId.HasValue)
+        if (selectedResult == null || !selectedResult.Found)
         {
             MessageBox.Show("Este código no existe en la base de datos. Usa 'Añadir' para agregarlo.", 
                 "Código no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -822,8 +822,22 @@ public partial class MainForm : Form
         try
         {
             // Cargar código completo desde BD
-            var dtcCode = await _repository.GetByCodeAsync(selectedResult.Code);
-            if (dtcCode == null) return;
+            DtcCode? dtcCode = null;
+            if (selectedResult.DtcId.HasValue)
+            {
+                dtcCode = await _repository.GetByIdAsync(selectedResult.DtcId.Value);
+            }
+            else
+            {
+                dtcCode = await _repository.GetByCodeAsync(selectedResult.Code);
+            }
+
+            if (dtcCode == null)
+            {
+                MessageBox.Show("No se pudo cargar el código para editar.",
+                    "Código no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             var editForm = new AddEditCodeForm(dtcCode);
             if (editForm.ShowDialog() == DialogResult.OK)
