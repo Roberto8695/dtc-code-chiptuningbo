@@ -1,19 +1,17 @@
 {
   "version": 2,
-  "dgSpecHash": "Bi8v07J01fA=",
+  "dgSpecHash": "bhoyKydzK00=",
   "success": true,
   "projectFilePath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Home\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.23\\microsoft.net.illink.tasks.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.23\\microsoft.netcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.23\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.23\\microsoft.aspnetcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.23\\microsoft.netcore.app.crossgen2.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.23\\microsoft.netcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.23\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.23\\microsoft.aspnetcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.23\\microsoft.netcore.app.crossgen2.win-x64.8.0.23.nupkg.sha512"
+    "C:\\Users\\Home\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema al leer el archivo de caché D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

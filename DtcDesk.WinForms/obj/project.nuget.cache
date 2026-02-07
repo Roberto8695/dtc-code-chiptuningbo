@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "iuSIU7Sar/o=",
+  "dgSpecHash": "n91d6zrdUDw=",
   "success": true,
   "projectFilePath": "D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
   "expectedPackageFiles": [
@@ -8,16 +8,18 @@
     "C:\\Users\\Home\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.data.sqlite\\10.0.2\\microsoft.data.sqlite.10.0.2.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.2\\microsoft.data.sqlite.core.10.0.2.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.23\\microsoft.net.illink.tasks.8.0.23.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.11\\sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\sqlitepclraw.core\\2.1.11\\sqlitepclraw.core.2.1.11.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.11\\sqlitepclraw.lib.e_sqlite3.2.1.11.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.23\\microsoft.netcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.23\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.23\\microsoft.aspnetcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.23\\microsoft.netcore.app.crossgen2.win-x64.8.0.23.nupkg.sha512"
+    "C:\\Users\\Home\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema al leer el archivo de caché D:\\TRABAJOS Y DEMAS\\Proyecto\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }
