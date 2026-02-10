@@ -24,6 +24,7 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\refint\DtcDesk.Core.dll
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
+<<<<<<< HEAD
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.deps.json
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.dll
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.pdb
@@ -37,3 +38,18 @@ C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-wind
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\refint\DtcDesk.Core.dll
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
+=======
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.deps.json
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0-windows\DtcDesk.Core.pdb
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.csproj.AssemblyReference.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.AssemblyInfoInputs.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.AssemblyInfo.cs
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.csproj.CoreCompileInputs.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.sourcelink.json
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\refint\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\DtcDesk.Core.pdb
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0-windows\ref\DtcDesk.Core.dll
+>>>>>>> 14b8f7926df869b0f34f0bfa7d5f3d00ba934b77

@@ -756,9 +756,22 @@ public partial class MainForm : Form
         // Si hay un código seleccionado sin descripción, pre-llenarlo
         string? prefilledCode = null;
         
-        if (dgvCodes.CurrentRow != null)
+        // Obtener la fila desde la celda seleccionada
+        DataGridViewRow? selectedRow = null;
+        
+        if (dgvCodes.SelectedCells.Count > 0)
         {
-            var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
+            var selectedCell = dgvCodes.SelectedCells[0];
+            selectedRow = dgvCodes.Rows[selectedCell.RowIndex];
+        }
+        else if (dgvCodes.CurrentRow != null)
+        {
+            selectedRow = dgvCodes.CurrentRow;
+        }
+        
+        if (selectedRow != null)
+        {
+            var selectedResult = selectedRow.DataBoundItem as DtcLookupResult;
             if (selectedResult != null && !selectedResult.Found)
             {
                 prefilledCode = selectedResult.Code;
@@ -780,14 +793,28 @@ public partial class MainForm : Form
 
     private async void BtnEdit_Click(object? sender, EventArgs e)
     {
-        if (dgvCodes.CurrentRow == null)
+        // Obtener la fila desde la celda seleccionada
+        DataGridViewRow? selectedRow = null;
+        
+        if (dgvCodes.SelectedCells.Count > 0)
+        {
+            // Obtener la primera celda seleccionada
+            var selectedCell = dgvCodes.SelectedCells[0];
+            selectedRow = dgvCodes.Rows[selectedCell.RowIndex];
+        }
+        else if (dgvCodes.CurrentRow != null)
+        {
+            selectedRow = dgvCodes.CurrentRow;
+        }
+
+        if (selectedRow == null)
         {
             MessageBox.Show("Por favor, selecciona un código para editar.", 
                 "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
-        var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
+        var selectedResult = selectedRow.DataBoundItem as DtcLookupResult;
         if (selectedResult == null || !selectedResult.Found)
         {
             MessageBox.Show("Este código no existe en la base de datos. Usa 'Añadir' para agregarlo.", 
@@ -1016,10 +1043,26 @@ public partial class MainForm : Form
             .Any(cell => IsSelectableCodeColumn(cell.OwningColumn));
         var isFound = false;
 
-        if (hasSelection && dgvCodes.CurrentRow != null)
+        if (hasSelection)
         {
-            var selectedResult = dgvCodes.CurrentRow.DataBoundItem as DtcLookupResult;
-            isFound = selectedResult?.Found ?? false;
+            // Obtener la fila desde la primera celda seleccionada
+            DataGridViewRow? selectedRow = null;
+            
+            if (dgvCodes.SelectedCells.Count > 0)
+            {
+                var selectedCell = dgvCodes.SelectedCells[0];
+                selectedRow = dgvCodes.Rows[selectedCell.RowIndex];
+            }
+            else if (dgvCodes.CurrentRow != null)
+            {
+                selectedRow = dgvCodes.CurrentRow;
+            }
+            
+            if (selectedRow != null)
+            {
+                var selectedResult = selectedRow.DataBoundItem as DtcLookupResult;
+                isFound = selectedResult?.Found ?? false;
+            }
         }
 
         btnEdit.Enabled = hasSelection && isFound;
