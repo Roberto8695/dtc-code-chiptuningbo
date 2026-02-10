@@ -162,11 +162,18 @@ public partial class MainForm : Form
         dgvCodes.AutoGenerateColumns = false;
         dgvCodes.AllowUserToAddRows = false;
         dgvCodes.AllowUserToDeleteRows = false;
+        dgvCodes.AllowUserToResizeColumns = false;
+        dgvCodes.AllowUserToResizeRows = false;
         dgvCodes.ReadOnly = true;
         dgvCodes.SelectionMode = DataGridViewSelectionMode.CellSelect;
         dgvCodes.MultiSelect = true;
         dgvCodes.RowHeadersVisible = false;
         dgvCodes.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+        dgvCodes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+        dgvCodes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+        dgvCodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+        dgvCodes.RowTemplate.Height = 35;
+        dgvCodes.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         
         // Menú contextual para copiar
         SetupContextMenu();
@@ -224,6 +231,40 @@ public partial class MainForm : Form
         dgvCodes.CurrentCell = null;
     }
 
+    private void SelectColumnCells(string columnName)
+    {
+        if (dgvCodes.Rows.Count == 0)
+        {
+            return;
+        }
+
+        if (!dgvCodes.Columns.Contains(columnName))
+        {
+            return;
+        }
+
+        _suppressSelectionChange = true;
+        try
+        {
+            dgvCodes.ClearSelection();
+
+            foreach (DataGridViewRow row in dgvCodes.Rows)
+            {
+                var cell = row.Cells[columnName];
+                if (cell != null)
+                {
+                    cell.Selected = true;
+                }
+            }
+
+            dgvCodes.CurrentCell = null;
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+        }
+    }
+
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
     {
         return column != null && (column.Name == "colCode" || column.Name == "colCodeAlt");
@@ -236,23 +277,39 @@ public partial class MainForm : Form
         // Configurar renderer personalizado para colores
         contextMenu.Renderer = new ToolStripProfessionalRenderer(new CustomMenuColorTable());
         
-        // Opción Copiar
-        var copyMenuItem = new ToolStripMenuItem("Copiar");
-        copyMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-        copyMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard();
-        
-        // Opción Copiar Todo
-        var copyAllMenuItem = new ToolStripMenuItem("Copiar Todo (Tabla Completa)");
-        copyAllMenuItem.Click += (sender, e) => CopyAllDataToClipboard();
+        // Opciones Copiar (horizontal/vertical)
+        var copyHorizontalMenuItem = new ToolStripMenuItem("Copiar Horizontal");
+        copyHorizontalMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+        copyHorizontalMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard(true);
+
+        var copyVerticalMenuItem = new ToolStripMenuItem("Copiar Vertical");
+        copyVerticalMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.C;
+        copyVerticalMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard(false);
         
         // Opción Borrar (reemplazar con 0000/FFFF)
         var deleteMenuItem = new ToolStripMenuItem("Borrar");
         deleteMenuItem.Click += (sender, e) => DeleteAndReplaceSelectedCodes();
+
+        // Opción Deseleccionar
+        var clearSelectionMenuItem = new ToolStripMenuItem("Deseleccionar Todo");
+        clearSelectionMenuItem.ShortcutKeyDisplayString = "Esc";
+        clearSelectionMenuItem.Click += (sender, e) => ClearGridSelection();
+
+        // Opción Seleccionar columnas
+        var selectCodeColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO");
+        selectCodeColumnItem.Click += (sender, e) => SelectColumnCells("colCode");
+
+        var selectCodeAltColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO ALT");
+        selectCodeAltColumnItem.Click += (sender, e) => SelectColumnCells("colCodeAlt");
         
-        contextMenu.Items.Add(copyMenuItem);
-        contextMenu.Items.Add(copyAllMenuItem);
+        contextMenu.Items.Add(copyHorizontalMenuItem);
+        contextMenu.Items.Add(copyVerticalMenuItem);
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add(deleteMenuItem);
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add(clearSelectionMenuItem);
+        contextMenu.Items.Add(selectCodeColumnItem);
+        contextMenu.Items.Add(selectCodeAltColumnItem);
         
         // Aplicar tema oscuro al menú contextual
         contextMenu.BackColor = ColorTranslator.FromHtml("#102C44");
@@ -260,16 +317,30 @@ public partial class MainForm : Form
         
         dgvCodes.ContextMenuStrip = contextMenu;
         
-        // También permitir Ctrl+C directamente y Backspace para borrar/reemplazar códigos
+        // También permitir Ctrl+C/Ctrl+Shift+C directamente y Backspace para borrar/reemplazar códigos
         dgvCodes.KeyDown += DgvCodes_KeyDown;
     }
 
     private void DgvCodes_KeyDown(object? sender, KeyEventArgs e)
     {
-        // Copiar con Ctrl+C
-        if (e.Control && e.KeyCode == Keys.C)
+        // Copiar con Ctrl+Shift+C (vertical)
+        if (e.Control && e.Shift && e.KeyCode == Keys.C)
         {
-            CopySelectedCellsToClipboard();
+            CopySelectedCellsToClipboard(false);
+            e.Handled = true;
+        }
+
+        // Copiar con Ctrl+C (horizontal)
+        if (e.Control && !e.Shift && e.KeyCode == Keys.C)
+        {
+            CopySelectedCellsToClipboard(true);
+            e.Handled = true;
+        }
+
+        // Deseleccionar con Escape
+        if (e.KeyCode == Keys.Escape)
+        {
+            ClearGridSelection();
             e.Handled = true;
         }
         
@@ -331,7 +402,7 @@ public partial class MainForm : Form
             "Códigos Reemplazados", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
-    private void CopySelectedCellsToClipboard()
+    private void CopySelectedCellsToClipboard(bool horizontal)
     {
         if (dgvCodes.GetCellCount(DataGridViewElementStates.Selected) == 0)
             return;
@@ -352,8 +423,8 @@ public partial class MainForm : Form
                 var value = cell.Value?.ToString() ?? "";
                 if (!string.IsNullOrWhiteSpace(value))
                 {
-                    // Si es la columna de código, quitar el prefijo (P, U, etc.)
-                    if (cell.OwningColumn.Name == "colCode" && value.Length > 1 && char.IsLetter(value[0]))
+                    // Solo en horizontal: si es la columna de código, quitar el prefijo (P, U, etc.)
+                    if (horizontal && cell.OwningColumn.Name == "colCode" && value.Length > 1 && char.IsLetter(value[0]))
                     {
                         value = value.Substring(1);
                     }
@@ -361,12 +432,19 @@ public partial class MainForm : Form
                 }
             }
 
-            // Convertir a formato horizontal (separado por espacios)
-            var horizontalText = string.Join(" ", values);
-
-            if (!string.IsNullOrEmpty(horizontalText))
+            string outputText;
+            if (horizontal)
             {
-                Clipboard.SetText(horizontalText);
+                outputText = string.Join(" ", values);
+            }
+            else
+            {
+                outputText = string.Join(Environment.NewLine, values);
+            }
+
+            if (!string.IsNullOrEmpty(outputText))
+            {
+                Clipboard.SetText(outputText);
             }
         }
         catch (Exception ex)
@@ -477,28 +555,13 @@ public partial class MainForm : Form
                     allCodesToSearch.Add("P" + parsed.ConvertedCode);
                     allCodesToSearch.Add(parsed.ConvertedCode);
                 }
+            }
 
             // Buscar en base de datos
-        
-                    // Opción Deseleccionar
-                    var clearSelectionMenuItem = new ToolStripMenuItem("Deseleccionar Todo");
-                    clearSelectionMenuItem.ShortcutKeys = Keys.Escape;
-                    clearSelectionMenuItem.Click += (sender, e) => ClearGridSelection();
-        
-                    // Opción Seleccionar columnas
-                    var selectCodeColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO");
-                    selectCodeColumnItem.Click += (sender, e) => SelectColumnCells("colCode");
-        
-                    var selectCodeAltColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO ALT");
-                    selectCodeAltColumnItem.Click += (sender, e) => SelectColumnCells("colCodeAlt");
             var dbCodes = await _repository.GetByCodesAsync(allCodesToSearch);
-            
+
             // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
-                    contextMenu.Items.Add(new ToolStripSeparator());
-                    contextMenu.Items.Add(clearSelectionMenuItem);
-                    contextMenu.Items.Add(selectCodeColumnItem);
-                    contextMenu.Items.Add(selectCodeAltColumnItem);
 
             // Crear resultados solo para la categoría correspondiente
             _currentResults = new List<DtcLookupResult>();
@@ -683,13 +746,6 @@ public partial class MainForm : Form
     {
         txtInput.Clear();
         dgvCodes.DataSource = null;
-        
-            // Deseleccionar con Escape
-            if (e.KeyCode == Keys.Escape)
-            {
-                ClearGridSelection();
-                e.Handled = true;
-            }
         _currentResults.Clear();
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
@@ -697,40 +753,6 @@ public partial class MainForm : Form
 
     private void BtnAdd_Click(object? sender, EventArgs e)
     {
-    
-    private void SelectColumnCells(string columnName)
-    {
-        if (dgvCodes.Rows.Count == 0)
-        {
-            return;
-        }
-        
-        if (!dgvCodes.Columns.Contains(columnName))
-        {
-            return;
-        }
-        
-        _suppressSelectionChange = true;
-        try
-        {
-            dgvCodes.ClearSelection();
-            
-            foreach (DataGridViewRow row in dgvCodes.Rows)
-            {
-                var cell = row.Cells[columnName];
-                if (cell != null)
-                {
-                    cell.Selected = true;
-                }
-            }
-            
-            dgvCodes.CurrentCell = null;
-        }
-        finally
-        {
-            _suppressSelectionChange = false;
-        }
-    }
         // Si hay un código seleccionado sin descripción, pre-llenarlo
         string? prefilledCode = null;
         
@@ -1008,8 +1030,8 @@ public partial class MainForm : Form
 internal class CustomMenuColorTable : ProfessionalColorTable
 {
     public override Color MenuItemSelected => ColorTranslator.FromHtml("#F8B41C"); // Amarillo marca
-    public override Color MenuItemSelectedGradientBegin => ColorTranslator.FromHtml("#F8B41C");
-    public override Color MenuItemSelectedGradientEnd => ColorTranslator.FromHtml("#F8B41C");
+    public override Color MenuItemSelectedGradientBegin => ColorTranslator.FromHtml("#153C59");
+    public override Color MenuItemSelectedGradientEnd => ColorTranslator.FromHtml("#153C59");
     public override Color MenuItemBorder => ColorTranslator.FromHtml("#D89C17");
     public override Color MenuItemPressedGradientBegin => ColorTranslator.FromHtml("#D89C17");
     public override Color MenuItemPressedGradientEnd => ColorTranslator.FromHtml("#D89C17");
@@ -1023,51 +1045,49 @@ public class CumulativeSelectionDataGridView : DataGridView
 {
     private bool _isSelecting = false;
     private bool _shouldAddToSelection = false;
-    
+
     protected override void OnCellMouseDown(DataGridViewCellMouseEventArgs e)
     {
         // Solo procesar clicks izquierdos en celdas válidas
         if (e.Button == MouseButtons.Left && e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
             _isSelecting = true;
-            
+
             // Si no se presionó Ctrl, queremos agregar a la selección existente de todos modos
             _shouldAddToSelection = (ModifierKeys & Keys.Control) == 0;
-            
+
             if (_shouldAddToSelection)
             {
-                // Prevenir el comportamiento por defecto que limpia la selección
-                // y manejar la selección manualmente
                 var cell = this[e.ColumnIndex, e.RowIndex];
-                
+
                 // Alternar la selección de la celda actual
                 cell.Selected = !cell.Selected;
-                
+
                 // Cancelar el evento para que no limpie la selección
                 return;
             }
         }
-        
+
         base.OnCellMouseDown(e);
     }
-    
+
     protected override void OnCellMouseMove(DataGridViewCellMouseEventArgs e)
     {
         // Permitir arrastre para seleccionar múltiples celdas
         if (_isSelecting && e.RowIndex >= 0 && e.ColumnIndex >= 0 && _shouldAddToSelection)
         {
             var cell = this[e.ColumnIndex, e.RowIndex];
-            
+
             // Solo seleccionar celdas durante el arrastre (no deseleccionar)
             if (!cell.Selected)
             {
                 cell.Selected = true;
             }
         }
-        
+
         base.OnCellMouseMove(e);
     }
-    
+
     protected override void OnMouseUp(MouseEventArgs e)
     {
         _isSelecting = false;
