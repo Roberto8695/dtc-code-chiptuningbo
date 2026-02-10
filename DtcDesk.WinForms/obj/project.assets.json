@@ -456,7 +456,7 @@
     "version": "1.0.0",
     "restore": {
       "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
-      "projectName": "DtcDesk.WinForms",
+      "projectName": "DTCDesk",
       "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
       "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",
@@ -520,5 +520,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
+    }
+  ]
 }

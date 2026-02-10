@@ -178,7 +178,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
-        "projectName": "DtcDesk.WinForms",
+        "projectName": "DTCDesk",
         "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
         "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",

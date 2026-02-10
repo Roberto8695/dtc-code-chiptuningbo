@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4Rtya/WakP0=",
+  "dgSpecHash": "Mq9+OrSixRk=",
   "success": true,
   "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
   "expectedPackageFiles": [
@@ -14,5 +14,15 @@
     "C:\\Users\\VICTUS\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512",
     "C:\\Users\\VICTUS\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problem reading the cache file C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

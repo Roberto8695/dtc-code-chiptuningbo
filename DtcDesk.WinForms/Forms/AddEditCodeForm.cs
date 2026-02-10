@@ -68,11 +68,7 @@ public partial class AddEditCodeForm : Form
         cmbCategory.Items.AddRange(new object[]
         {
             "Powertrain",
-            "Chassis",
-            "Body",
-            "Network",
-            "Hex",
-            "Otro"
+            "Network"
         });
         cmbCategory.SelectedIndex = 0;
     }
@@ -157,7 +153,7 @@ public partial class AddEditCodeForm : Form
         // Validar formato
         if (!IsValidCodeFormat(code))
         {
-            MessageBox.Show("El formato del código no es válido.\n\nFormatos aceptados:\n- P0420 (letra + 4 dígitos)\n- FFFF (4 caracteres hexadecimales)", 
+            MessageBox.Show("El formato del código no es válido.\n\nFormatos aceptados:\n- P21DA (letra + 4 caracteres hexadecimales)\n- FFFF (4 caracteres hexadecimales)", 
                 "Formato inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             txtCode.Focus();
             return;
@@ -261,8 +257,8 @@ public partial class AddEditCodeForm : Form
     {
         if (string.IsNullOrWhiteSpace(code)) return false;
 
-        // P-codes, C-codes, B-codes, U-codes (letra + 4 dígitos)
-        if (System.Text.RegularExpressions.Regex.IsMatch(code, @"^[PCBU]\d{4}$"))
+        // P-codes, C-codes, B-codes, U-codes (letra + 4 caracteres hexadecimales)
+        if (System.Text.RegularExpressions.Regex.IsMatch(code, @"^[PCBU][0-9A-F]{4}$"))
             return true;
 
         // Códigos hexadecimales de 4 caracteres

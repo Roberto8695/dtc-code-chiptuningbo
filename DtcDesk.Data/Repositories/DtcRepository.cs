@@ -35,6 +35,24 @@ public class DtcRepository
     }
 
     /// <summary>
+    /// Busca un código DTC por su ID
+    /// </summary>
+    public async Task<DtcCode?> GetByIdAsync(int id)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT Id, Code, Description, Category, Source, Notes,
+                   CreatedAt, UpdatedAt, IsActive
+            FROM DtcCodes
+            WHERE Id = @Id AND IsActive = 1
+            LIMIT 1;
+        ";
+
+        return await connection.QuerySingleOrDefaultAsync<DtcCode>(sql, new { Id = id });
+    }
+
+    /// <summary>
     /// Busca múltiples códigos DTC
     /// </summary>
     public async Task<IEnumerable<DtcCode>> GetByCodesAsync(IEnumerable<string> codes)
@@ -238,5 +256,17 @@ public class DtcRepository
             : "SELECT COUNT(*) FROM DtcCodes WHERE IsActive = 1;";
 
         return await connection.ExecuteScalarAsync<int>(sql);
+    }
+
+    /// <summary>
+    /// Elimina todos los códigos DTC de la base de datos
+    /// </summary>
+    public async Task<int> DeleteAllAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        
+        const string sql = "DELETE FROM DtcCodes;";
+        
+        return await connection.ExecuteAsync(sql);
     }
 }
