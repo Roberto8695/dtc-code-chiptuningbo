@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj": {}
+    "D:\\TRABAJOS\\APP 2\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {}
   },
   "projects": {
-    "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+    "D:\\TRABAJOS\\APP 2\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "projectUniqueName": "D:\\TRABAJOS\\APP 2\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
         "projectName": "DtcDesk.Core",
-        "projectPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
-        "packagesPath": "C:\\Users\\rober\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\obj\\",
+        "projectPath": "D:\\TRABAJOS\\APP 2\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "packagesPath": "C:\\Users\\apaza\\.nuget\\packages\\",
+        "outputPath": "D:\\TRABAJOS\\APP 2\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\rober\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\apaza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -28,6 +28,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -50,7 +51,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -59,6 +60,12 @@
             "CsvHelper": {
               "target": "Package",
               "version": "[33.1.0, )"
+            },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.11, )",
+              "autoReferenced": true
             }
           },
           "imports": [
@@ -72,12 +79,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         },
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
@@ -85,6 +106,12 @@
             "CsvHelper": {
               "target": "Package",
               "version": "[33.1.0, )"
+            },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.11, )",
+              "autoReferenced": true
             }
           },
           "imports": [
@@ -98,12 +125,31 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     }

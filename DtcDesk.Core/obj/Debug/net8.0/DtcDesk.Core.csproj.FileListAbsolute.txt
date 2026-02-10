@@ -24,3 +24,16 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\refint\DtcDesk.Core.dll
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.pdb
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\ref\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.deps.json
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\bin\Debug\net8.0\DtcDesk.Core.pdb
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.csproj.AssemblyReference.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.AssemblyInfoInputs.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.AssemblyInfo.cs
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.csproj.CoreCompileInputs.cache
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.sourcelink.json
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\refint\DtcDesk.Core.dll
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\DtcDesk.Core.pdb
+D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.Core\obj\Debug\net8.0\ref\DtcDesk.Core.dll
