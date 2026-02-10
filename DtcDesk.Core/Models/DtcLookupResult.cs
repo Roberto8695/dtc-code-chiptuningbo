@@ -11,6 +11,11 @@ public class DtcLookupResult
     public string Code { get; set; } = string.Empty;
 
     /// <summary>
+    /// Código alternativo (usado para mostrar versión con borrados como FFFF)
+    /// </summary>
+    public string CodeAlt { get; set; } = string.Empty;
+
+    /// <summary>
     /// Indica si el código fue encontrado en el diccionario
     /// </summary>
     public bool Found { get; set; }

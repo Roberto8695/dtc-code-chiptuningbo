@@ -85,13 +85,7 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\ne
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk..4D1AF348.Up2Date
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.genruntimeconfig.cache
 >>>>>>> 52b686244b99b35695a2c7379bc7aa9471f27d72
-<<<<<<< HEAD
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\logo.jpg
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.exe
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.deps.json
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.runtimeconfig.json
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.dll
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DtcDesk.WinForms.pdb
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\CsvHelper.dll
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\Dapper.dll
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\Microsoft.Data.Sqlite.dll
@@ -132,12 +126,7 @@ C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.csproj.CoreCompileInputs.cache
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.sourcelink.json
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk..4D1AF348.Up2Date
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.dll
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DtcDesk.WinForms.dll
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.pdb
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DtcDesk.WinForms.genruntimeconfig.cache
-C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DtcDesk.WinForms.dll
-=======
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.exe
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.deps.json
 C:\Users\rober\Desktop\codigos_dtc\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.runtimeconfig.json
@@ -157,3 +146,12 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\ne
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.pdb
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DTCDesk.dll
 >>>>>>> 17c26b74bd65c59c042e30bdebc1c3fa0153cbbe
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.exe
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.deps.json
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.runtimeconfig.json
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.dll
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.pdb
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.dll
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DTCDesk.dll
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.pdb
+C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DTCDesk.dll
