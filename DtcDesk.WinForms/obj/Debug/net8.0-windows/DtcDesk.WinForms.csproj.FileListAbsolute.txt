@@ -145,7 +145,6 @@ D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\ne
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DTCDesk.dll
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.pdb
 D:\TRABAJOS Y DEMAS\Proyecto\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DTCDesk.dll
-<<<<<<< HEAD
 >>>>>>> 17c26b74bd65c59c042e30bdebc1c3fa0153cbbe
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.exe
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.deps.json
@@ -156,7 +155,6 @@ C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\refint\DTCDesk.dll
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\DTCDesk.pdb
 C:\Users\VICTUS\Desktop\dtc-code-chiptuningbo\DtcDesk.WinForms\obj\Debug\net8.0-windows\ref\DTCDesk.dll
-=======
 D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\logo.jpg
 D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.exe
 D:\TRABAJOS\APP 2\dtc-code-chiptuningbo\DtcDesk.WinForms\bin\Debug\net8.0-windows\DTCDesk.deps.json
