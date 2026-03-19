@@ -121,7 +121,7 @@ P0119,Engine Coolant Temperature Circuit Intermittent,Powertrain,OBD-II Standard
 P012,9 Barometric Pressure Too Low,Powertrain,OBD-II Standard,;
 P0120,Throttle Position Sensor/Switch A Circuit Malfunction,Powertrain,OBD-II Standard,;
 P0121,Throttle Position Sensor/Switch A Circuit Range/Performance,Powertrain,OBD-II Standard,;
-P0122,Throttle Position Sensor/Swi tch A Circuit Low Input,Powertrain,OBD-II Standard,;
+P0122,Throttle Position Sensor/Switch A Circuit Low Input,Powertrain,OBD-II Standard,;
 P0123,Throttle Position Sensor/Switch A Circuit High Input,Powertrain,OBD-II Standard,;
 P0124,Throttle Position Sensor/Switch A Circuit Intermittent,Powertrain,OBD-II Standard,;
 P0125,Insufficient Coolant Temperature for Closed Loop Fuel Control;

@@ -7,11 +7,17 @@ namespace DtcDesk.WinForms;
 
 public partial class MainForm : Form
 {
+    private const int GridZoomMin = 70;
+    private const int GridZoomMax = 180;
+    private const int GridZoomStep = 10;
+    private const int GridZoomDefault = 100;
+
     private readonly DtcParser _parser;
     private readonly DtcRepository _repository;
     private readonly ConnectionFactory _connectionFactory;
     private List<DtcLookupResult> _currentResults = new();
     private bool _suppressSelectionChange;
+    private int _gridZoomPercent = GridZoomDefault;
 
     public MainForm()
     {
@@ -50,6 +56,9 @@ public partial class MainForm : Form
         btnClear.Click += BtnClear_Click;
         btnAdd.Click += BtnAdd_Click;
         btnEdit.Click += BtnEdit_Click;
+        btnZoomIn.Click += BtnZoomIn_Click;
+        btnZoomOut.Click += BtnZoomOut_Click;
+        btnZoomReset.Click += BtnZoomReset_Click;
         
         // Configurar eventos del menú
         menuImportar.Click += MenuImportar_Click;
@@ -60,8 +69,19 @@ public partial class MainForm : Form
         
         dgvCodes.CellDoubleClick += DgvCodes_CellDoubleClick;
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
+        dgvCodes.MouseWheel += DgvCodes_MouseWheel;
         
         txtInput.Font = new Font("Consolas", 10F);
+        ApplyGridZoom();
+        
+        // Eventos de botones de acceso rápido por módulo (borrar/reemplazar con 0000/FFFF)
+        btnFilterVNT.Click += (s, e) => DeleteByModule("VNT");
+        btnFilterDPF.Click += (s, e) => DeleteByModule("DPF");
+        btnFilterEGR.Click += (s, e) => DeleteByModule("EGR");
+        btnFilterNOX.Click += (s, e) => DeleteByModule("NOX");
+        btnFilterSCR.Click += (s, e) => DeleteByModule("SCR");
+        btnFilterMAF.Click += (s, e) => DeleteByModule("MAF");
+        btnFilterTVA.Click += (s, e) => DeleteByModule("TVA");
     }
 
     private void LoadLogo()
@@ -116,6 +136,20 @@ public partial class MainForm : Form
         txtInput.ForeColor = textMain;
         txtInput.BorderStyle = BorderStyle.FixedSingle;
         
+        // Panel de filtros lateral (derecha)
+        panelFilterSide.BackColor = bgSide;
+        lblFilterTitle.ForeColor = accentYellow;
+        lblFilterTitle.BackColor = Color.Transparent;
+        
+        var filterButtons = new[] { btnFilterVNT, btnFilterDPF, btnFilterEGR, btnFilterNOX, btnFilterSCR, btnFilterMAF, btnFilterTVA };
+        foreach (var fb in filterButtons)
+        {
+            StyleButton(fb, bgTop, textMain);
+            fb.FlatAppearance.BorderSize = 1;
+            fb.FlatAppearance.BorderColor = accentYellow;
+            fb.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        }
+        
         // Panel derecho (resultados)
         panelRight.BackColor = bgMain;
         lblResults.ForeColor = textMain;
@@ -139,6 +173,16 @@ public partial class MainForm : Form
         StyleButton(btnClear, separator, textMain);
         StyleButton(btnAdd, accentYellow, Color.Black);
         StyleButton(btnEdit, accentHover, Color.Black);
+        StyleButton(btnZoomOut, separator, textMain);
+        StyleButton(btnZoomReset, bgTop, textMain);
+        StyleButton(btnZoomIn, accentYellow, Color.Black);
+
+        btnZoomOut.FlatAppearance.BorderSize = 1;
+        btnZoomOut.FlatAppearance.BorderColor = separator;
+        btnZoomReset.FlatAppearance.BorderSize = 1;
+        btnZoomReset.FlatAppearance.BorderColor = separator;
+        btnZoomIn.FlatAppearance.BorderSize = 1;
+        btnZoomIn.FlatAppearance.BorderColor = accentHover;
         
         // Estilo del menú
         menuStrip.BackColor = bgSide;
@@ -218,6 +262,52 @@ public partial class MainForm : Form
         // Formato condicional para el estado
         dgvCodes.CellFormatting += DgvCodes_CellFormatting;
         dgvCodes.DataBindingComplete += DgvCodes_DataBindingComplete;
+    }
+
+    private void ApplyGridZoom()
+    {
+        var scale = _gridZoomPercent / 100f;
+
+        dgvCodes.DefaultCellStyle.Font = new Font("Segoe UI", 9F * scale, FontStyle.Regular);
+        dgvCodes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F * scale, FontStyle.Bold);
+
+        if (dgvCodes.Columns.Contains("colCode"))
+        {
+            dgvCodes.Columns["colCode"].DefaultCellStyle.Font = new Font("Consolas", 10F * scale, FontStyle.Bold);
+        }
+
+        if (dgvCodes.Columns.Contains("colCodeAlt"))
+        {
+            dgvCodes.Columns["colCodeAlt"].DefaultCellStyle.Font = new Font("Consolas", 10F * scale, FontStyle.Bold);
+        }
+
+        dgvCodes.RowTemplate.Height = (int)Math.Clamp(35 * scale, 24, 70);
+        dgvCodes.ColumnHeadersHeight = (int)Math.Clamp(28 * scale, 24, 56);
+
+        foreach (DataGridViewRow row in dgvCodes.Rows)
+        {
+            row.Height = dgvCodes.RowTemplate.Height;
+        }
+
+        btnZoomReset.Text = $"{_gridZoomPercent}%";
+    }
+
+    private void ChangeGridZoom(int delta)
+    {
+        var newZoom = Math.Clamp(_gridZoomPercent + delta, GridZoomMin, GridZoomMax);
+        if (newZoom == _gridZoomPercent)
+        {
+            return;
+        }
+
+        _gridZoomPercent = newZoom;
+        ApplyGridZoom();
+    }
+
+    private void ResetGridZoom()
+    {
+        _gridZoomPercent = GridZoomDefault;
+        ApplyGridZoom();
     }
 
     private void DgvCodes_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
@@ -323,6 +413,31 @@ public partial class MainForm : Form
 
     private void DgvCodes_KeyDown(object? sender, KeyEventArgs e)
     {
+        // Zoom rápido con teclado
+        if (e.Control && (e.KeyCode == Keys.Add || e.KeyCode == Keys.Oemplus))
+        {
+            ChangeGridZoom(GridZoomStep);
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            return;
+        }
+
+        if (e.Control && (e.KeyCode == Keys.Subtract || e.KeyCode == Keys.OemMinus))
+        {
+            ChangeGridZoom(-GridZoomStep);
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            return;
+        }
+
+        if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))
+        {
+            ResetGridZoom();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            return;
+        }
+
         // Copiar con Ctrl+Shift+C (vertical)
         if (e.Control && e.Shift && e.KeyCode == Keys.C)
         {
@@ -350,6 +465,36 @@ public partial class MainForm : Form
             DeleteAndReplaceSelectedCodes();
             e.Handled = true;
         }
+    }
+
+    private void DgvCodes_MouseWheel(object? sender, MouseEventArgs e)
+    {
+        if ((ModifierKeys & Keys.Control) != Keys.Control)
+        {
+            return;
+        }
+
+        ChangeGridZoom(e.Delta > 0 ? GridZoomStep : -GridZoomStep);
+
+        if (e is HandledMouseEventArgs handledArgs)
+        {
+            handledArgs.Handled = true;
+        }
+    }
+
+    private void BtnZoomIn_Click(object? sender, EventArgs e)
+    {
+        ChangeGridZoom(GridZoomStep);
+    }
+
+    private void BtnZoomOut_Click(object? sender, EventArgs e)
+    {
+        ChangeGridZoom(-GridZoomStep);
+    }
+
+    private void BtnZoomReset_Click(object? sender, EventArgs e)
+    {
+        ResetGridZoom();
     }
 
     private void DeleteAndReplaceSelectedCodes()
@@ -1067,6 +1212,132 @@ public partial class MainForm : Form
 
         btnEdit.Enabled = hasSelection && isFound;
     }
+
+    // Diccionario de palabras clave por módulo de motor
+    private static readonly Dictionary<string, string[]> ModuleKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["VNT"] = new[] {
+            "vnt", "variable nozzle", "variable geometry turbo", "turbocharger", "turbo",
+            "boost pressure", "boost control", "turbo control", "wastegate",
+            "intake manifold pressure", "manifold absolute pressure", "turbo actuator",
+            "p0234", "p0235", "p0236", "p0237", "p0238", "p0243", "p0244",
+            "p0245", "p0246", "p0299", "p0234", "p0045", "p0046", "p0047", "p0048"
+        },
+        ["DPF"] = new[] {
+            "dpf", "diesel particulate", "particulate filter", "filtro de particulas",
+            "soot", "regeneration", "regeneracion", "exhaust pressure", "presion de escape",
+            "differential pressure", "presion diferencial", "p2002", "p2003",
+            "p244a", "p2452", "p2453", "p2454", "p2455", "p0549", "p1451"
+        },
+        ["EGR"] = new[] {
+            "egr", "exhaust gas recirculation", "recirculacion de gases",
+            "egr valve", "egr cooler", "egr flow", "egr position",
+            "p0400", "p0401", "p0402", "p0403", "p0404", "p0405", "p0406",
+            "p0407", "p0408", "p0409"
+        },
+        ["NOX"] = new[] {
+            "nox", "nitrogen oxide", "oxido de nitrogeno", "nox sensor",
+            "nox catalyst", "nox adsorber", "p2200", "p2201", "p2202",
+            "p2203", "p2204", "p2205", "p229e", "p229f", "p228a", "p228b"
+        },
+        ["SCR"] = new[] {
+            "scr", "selective catalytic reduction", "adblue", "urea",
+            "def", "reductant", "reductor", "dosing", "dosificacion",
+            "p20e8", "p20ee", "p203a", "p203b", "p203c", "p203d",
+            "p204f", "p11cb", "p11cd", "p229f", "p2bad"
+        },
+        ["MAF"] = new[] {
+            "maf", "mass air flow", "flujo de masa de aire", "air flow sensor",
+            "mass airflow", "hot wire", "hot film", "air meter",
+            "p0100", "p0101", "p0102", "p0103", "p0104"
+        },
+        ["TVA"] = new[] {
+            "tva", "throttle valve", "valvula de mariposa", "throttle body",
+            "throttle actuator", "throttle position", "throttle control",
+            "swirl flap", "intake flap", "aleta de admision",
+            "p0120", "p0121", "p0122", "p0123", "p0124",
+            "p2100", "p2101", "p2102", "p2103", "p2104", "p2107", "p2110",
+            "p0638", "p2118", "p2119"
+        }
+    };
+
+    private void DeleteByModule(string module)
+    {
+        if (_currentResults == null || _currentResults.Count == 0)
+        {
+            MessageBox.Show(
+                $"No hay códigos cargados.\nPrimero procesa algunos códigos DTC.",
+                $"Sin datos — {module}",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return;
+        }
+
+        if (!ModuleKeywords.TryGetValue(module, out var keywords))
+            return;
+
+        // Buscar los códigos que corresponden al módulo
+        var toReplace = _currentResults
+            .Where(r =>
+            {
+                var desc = (r.Description ?? "").ToUpperInvariant();
+                var code = (r.Code ?? "").ToUpperInvariant();
+                return keywords.Any(kw =>
+                    desc.Contains(kw.ToUpperInvariant()) ||
+                    code.Contains(kw.ToUpperInvariant()));
+            })
+            .ToList();
+
+        if (toReplace.Count == 0)
+        {
+            MessageBox.Show(
+                $"No se encontraron códigos relacionados con el módulo {module} en los resultados actuales.",
+                $"Sin coincidencias — {module}",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return;
+        }
+
+        // Pedir confirmación
+        var confirm = MessageBox.Show(
+            $"Se encontraron {toReplace.Count} código(s) relacionados con el módulo [{module}].\n\n" +
+            $"¿Deseas reemplazarlos todos con '0000' / 'FFFF'?\n\n" +
+            $"Esta acción modifica los resultados actuales.",
+            $"Borrar módulo {module}",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+
+        if (confirm != DialogResult.Yes)
+            return;
+
+        // Reemplazar
+        foreach (var result in toReplace)
+        {
+            result.Code = "0000";
+            result.CodeAlt = "FFFF";
+            result.Description = "Sin resultados";
+            result.Found = false;
+            result.Category = "Hex";
+            result.Source = null;
+            result.Notes = null;
+        }
+
+        // Refrescar grid
+        dgvCodes.DataSource = null;
+        dgvCodes.DataSource = _currentResults;
+        ClearGridSelection();
+
+        // Actualizar estadísticas
+        var found = _currentResults.Count(r => r.Found);
+        var notFound = _currentResults.Count - found;
+        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [Módulo {module}: {toReplace.Count} borrado(s)]";
+
+        MessageBox.Show(
+            $"Se reemplazaron {toReplace.Count} código(s) del módulo [{module}] con '0000' / 'FFFF'.",
+            $"Módulo {module} — Completado",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+    }
 }
 
 // Clase para personalizar los colores del menú contextual
@@ -1086,8 +1357,15 @@ internal class CustomMenuColorTable : ProfessionalColorTable
 // DataGridView con selección acumulativa (permite arrastre sin perder selección anterior)
 public class CumulativeSelectionDataGridView : DataGridView
 {
-    private bool _isSelecting = false;
-    private bool _shouldAddToSelection = false;
+    private bool _isSelecting;
+    private bool _isDeselectingDrag;
+    private readonly HashSet<(int Row, int Column)> _processedCells = new();
+
+    private void ApplyDragStateToCell(int rowIndex, int columnIndex)
+    {
+        var cell = this[columnIndex, rowIndex];
+        cell.Selected = !_isDeselectingDrag;
+    }
 
     protected override void OnCellMouseDown(DataGridViewCellMouseEventArgs e)
     {
@@ -1095,20 +1373,16 @@ public class CumulativeSelectionDataGridView : DataGridView
         if (e.Button == MouseButtons.Left && e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
             _isSelecting = true;
+            _processedCells.Clear();
 
-            // Si no se presionó Ctrl, queremos agregar a la selección existente de todos modos
-            _shouldAddToSelection = (ModifierKeys & Keys.Control) == 0;
+            var clickedCell = this[e.ColumnIndex, e.RowIndex];
+            _isDeselectingDrag = clickedCell.Selected;
 
-            if (_shouldAddToSelection)
-            {
-                var cell = this[e.ColumnIndex, e.RowIndex];
+            ApplyDragStateToCell(e.RowIndex, e.ColumnIndex);
+            _processedCells.Add((e.RowIndex, e.ColumnIndex));
 
-                // Alternar la selección de la celda actual
-                cell.Selected = !cell.Selected;
-
-                // Cancelar el evento para que no limpie la selección
-                return;
-            }
+            // Evitar que el comportamiento base limpie o re-seleccione celdas de forma automática.
+            return;
         }
 
         base.OnCellMouseDown(e);
@@ -1116,16 +1390,18 @@ public class CumulativeSelectionDataGridView : DataGridView
 
     protected override void OnCellMouseMove(DataGridViewCellMouseEventArgs e)
     {
-        // Permitir arrastre para seleccionar múltiples celdas
-        if (_isSelecting && e.RowIndex >= 0 && e.ColumnIndex >= 0 && _shouldAddToSelection)
+        // Arrastre continuo para seleccionar o deseleccionar según el estado inicial.
+        if (_isSelecting && e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
-            var cell = this[e.ColumnIndex, e.RowIndex];
-
-            // Solo seleccionar celdas durante el arrastre (no deseleccionar)
-            if (!cell.Selected)
+            var cellKey = (e.RowIndex, e.ColumnIndex);
+            if (_processedCells.Contains(cellKey))
             {
-                cell.Selected = true;
+                return;
             }
+
+            ApplyDragStateToCell(e.RowIndex, e.ColumnIndex);
+            _processedCells.Add(cellKey);
+            return;
         }
 
         base.OnCellMouseMove(e);
@@ -1134,7 +1410,8 @@ public class CumulativeSelectionDataGridView : DataGridView
     protected override void OnMouseUp(MouseEventArgs e)
     {
         _isSelecting = false;
-        _shouldAddToSelection = false;
+        _isDeselectingDrag = false;
+        _processedCells.Clear();
         base.OnMouseUp(e);
     }
 }
