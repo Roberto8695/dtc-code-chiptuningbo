@@ -39,9 +39,22 @@ namespace DtcDesk.WinForms
             panelRight = new Panel();
             dgvCodes = new CumulativeSelectionDataGridView();
             panelButtons = new Panel();
+            btnZoomIn = new Button();
+            btnZoomReset = new Button();
+            btnZoomOut = new Button();
             btnEdit = new Button();
             btnAdd = new Button();
             lblResults = new Label();
+            // Nuevos controles del panel de filtros
+            panelFilterSide = new Panel();
+            lblFilterTitle = new Label();
+            btnFilterVNT = new Button();
+            btnFilterDPF = new Button();
+            btnFilterEGR = new Button();
+            btnFilterNOX = new Button();
+            btnFilterSCR = new Button();
+            btnFilterMAF = new Button();
+            btnFilterTVA = new Button();
             menuStrip.SuspendLayout();
             panelTop.SuspendLayout();
             panelLeft.SuspendLayout();
@@ -49,6 +62,7 @@ namespace DtcDesk.WinForms
             ((System.ComponentModel.ISupportInitialize)dgvCodes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             panelButtons.SuspendLayout();
+            panelFilterSide.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip
@@ -232,6 +246,9 @@ namespace DtcDesk.WinForms
             // 
             // panelButtons
             // 
+            panelButtons.Controls.Add(btnZoomIn);
+            panelButtons.Controls.Add(btnZoomReset);
+            panelButtons.Controls.Add(btnZoomOut);
             panelButtons.Controls.Add(btnEdit);
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Dock = DockStyle.Bottom;
@@ -239,6 +256,36 @@ namespace DtcDesk.WinForms
             panelButtons.Name = "panelButtons";
             panelButtons.Size = new Size(930, 60);
             panelButtons.TabIndex = 1;
+            // 
+            // btnZoomIn
+            // 
+            btnZoomIn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnZoomIn.Location = new Point(855, 10);
+            btnZoomIn.Name = "btnZoomIn";
+            btnZoomIn.Size = new Size(65, 40);
+            btnZoomIn.TabIndex = 4;
+            btnZoomIn.Text = "Lupa +";
+            btnZoomIn.UseVisualStyleBackColor = true;
+            // 
+            // btnZoomReset
+            // 
+            btnZoomReset.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnZoomReset.Location = new Point(785, 10);
+            btnZoomReset.Name = "btnZoomReset";
+            btnZoomReset.Size = new Size(65, 40);
+            btnZoomReset.TabIndex = 3;
+            btnZoomReset.Text = "100%";
+            btnZoomReset.UseVisualStyleBackColor = true;
+            // 
+            // btnZoomOut
+            // 
+            btnZoomOut.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnZoomOut.Location = new Point(715, 10);
+            btnZoomOut.Name = "btnZoomOut";
+            btnZoomOut.Size = new Size(65, 40);
+            btnZoomOut.TabIndex = 2;
+            btnZoomOut.Text = "Lupa -";
+            btnZoomOut.UseVisualStyleBackColor = true;
             // 
             // btnEdit
             // 
@@ -281,12 +328,103 @@ namespace DtcDesk.WinForms
             lblResults.TabIndex = 0;
             lblResults.Text = "RESULTADOS:";
             // 
+            // panelFilterSide
+            // 
+            panelFilterSide.Controls.Add(btnFilterTVA);
+            panelFilterSide.Controls.Add(btnFilterMAF);
+            panelFilterSide.Controls.Add(btnFilterSCR);
+            panelFilterSide.Controls.Add(btnFilterNOX);
+            panelFilterSide.Controls.Add(btnFilterEGR);
+            panelFilterSide.Controls.Add(btnFilterDPF);
+            panelFilterSide.Controls.Add(btnFilterVNT);
+            panelFilterSide.Controls.Add(lblFilterTitle);
+            panelFilterSide.Dock = DockStyle.Right;
+            panelFilterSide.Name = "panelFilterSide";
+            panelFilterSide.Padding = new Padding(8, 12, 8, 8);
+            panelFilterSide.Size = new Size(90, 596);
+            panelFilterSide.TabIndex = 10;
+            // 
+            // lblFilterTitle
+            // 
+            lblFilterTitle.AutoSize = false;
+            lblFilterTitle.Dock = DockStyle.Top;
+            lblFilterTitle.Font = new Font("Segoe UI", 7.5F, FontStyle.Bold);
+            lblFilterTitle.Height = 28;
+            lblFilterTitle.Name = "lblFilterTitle";
+            lblFilterTitle.Text = "FILTROS";
+            lblFilterTitle.TextAlign = ContentAlignment.MiddleCenter;
+            lblFilterTitle.TabIndex = 0;
+            // 
+            // btnFilterVNT
+            // 
+            btnFilterVNT.Location = new Point(8, 48);
+            btnFilterVNT.Name = "btnFilterVNT";
+            btnFilterVNT.Size = new Size(74, 40);
+            btnFilterVNT.TabIndex = 1;
+            btnFilterVNT.Text = "VNT";
+            btnFilterVNT.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterDPF
+            // 
+            btnFilterDPF.Location = new Point(8, 96);
+            btnFilterDPF.Name = "btnFilterDPF";
+            btnFilterDPF.Size = new Size(74, 40);
+            btnFilterDPF.TabIndex = 2;
+            btnFilterDPF.Text = "DPF";
+            btnFilterDPF.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterEGR
+            // 
+            btnFilterEGR.Location = new Point(8, 144);
+            btnFilterEGR.Name = "btnFilterEGR";
+            btnFilterEGR.Size = new Size(74, 40);
+            btnFilterEGR.TabIndex = 3;
+            btnFilterEGR.Text = "EGR";
+            btnFilterEGR.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterNOX
+            // 
+            btnFilterNOX.Location = new Point(8, 192);
+            btnFilterNOX.Name = "btnFilterNOX";
+            btnFilterNOX.Size = new Size(74, 40);
+            btnFilterNOX.TabIndex = 4;
+            btnFilterNOX.Text = "NOX";
+            btnFilterNOX.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterSCR
+            // 
+            btnFilterSCR.Location = new Point(8, 240);
+            btnFilterSCR.Name = "btnFilterSCR";
+            btnFilterSCR.Size = new Size(74, 40);
+            btnFilterSCR.TabIndex = 5;
+            btnFilterSCR.Text = "SCR";
+            btnFilterSCR.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterMAF
+            // 
+            btnFilterMAF.Location = new Point(8, 288);
+            btnFilterMAF.Name = "btnFilterMAF";
+            btnFilterMAF.Size = new Size(74, 40);
+            btnFilterMAF.TabIndex = 6;
+            btnFilterMAF.Text = "MAF";
+            btnFilterMAF.UseVisualStyleBackColor = true;
+            // 
+            // btnFilterTVA
+            // 
+            btnFilterTVA.Location = new Point(8, 336);
+            btnFilterTVA.Name = "btnFilterTVA";
+            btnFilterTVA.Size = new Size(74, 40);
+            btnFilterTVA.TabIndex = 7;
+            btnFilterTVA.Text = "TVA";
+            btnFilterTVA.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1400, 700);
             Controls.Add(panelRight);
+            Controls.Add(panelFilterSide);
             Controls.Add(panelLeft);
             Controls.Add(panelTop);
             Controls.Add(menuStrip);
@@ -306,6 +444,7 @@ namespace DtcDesk.WinForms
             ((System.ComponentModel.ISupportInitialize)dgvCodes).EndInit();
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             panelButtons.ResumeLayout(false);
+            panelFilterSide.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -327,6 +466,9 @@ namespace DtcDesk.WinForms
         private Panel panelButtons;
         private Button btnAdd;
         private Button btnEdit;
+        private Button btnZoomOut;
+        private Button btnZoomReset;
+        private Button btnZoomIn;
         private MenuStrip menuStrip;
         private ToolStripMenuItem menuArchivo;
         private ToolStripMenuItem menuImportar;
@@ -337,5 +479,15 @@ namespace DtcDesk.WinForms
         private ToolStripMenuItem menuSalir;
         private ToolStripMenuItem menuHerramientas;
         private ToolStripMenuItem menuEstadisticas;
+        // Panel de filtros lateral
+        private Panel panelFilterSide;
+        private Label lblFilterTitle;
+        private Button btnFilterVNT;
+        private Button btnFilterDPF;
+        private Button btnFilterEGR;
+        private Button btnFilterNOX;
+        private Button btnFilterSCR;
+        private Button btnFilterMAF;
+        private Button btnFilterTVA;
     }
 }
