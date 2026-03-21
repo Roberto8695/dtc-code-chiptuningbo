@@ -50,6 +50,41 @@ public class DbInitializer
             -- Índice compuesto para búsquedas filtradas
             CREATE INDEX IF NOT EXISTS idx_dtc_code_active 
                 ON DtcCodes(Code, IsActive);
+
+            -- ─────────────────────────────────────────────────────
+            -- TABLAS DE CLASIFICACIÓN POR MÓDULO (VNT, DPF, EGR…)
+            -- ─────────────────────────────────────────────────────
+
+            -- Módulos/filtros disponibles
+            CREATE TABLE IF NOT EXISTS DtcModuleFilters (
+                Id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name        TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                DisplayName TEXT NOT NULL,
+                Description TEXT,
+                SortOrder   INTEGER NOT NULL DEFAULT 0
+            );
+
+            -- Reglas de match exacto: un código DTC concreto → módulo
+            CREATE TABLE IF NOT EXISTS DtcModuleExactRules (
+                Id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                FilterName  TEXT NOT NULL COLLATE NOCASE,
+                Code        TEXT NOT NULL COLLATE NOCASE,
+                UNIQUE(FilterName, Code)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_exact_rules_code
+                ON DtcModuleExactRules(Code COLLATE NOCASE);
+
+            -- Palabras clave en descripción → módulo
+            CREATE TABLE IF NOT EXISTS DtcModuleKeywords (
+                Id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                FilterName  TEXT NOT NULL COLLATE NOCASE,
+                Keyword     TEXT NOT NULL COLLATE NOCASE,
+                UNIQUE(FilterName, Keyword)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_keywords_filter
+                ON DtcModuleKeywords(FilterName COLLATE NOCASE);
         ";
 
         using var command = connection.CreateCommand();

@@ -50,4 +50,10 @@ public class DtcLookupResult
     /// ID del código en la base de datos (0 si no se encontró)
     /// </summary>
     public int? DtcId { get; set; }
+
+    /// <summary>
+    /// Módulo/filtro detectado por el clasificador híbrido (ej. "VNT", "EGR", null si no aplica).
+    /// Calculado al procesar; usado por los botones del panel derecho.
+    /// </summary>
+    public string? FilterTag { get; set; }
 }

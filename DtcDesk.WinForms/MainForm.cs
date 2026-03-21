@@ -1,5 +1,6 @@
 using DtcDesk.Core.Models;
 using DtcDesk.Core.Parsing;
+using DtcDesk.Core.Services;
 using DtcDesk.Data.Db;
 using DtcDesk.Data.Repositories;
 
@@ -7,7 +8,7 @@ namespace DtcDesk.WinForms;
 
 public partial class MainForm : Form
 {
-    private const int GridZoomMin = 70;
+    private const int GridZoomMin = 50;
     private const int GridZoomMax = 180;
     private const int GridZoomStep = 10;
     private const int GridZoomDefault = 100;
@@ -15,6 +16,8 @@ public partial class MainForm : Form
     private readonly DtcParser _parser;
     private readonly DtcRepository _repository;
     private readonly ConnectionFactory _connectionFactory;
+    private readonly ModuleFilterRepository _moduleRepository;
+    private DtcClassifierService _classifier = new([], []);
     private List<DtcLookupResult> _currentResults = new();
     private bool _suppressSelectionChange;
     private int _gridZoomPercent = GridZoomDefault;
@@ -29,15 +32,42 @@ public partial class MainForm : Form
         var dbPath = ConnectionFactory.GetDefaultDatabasePath();
         _connectionFactory = new ConnectionFactory(dbPath);
         
-        // Inicializar base de datos
+        // Inicializar base de datos (incluye nuevas tablas de módulos)
         var dbInitializer = new DbInitializer(_connectionFactory.GetConnectionString());
         dbInitializer.Initialize();
         
         _repository = new DtcRepository(_connectionFactory);
+        _moduleRepository = new ModuleFilterRepository(_connectionFactory.GetConnectionString());
         
         // Configurar UI
         SetupUI();
         LoadStatistics();
+        
+        // Inicializar clasificador con reglas de BD (async fire-and-forget seguro en startup)
+        _ = InitializeClassifierAsync();
+    }
+
+    /// <summary>
+    /// Carga reglas desde BD, ejecuta seeding si es necesario, e inicializa el clasificador.
+    /// </summary>
+    private async Task InitializeClassifierAsync()
+    {
+        try
+        {
+            // Sembrar reglas del cliente si la BD está vacía
+            await _moduleRepository.SeedDefaultRulesAsync();
+            
+            // Cargar reglas en memoria
+            var exactRules  = await _moduleRepository.GetAllExactRulesAsync();
+            var keywords    = await _moduleRepository.GetAllKeywordsAsync();
+            
+            _classifier = new DtcClassifierService(exactRules, keywords);
+        }
+        catch (Exception ex)
+        {
+            // No es crítico — la app funciona sin clasificador
+            System.Diagnostics.Debug.WriteLine($"[Clasificador] Error al inicializar: {ex.Message}");
+        }
     }
 
     private void SetupUI()
@@ -82,6 +112,18 @@ public partial class MainForm : Form
         btnFilterSCR.Click += (s, e) => DeleteByModule("SCR");
         btnFilterMAF.Click += (s, e) => DeleteByModule("MAF");
         btnFilterTVA.Click += (s, e) => DeleteByModule("TVA");
+
+        // Buscador
+        btnSearch.Click     += async (s, e) => await ExecuteSearchAsync();
+        btnSearchClear.Click += (s, e) => ClearSearch();
+        txtSearch.KeyDown   += async (s, e) =>
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;  // Evitar sonido de beep
+                await ExecuteSearchAsync();
+            }
+        };
     }
 
     private void LoadLogo()
@@ -189,6 +231,15 @@ public partial class MainForm : Form
         menuStrip.ForeColor = textMain;
         menuArchivo.ForeColor = textMain;
         menuHerramientas.ForeColor = textMain;
+
+        // Buscador
+        txtSearch.BackColor = bgMain;
+        txtSearch.ForeColor = textMain;
+        txtSearch.BorderStyle = BorderStyle.FixedSingle;
+        StyleButton(btnSearch, accentYellow, Color.Black);
+        StyleButton(btnSearchClear, separator, textMain);
+        lblSearchMode.ForeColor = accentYellow;
+        lblSearchMode.BackColor = Color.Transparent;
     }
 
     private void StyleButton(Button btn, Color backColor, Color foreColor)
@@ -257,6 +308,19 @@ public partial class MainForm : Form
             HeaderText = "ESTADO",
             DataPropertyName = "Found",
             Width = 100
+        });
+
+        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name             = "colFilterTag",
+            HeaderText       = "MÓDULO",
+            DataPropertyName = "FilterTag",
+            Width            = 85,
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Font      = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                Alignment = DataGridViewContentAlignment.MiddleCenter
+            }
         });
         
         // Formato condicional para el estado
@@ -638,10 +702,11 @@ public partial class MainForm : Form
             var found = (bool)e.Value;
             e.Value = found ? "✓ Encontrado" : "⚠ No encontrado";
             
-            if (!found)
+            if (!found && e.CellStyle != null)
             {
                 e.CellStyle.ForeColor = ColorTranslator.FromHtml("#D9534F");
-                e.CellStyle.Font = new Font(e.CellStyle.Font!, FontStyle.Bold);
+                if (e.CellStyle.Font != null)
+                    e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
             }
         }
         
@@ -650,8 +715,12 @@ public partial class MainForm : Form
             (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString())))
         {
             e.Value = "--- Sin descripción ---";
-            e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
-            e.CellStyle.Font = new Font(e.CellStyle.Font!, FontStyle.Italic);
+            if (e.CellStyle != null)
+            {
+                e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
+                if (e.CellStyle.Font != null)
+                    e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Italic);
+            }
         }
     }
 
@@ -771,6 +840,9 @@ public partial class MainForm : Form
                     DtcId = found ? foundCode!.Id : null
                 });
             }
+
+            // Clasificar módulo de cada resultado (hybrid: exacto + keywords)
+            _classifier.ClassifyAll(_currentResults);
 
             // Mostrar resultados
             dgvCodes.DataSource = null;
@@ -1213,54 +1285,6 @@ public partial class MainForm : Form
         btnEdit.Enabled = hasSelection && isFound;
     }
 
-    // Diccionario de palabras clave por módulo de motor
-    private static readonly Dictionary<string, string[]> ModuleKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["VNT"] = new[] {
-            "vnt", "variable nozzle", "variable geometry turbo", "turbocharger", "turbo",
-            "boost pressure", "boost control", "turbo control", "wastegate",
-            "intake manifold pressure", "manifold absolute pressure", "turbo actuator",
-            "p0234", "p0235", "p0236", "p0237", "p0238", "p0243", "p0244",
-            "p0245", "p0246", "p0299", "p0234", "p0045", "p0046", "p0047", "p0048"
-        },
-        ["DPF"] = new[] {
-            "dpf", "diesel particulate", "particulate filter", "filtro de particulas",
-            "soot", "regeneration", "regeneracion", "exhaust pressure", "presion de escape",
-            "differential pressure", "presion diferencial", "p2002", "p2003",
-            "p244a", "p2452", "p2453", "p2454", "p2455", "p0549", "p1451"
-        },
-        ["EGR"] = new[] {
-            "egr", "exhaust gas recirculation", "recirculacion de gases",
-            "egr valve", "egr cooler", "egr flow", "egr position",
-            "p0400", "p0401", "p0402", "p0403", "p0404", "p0405", "p0406",
-            "p0407", "p0408", "p0409"
-        },
-        ["NOX"] = new[] {
-            "nox", "nitrogen oxide", "oxido de nitrogeno", "nox sensor",
-            "nox catalyst", "nox adsorber", "p2200", "p2201", "p2202",
-            "p2203", "p2204", "p2205", "p229e", "p229f", "p228a", "p228b"
-        },
-        ["SCR"] = new[] {
-            "scr", "selective catalytic reduction", "adblue", "urea",
-            "def", "reductant", "reductor", "dosing", "dosificacion",
-            "p20e8", "p20ee", "p203a", "p203b", "p203c", "p203d",
-            "p204f", "p11cb", "p11cd", "p229f", "p2bad"
-        },
-        ["MAF"] = new[] {
-            "maf", "mass air flow", "flujo de masa de aire", "air flow sensor",
-            "mass airflow", "hot wire", "hot film", "air meter",
-            "p0100", "p0101", "p0102", "p0103", "p0104"
-        },
-        ["TVA"] = new[] {
-            "tva", "throttle valve", "valvula de mariposa", "throttle body",
-            "throttle actuator", "throttle position", "throttle control",
-            "swirl flap", "intake flap", "aleta de admision",
-            "p0120", "p0121", "p0122", "p0123", "p0124",
-            "p2100", "p2101", "p2102", "p2103", "p2104", "p2107", "p2110",
-            "p0638", "p2118", "p2119"
-        }
-    };
-
     private void DeleteByModule(string module)
     {
         if (_currentResults == null || _currentResults.Count == 0)
@@ -1273,36 +1297,46 @@ public partial class MainForm : Form
             return;
         }
 
-        if (!ModuleKeywords.TryGetValue(module, out var keywords))
+        // Si el clasificador aún no terminó de cargarse en startup,
+        // ejecutamos la clasificación ahora de forma sincrónica (fallback seguro).
+        if (!_classifier.HasRules)
+        {
+            MessageBox.Show(
+                "El clasificador de módulos aún se está inicializando.\nEspera un momento e intenta de nuevo.",
+                $"Clasificador no listo",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
             return;
+        }
 
-        // Buscar los códigos que corresponden al módulo
+        // Asegurar que los resultados tengan FilterTag calculado
+        // (pueden no tenerlo si fueron cargados antes de que el clasificador terminara)
+        foreach (var r in _currentResults.Where(r => r.FilterTag == null))
+            _classifier.ClassifyResult(r);
+
+        // Filtrar por módulo usando FilterTag
         var toReplace = _currentResults
-            .Where(r =>
-            {
-                var desc = (r.Description ?? "").ToUpperInvariant();
-                var code = (r.Code ?? "").ToUpperInvariant();
-                return keywords.Any(kw =>
-                    desc.Contains(kw.ToUpperInvariant()) ||
-                    code.Contains(kw.ToUpperInvariant()));
-            })
+            .Where(r => string.Equals(r.FilterTag, module, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (toReplace.Count == 0)
         {
             MessageBox.Show(
-                $"No se encontraron códigos relacionados con el módulo {module} en los resultados actuales.",
+                $"No se encontraron códigos clasificados como [{module}] en los resultados actuales.\n\n" +
+                $"Verifica que los códigos tengan descripción o sean los códigos exactos del módulo.",
                 $"Sin coincidencias — {module}",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;
         }
 
-        // Pedir confirmación
+        // Pedir confirmación mostrando los códigos afectados
+        var codesPreview = string.Join(", ", toReplace.Take(10).Select(r => r.Code));
+        if (toReplace.Count > 10) codesPreview += $" ... y {toReplace.Count - 10} más";
+
         var confirm = MessageBox.Show(
-            $"Se encontraron {toReplace.Count} código(s) relacionados con el módulo [{module}].\n\n" +
-            $"¿Deseas reemplazarlos todos con '0000' / 'FFFF'?\n\n" +
-            $"Esta acción modifica los resultados actuales.",
+            $"Se encontraron {toReplace.Count} código(s) del módulo [{module}]:\n{codesPreview}\n\n" +
+            $"¿Reemplazar todos con '0000' / 'FFFF'?",
             $"Borrar módulo {module}",
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Warning);
@@ -1313,13 +1347,14 @@ public partial class MainForm : Form
         // Reemplazar
         foreach (var result in toReplace)
         {
-            result.Code = "0000";
-            result.CodeAlt = "FFFF";
+            result.Code        = "0000";
+            result.CodeAlt     = "FFFF";
             result.Description = "Sin resultados";
-            result.Found = false;
-            result.Category = "Hex";
-            result.Source = null;
-            result.Notes = null;
+            result.Found       = false;
+            result.Category    = "Hex";
+            result.Source      = null;
+            result.Notes       = null;
+            result.FilterTag   = null;   // Limpiar tag tras borrar
         }
 
         // Refrescar grid
@@ -1328,15 +1363,87 @@ public partial class MainForm : Form
         ClearGridSelection();
 
         // Actualizar estadísticas
-        var found = _currentResults.Count(r => r.Found);
+        var found    = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
-        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [Módulo {module}: {toReplace.Count} borrado(s)]";
+        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{module}: {toReplace.Count} borrado(s)]";
 
         MessageBox.Show(
             $"Se reemplazaron {toReplace.Count} código(s) del módulo [{module}] con '0000' / 'FFFF'.",
             $"Módulo {module} — Completado",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // BUSCADOR EN BASE DE DATOS
+    // ─────────────────────────────────────────────────────────────
+
+    private async Task ExecuteSearchAsync()
+    {
+        var term = txtSearch.Text.Trim();
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            ClearSearch();
+            return;
+        }
+
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+            btnSearch.Enabled = false;
+            
+            // Buscar en BD
+            var matches = await _repository.SearchAsync(term);
+            
+            // Convertir a DtcLookupResult
+            var results = matches.Select(c => new DtcLookupResult
+            {
+                Code = c.Code,
+                Found = true,
+                Description = c.Description,
+                Category = c.Category,
+                Source = c.Source,
+                Notes = c.Notes,
+                UserStatus = c.IsActive ? "Activo" : "Inactivo",
+                DtcId = c.Id
+            }).ToList();
+
+            // Clasificar los resultados encontrados (para mostrar el módulo en la UI)
+            _classifier.ClassifyAll(results);
+
+            _currentResults = results;
+
+            // Actualizar UI
+            dgvCodes.DataSource = null;
+            dgvCodes.DataSource = _currentResults;
+            ClearGridSelection();
+
+            lblSearchMode.Text = $"Mostrando {results.Count} resultados de búsqueda para '{term}'.";
+            lblStats.Text = $"Búsqueda DB: {results.Count} encontrados";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al buscar: {ex.Message}", "Error DB", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+            btnSearch.Enabled = true;
+        }
+    }
+
+    private void ClearSearch()
+    {
+        txtSearch.Clear();
+        lblSearchMode.Text = "";
+        
+        // Si limpiamos la búsqueda, limpiamos el grid y esperamos una nueva acción del usuario
+        _currentResults.Clear();
+        dgvCodes.DataSource = null;
+        dgvCodes.DataSource = _currentResults;
+        
+        lblStats.Text = "No hay códigos cargados. Usa el botón Procesar o el Buscador.";
+        ClearGridSelection();
     }
 }
 

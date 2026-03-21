@@ -8,8 +8,10 @@ public partial class AddEditCodeForm : Form
 {
     private readonly ConnectionFactory _connectionFactory;
     private readonly DtcRepository _repository;
+    private readonly ModuleFilterRepository _moduleRepository;
     private DtcCode? _existingCode;
     private readonly bool _isEditMode;
+    private string? _preselectedModule;  // Usado en modo edición para mostrar el módulo actual
 
     public DtcCode? DtcCode { get; private set; }
 
@@ -22,6 +24,7 @@ public partial class AddEditCodeForm : Form
         var dbPath = ConnectionFactory.GetDefaultDatabasePath();
         _connectionFactory = new ConnectionFactory(dbPath);
         _repository = new DtcRepository(_connectionFactory);
+        _moduleRepository = new ModuleFilterRepository(_connectionFactory.GetConnectionString());
 
         SetupUI();
         
@@ -44,6 +47,7 @@ public partial class AddEditCodeForm : Form
         var dbPath = ConnectionFactory.GetDefaultDatabasePath();
         _connectionFactory = new ConnectionFactory(dbPath);
         _repository = new DtcRepository(_connectionFactory);
+        _moduleRepository = new ModuleFilterRepository(_connectionFactory.GetConnectionString());
 
         SetupUI();
         LoadExistingCode();
@@ -62,15 +66,59 @@ public partial class AddEditCodeForm : Form
         
         // Auto-mayúsculas en código
         txtCode.CharacterCasing = CharacterCasing.Upper;
-        txtCode.MaxLength = 5; // Máximo P0420 o FFFF
+        txtCode.MaxLength = 5;
         
-        // Categorías
+        // Categorías DTC
         cmbCategory.Items.AddRange(new object[]
         {
             "Powertrain",
             "Network"
         });
         cmbCategory.SelectedIndex = 0;
+
+        // Cargar módulos desde BD de forma asíncrona
+        _ = LoadModulesAsync();
+    }
+
+    /// <summary>
+    /// Carga la lista de módulos desde la BD y la aplica al ComboBox.
+    /// </summary>
+    private async Task LoadModulesAsync()
+    {
+        try
+        {
+            var filters = await _moduleRepository.GetAllFiltersAsync();
+
+            // Volver al hilo de UI para actualizar el combo
+            if (InvokeRequired)
+                Invoke(() => PopulateModuleCombo(filters));
+            else
+                PopulateModuleCombo(filters);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AddEditForm] Error al cargar módulos: {ex.Message}");
+        }
+    }
+
+    private void PopulateModuleCombo(List<DtcModuleFilter> filters)
+    {
+        cmbModule.Items.Clear();
+        cmbModule.Items.Add("(Ninguno)");  // Primera opción en blanco
+
+        foreach (var f in filters)
+            cmbModule.Items.Add(f.Name);
+
+        // Preseleccionar el módulo si ya se conocía
+        if (!string.IsNullOrWhiteSpace(_preselectedModule))
+        {
+            var idx = cmbModule.Items.IndexOf(_preselectedModule);
+            cmbModule.SelectedIndex = idx >= 0 ? idx : 0;
+        }
+        else
+        {
+            cmbModule.SelectedIndex = 0;  // "(Ninguno)"
+        }
     }
 
     private void ApplyDarkTheme()
@@ -118,7 +166,7 @@ public partial class AddEditCodeForm : Form
         btnCancel.FlatAppearance.BorderSize = 0;
     }
 
-    private void LoadExistingCode()
+    private async void LoadExistingCode()
     {
         if (_existingCode == null) return;
 
@@ -127,6 +175,18 @@ public partial class AddEditCodeForm : Form
         cmbCategory.Text = _existingCode.Category ?? "Powertrain";
         txtSource.Text = _existingCode.Source ?? "";
         txtNotes.Text = _existingCode.Notes ?? "";
+
+        // Buscar si este código tiene una regla exacta de módulo
+        try
+        {
+            var exactRules = await _moduleRepository.GetAllExactRulesAsync();
+            var rule = exactRules.FirstOrDefault(r =>
+                string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase));
+
+            if (rule != null)
+                _preselectedModule = rule.FilterName;
+        }
+        catch { /* silent — no es crítico */ }
     }
 
     private async void BtnSave_Click(object? sender, EventArgs e)
@@ -177,6 +237,7 @@ public partial class AddEditCodeForm : Form
                 if (updated)
                 {
                     DtcCode = _existingCode;
+                    await SaveModuleRuleAsync(_existingCode.Code);
                     MessageBox.Show("Código actualizado correctamente.", 
                         "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
@@ -214,6 +275,7 @@ public partial class AddEditCodeForm : Form
                         existingCode.Notes = txtNotes.Text.Trim();
 
                         await _repository.UpdateAsync(existingCode);
+                        await SaveModuleRuleAsync(code);
                         DtcCode = existingCode;
                     }
                 }
@@ -233,6 +295,7 @@ public partial class AddEditCodeForm : Form
                     var id = await _repository.InsertAsync(newCode);
                     newCode.Id = id;
                     DtcCode = newCode;
+                    await SaveModuleRuleAsync(code);
                     
                     MessageBox.Show("Código añadido correctamente.", 
                         "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -250,6 +313,30 @@ public partial class AddEditCodeForm : Form
         {
             Cursor = Cursors.Default;
             btnSave.Enabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Guarda o elimina la regla exacta código→módulo según la selección del ComboBox.
+    /// </summary>
+    private async Task SaveModuleRuleAsync(string code)
+    {
+        try
+        {
+            var selected = cmbModule.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selected) || selected == "(Ninguno)")
+            {
+                // Eliminar regla si existía
+                await _moduleRepository.DeleteExactRuleByCodeAsync(code);
+            }
+            else
+            {
+                await _moduleRepository.SaveExactRuleAsync(code, selected);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AddEditForm] Error al guardar módulo: {ex.Message}");
         }
     }
 

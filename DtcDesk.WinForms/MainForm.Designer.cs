@@ -45,7 +45,6 @@ namespace DtcDesk.WinForms
             btnEdit = new Button();
             btnAdd = new Button();
             lblResults = new Label();
-            // Nuevos controles del panel de filtros
             panelFilterSide = new Panel();
             lblFilterTitle = new Label();
             btnFilterVNT = new Button();
@@ -55,6 +54,11 @@ namespace DtcDesk.WinForms
             btnFilterSCR = new Button();
             btnFilterMAF = new Button();
             btnFilterTVA = new Button();
+            // Controles de búsqueda
+            txtSearch = new TextBox();
+            btnSearch = new Button();
+            btnSearchClear = new Button();
+            lblSearchMode = new Label();
             menuStrip.SuspendLayout();
             panelTop.SuspendLayout();
             panelLeft.SuspendLayout();
@@ -132,6 +136,10 @@ namespace DtcDesk.WinForms
             panelTop.Controls.Add(picLogo);
             panelTop.Controls.Add(lblStats);
             panelTop.Controls.Add(lblTitle);
+            panelTop.Controls.Add(txtSearch);
+            panelTop.Controls.Add(btnSearch);
+            panelTop.Controls.Add(btnSearchClear);
+            panelTop.Controls.Add(lblSearchMode);
             panelTop.Dock = DockStyle.Top;
             panelTop.Location = new Point(0, 24);
             panelTop.Name = "panelTop";
@@ -167,6 +175,49 @@ namespace DtcDesk.WinForms
             picLogo.SizeMode = PictureBoxSizeMode.Zoom;
             picLogo.TabIndex = 2;
             picLogo.TabStop = false;
+            // 
+            // txtSearch
+            // 
+            txtSearch.Anchor = AnchorStyles.None;
+            txtSearch.Font = new Font("Segoe UI", 10.5F);
+            txtSearch.Location = new Point(620, 22);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(340, 26);
+            txtSearch.TabIndex = 10;
+            txtSearch.PlaceholderText = "🔍  Buscar por código o descripción...";
+            // 
+            // btnSearch
+            // 
+            btnSearch.Anchor = AnchorStyles.None;
+            btnSearch.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnSearch.Location = new Point(966, 22);
+            btnSearch.Name = "btnSearch";
+            btnSearch.Size = new Size(90, 26);
+            btnSearch.TabIndex = 11;
+            btnSearch.Text = "BUSCAR";
+            btnSearch.UseVisualStyleBackColor = true;
+            // 
+            // btnSearchClear
+            // 
+            btnSearchClear.Anchor = AnchorStyles.None;
+            btnSearchClear.Font = new Font("Segoe UI", 9.5F);
+            btnSearchClear.Location = new Point(1062, 22);
+            btnSearchClear.Name = "btnSearchClear";
+            btnSearchClear.Size = new Size(70, 26);
+            btnSearchClear.TabIndex = 12;
+            btnSearchClear.Text = "Limpiar";
+            btnSearchClear.UseVisualStyleBackColor = true;
+            // 
+            // lblSearchMode
+            // 
+            lblSearchMode.Anchor = AnchorStyles.None;
+            lblSearchMode.AutoSize = true;
+            lblSearchMode.Font = new Font("Segoe UI", 8.5F, FontStyle.Italic);
+            lblSearchMode.Location = new Point(620, 52);
+            lblSearchMode.Name = "lblSearchMode";
+            lblSearchMode.Size = new Size(0, 15);
+            lblSearchMode.TabIndex = 13;
+            lblSearchMode.Text = "";
             // 
             // panelLeft
             // 
@@ -489,5 +540,10 @@ namespace DtcDesk.WinForms
         private Button btnFilterSCR;
         private Button btnFilterMAF;
         private Button btnFilterTVA;
+        // Búsqueda
+        private TextBox txtSearch;
+        private Button btnSearch;
+        private Button btnSearchClear;
+        private Label lblSearchMode;
     }
 }
