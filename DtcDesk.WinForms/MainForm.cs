@@ -15,6 +15,16 @@ public partial class MainForm : Form
     private readonly DtcParser _parser;
     private readonly DtcRepository _repository;
     private readonly ConnectionFactory _connectionFactory;
+    private static readonly Dictionary<string, string[]> ModuleAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["VNT"] = new[] { "VNT", "VGT", "TURBO", "BOOST", "WASTEGATE" },
+        ["DPF"] = new[] { "DPF", "FAP", "PARTICULATE" },
+        ["EGR"] = new[] { "EGR", "EXHAUSTGASRECIRCULATION" },
+        ["NOX"] = new[] { "NOX", "NITROGENOXIDE", "NITROGENOXIDES" },
+        ["SCR"] = new[] { "SCR", "UREA", "DEF", "ADBLUE" },
+        ["MAF"] = new[] { "MAF", "MASSAIRFLOW" },
+        ["TVA"] = new[] { "TVA", "THROTTLE", "ACTUATOR" }
+    };
     private List<DtcLookupResult> _currentResults = new();
     private bool _suppressSelectionChange;
     private int _gridZoomPercent = GridZoomDefault;
@@ -249,6 +259,19 @@ public partial class MainForm : Form
             HeaderText = "DESCRIPCIÓN",
             DataPropertyName = "Description",
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        });
+
+        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name = "colModule",
+            HeaderText = "MÓDULO",
+            DataPropertyName = "Module",
+            Width = 110,
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            }
         });
         
         dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
@@ -653,6 +676,16 @@ public partial class MainForm : Form
             e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
             e.CellStyle.Font = new Font(e.CellStyle.Font!, FontStyle.Italic);
         }
+
+        if (dgvCodes.Columns[e.ColumnIndex].Name == "colModule")
+        {
+            var moduleValue = e.Value?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(moduleValue))
+            {
+                e.Value = "-";
+                e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
+            }
+        }
     }
 
     private async void BtnParse_Click(object? sender, EventArgs e)
@@ -768,6 +801,8 @@ public partial class MainForm : Form
                     Category = found ? foundCode!.Category : GetCategoryFromPrefix(prefix),
                     Source = found ? foundCode!.Source : null,
                     Notes = found ? foundCode!.Notes : null,
+                    FilterTag = found ? foundCode!.FilterTag : null,
+                    Module = found ? GetDisplayModule(foundCode!) : null,
                     DtcId = found ? foundCode!.Id : null
                 });
             }
@@ -1213,54 +1248,6 @@ public partial class MainForm : Form
         btnEdit.Enabled = hasSelection && isFound;
     }
 
-    // Diccionario de palabras clave por módulo de motor
-    private static readonly Dictionary<string, string[]> ModuleKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["VNT"] = new[] {
-            "vnt", "variable nozzle", "variable geometry turbo", "turbocharger", "turbo",
-            "boost pressure", "boost control", "turbo control", "wastegate",
-            "intake manifold pressure", "manifold absolute pressure", "turbo actuator",
-            "p0234", "p0235", "p0236", "p0237", "p0238", "p0243", "p0244",
-            "p0245", "p0246", "p0299", "p0234", "p0045", "p0046", "p0047", "p0048"
-        },
-        ["DPF"] = new[] {
-            "dpf", "diesel particulate", "particulate filter", "filtro de particulas",
-            "soot", "regeneration", "regeneracion", "exhaust pressure", "presion de escape",
-            "differential pressure", "presion diferencial", "p2002", "p2003",
-            "p244a", "p2452", "p2453", "p2454", "p2455", "p0549", "p1451"
-        },
-        ["EGR"] = new[] {
-            "egr", "exhaust gas recirculation", "recirculacion de gases",
-            "egr valve", "egr cooler", "egr flow", "egr position",
-            "p0400", "p0401", "p0402", "p0403", "p0404", "p0405", "p0406",
-            "p0407", "p0408", "p0409"
-        },
-        ["NOX"] = new[] {
-            "nox", "nitrogen oxide", "oxido de nitrogeno", "nox sensor",
-            "nox catalyst", "nox adsorber", "p2200", "p2201", "p2202",
-            "p2203", "p2204", "p2205", "p229e", "p229f", "p228a", "p228b"
-        },
-        ["SCR"] = new[] {
-            "scr", "selective catalytic reduction", "adblue", "urea",
-            "def", "reductant", "reductor", "dosing", "dosificacion",
-            "p20e8", "p20ee", "p203a", "p203b", "p203c", "p203d",
-            "p204f", "p11cb", "p11cd", "p229f", "p2bad"
-        },
-        ["MAF"] = new[] {
-            "maf", "mass air flow", "flujo de masa de aire", "air flow sensor",
-            "mass airflow", "hot wire", "hot film", "air meter",
-            "p0100", "p0101", "p0102", "p0103", "p0104"
-        },
-        ["TVA"] = new[] {
-            "tva", "throttle valve", "valvula de mariposa", "throttle body",
-            "throttle actuator", "throttle position", "throttle control",
-            "swirl flap", "intake flap", "aleta de admision",
-            "p0120", "p0121", "p0122", "p0123", "p0124",
-            "p2100", "p2101", "p2102", "p2103", "p2104", "p2107", "p2110",
-            "p0638", "p2118", "p2119"
-        }
-    };
-
     private void DeleteByModule(string module)
     {
         if (_currentResults == null || _currentResults.Count == 0)
@@ -1273,19 +1260,15 @@ public partial class MainForm : Form
             return;
         }
 
-        if (!ModuleKeywords.TryGetValue(module, out var keywords))
-            return;
+        var normalizedModule = module.Trim().ToUpperInvariant();
 
-        // Buscar los códigos que corresponden al módulo
+        var moduleKeys = ModuleAliases.TryGetValue(normalizedModule, out var aliases)
+            ? aliases
+            : new[] { normalizedModule };
+
+        // Buscar por tokens normalizados en Module y FilterTag para soportar datos con separadores/ruido.
         var toReplace = _currentResults
-            .Where(r =>
-            {
-                var desc = (r.Description ?? "").ToUpperInvariant();
-                var code = (r.Code ?? "").ToUpperInvariant();
-                return keywords.Any(kw =>
-                    desc.Contains(kw.ToUpperInvariant()) ||
-                    code.Contains(kw.ToUpperInvariant()));
-            })
+            .Where(r => MatchesAnyModuleKey(r, moduleKeys))
             .ToList();
 
         if (toReplace.Count == 0)
@@ -1337,6 +1320,59 @@ public partial class MainForm : Form
             $"Módulo {module} — Completado",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
+    }
+
+    private static bool MatchesAnyModuleKey(DtcLookupResult result, IEnumerable<string> keys)
+    {
+        var availableTags = GetNormalizedTags(result.Module)
+            .Concat(GetNormalizedTags(result.FilterTag))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (availableTags.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (var key in keys)
+        {
+            if (availableTags.Contains(key))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string? GetDisplayModule(DtcCode code)
+    {
+        var moduleTokens = GetNormalizedTags(code.Module).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var allTokens = moduleTokens
+            .Concat(GetNormalizedTags(code.FilterTag))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var orderedModules = new[] { "VNT", "DPF", "EGR", "NOX", "SCR", "MAF", "TVA" };
+        var detected = orderedModules.Where(allTokens.Contains).ToList();
+
+        if (detected.Count > 0)
+        {
+            return string.Join("/", detected);
+        }
+
+        // Si no detecta módulo conocido, mostrar el primer token limpio disponible.
+        return moduleTokens.FirstOrDefault();
+    }
+
+    private static IEnumerable<string> GetNormalizedTags(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Enumerable.Empty<string>();
+        }
+
+        return System.Text.RegularExpressions.Regex
+            .Split(value.ToUpperInvariant(), @"[^A-Z0-9]+")
+            .Where(token => !string.IsNullOrWhiteSpace(token));
     }
 }
 

@@ -23,6 +23,8 @@ namespace DtcDesk.WinForms
             txtDescription = new TextBox();
             lblCategory = new Label();
             cmbCategory = new ComboBox();
+            lblModule = new Label();
+            cmbModule = new ComboBox();
             lblSource = new Label();
             txtSource = new TextBox();
             lblNotes = new Label();
@@ -90,6 +92,26 @@ namespace DtcDesk.WinForms
             cmbCategory.Name = "cmbCategory";
             cmbCategory.Size = new Size(250, 25);
             cmbCategory.TabIndex = 5;
+            // 
+            // lblModule
+            // 
+            lblModule.AutoSize = true;
+            lblModule.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblModule.Location = new Point(320, 205);
+            lblModule.Name = "lblModule";
+            lblModule.Size = new Size(68, 19);
+            lblModule.TabIndex = 12;
+            lblModule.Text = "Módulo:";
+            // 
+            // cmbModule
+            // 
+            cmbModule.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbModule.Font = new Font("Segoe UI", 10F);
+            cmbModule.FormattingEnabled = true;
+            cmbModule.Location = new Point(320, 230);
+            cmbModule.Name = "cmbModule";
+            cmbModule.Size = new Size(260, 25);
+            cmbModule.TabIndex = 13;
             // 
             // lblSource
             // 
@@ -162,6 +184,8 @@ namespace DtcDesk.WinForms
             Controls.Add(lblNotes);
             Controls.Add(txtSource);
             Controls.Add(lblSource);
+            Controls.Add(cmbModule);
+            Controls.Add(lblModule);
             Controls.Add(cmbCategory);
             Controls.Add(lblCategory);
             Controls.Add(txtDescription);
@@ -186,6 +210,8 @@ namespace DtcDesk.WinForms
         private TextBox txtDescription;
         private Label lblCategory;
         private ComboBox cmbCategory;
+        private Label lblModule;
+        private ComboBox cmbModule;
         private Label lblSource;
         private TextBox txtSource;
         private Label lblNotes;

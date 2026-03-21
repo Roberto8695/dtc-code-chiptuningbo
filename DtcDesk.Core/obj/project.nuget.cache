@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "XFuVUurTL70=",
+  "dgSpecHash": "wDM81YaNhKc=",
   "success": true,
   "projectFilePath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Core\\DtcDesk.Core.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\rober\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
+    "C:\\Users\\rober\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.25\\microsoft.net.illink.tasks.8.0.25.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,0 +1,383 @@
+Code,Description,Category,Source,Notes,FilterTag,Module
+P0033,Turbo Charger Bypass Valve Control Circuit,Powertrain,OBD-II Standard,,,VNT
+P0034,Turbo Charger Bypass Valve Control Circuit Low,Powertrain,OBD-II Standard,,,VNT
+P0035,Turbo Char ger Bypass Valve Control Circuit High,Powertrain,OBD-II Standard,,,VNT
+P0039,Turbo/Super Charger Bypass Valve C ontrol Circuit,Powertrain,OBD-II Standard,,,VNT
+P0045,Turbo/Super Charger Boost Control Solenoid Circuit/Open,Powertrain,OBD-II Standard,,,VNT
+P0046,Turbo/Super Charger Boost Control Solenoid Circuit,Powertrain,OBD-II Standard,,,VNT
+P0047,Turbo/Super Charg er Boost Control Solenoid Circuit Low,Powertrain,OBD-II Standard,,,VNT
+P0048,Turbo/Super Charger Boost Control Solenoid Circuit High,Powertrain,OBD-II Standard,,,VNT
+P0049,Turbo/Super Charger Turbine Overspeed,Powertrain,OBD-II Standard,,,VNT
+P0068,MAP/MAF Throttle Position Correlation,Powertrain,OBD-II Standard,,,MAF
+P0100,Mass or Volume Air Flow Circuit Malfunction,Powertrain,OBD-II Standard,,,MAF
+P0101,Mass or Volume Air Flow Circuit Range/Performance Problem,Powertrain,OBD-II Standard,,,MAF
+P0102,Mass or Volume Air Flow Circuit Low Input,Powertrain,OBD-II Standard,,,MAF
+P0103,Mass or Volume Air Flow Circuit High Input,Powertrain,OBD-II Standard,,,MAF
+P0104,Mass or Volume Air Flow Circuit Intermittent,Powertrain,OBD-II Standard,,,MAF
+P0120,Throttle Position Sensor/Switch A Circuit Malfunction,Powertrain,OBD-II Standard,,,TVA
+P0121,Throttle Position Sensor/Switch A Circuit Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P0122,Throttle Position Sensor/Switch A Circuit Low Input,Powertrain,OBD-II Standard,,,TVA
+P0123,Throttle Position Sensor/Switch A Circuit High Input,Powertrain,OBD-II Standard,,,TVA
+P0124,Throttle Position Sensor/Switch A Circuit Intermittent,Powertrain,OBD-II Standard,,,TVA
+P0234,Engine Overboost Condition,Powertrain,OBD-II Standard,,,VNT
+P0235,Turbocharger Boost Sensor A Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P0236,Turbocharger Boost Sensor A Circuit Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P0237,Turbocharger Boost Sensor A Circuit Low,Powertrain,OBD-II Standard,,,VNT
+P0238,Turbocharger Boost Sensor A Circuit High,Powertrain,OBD-II Standard,,,VNT
+P0239,Turbocharger Boost Sensor B Malfunction,Powertrain,OBD-II Standard,,,VNT
+P0240,Turbocharger Boost Sensor B Circuit Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P0241,Turbocharger Boost Sensor B Circuit Low,Powertrain,OBD-II Standard,,,VNT
+P0242,Turbocharger Boost Se nsor B Circuit High,Powertrain,OBD-II Standard,,,VNT
+P0243,Turbocharger Wastegate Solenoid A Malfunction,Powertrain,OBD-II Standard,,,VNT
+P0244,Turbocharger Wastegate Solenoid A Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P0245,Turbocharger Wastegate Solenoid A Low,Powertrain,OBD-II Standard,,,VNT
+P0246,Turbocharger Wastegate Solenoid A High,Powertrain,OBD-II Standard,,,VNT
+P0247,Turbocharger Was tegate Solenoid B Malfunction,Powertrain,OBD-II Standard,,,VNT
+P0248,Turbocharger Wastegate Solenoid B Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P0249,Turbocharger Wastegate Solenoid B Low,Powertrain,OBD-II Standard,,,VNT
+P0250,Turbocharger Wastegate Solenoid B High,Powertrain,OBD-II Standard,,,VNT
+P0299, Turbo/Super Charger Underboost,Powertrain,OBD-II Standard,,,VNT
+P0382,Exhaust Gas Recirculation Flow Malfunction,Powertrain,OBD-II Standard,,,EGR
+P0400,Exhaust Gas Recirculation Flow Malfunction,Powertrain,OBD-II Standard,,,EGR
+P0401,Exhaust Gas Recirculation Flow Insufficient Detected,Powertrain,OBD-II Standard,,,EGR
+P0402,Exhaust Gas Recirculation Flow Excessive Detected,Powertrain,OBD-II Standard,,,EGR
+P0403,Exhaust Gas Recirculation Circuit Malfunction,Powertrain,OBD-II Standard,,,EGR
+P0404,Exhaust Gas Recirculation Circuit Range/Performance,Powertrain,OBD-II Standard,,,EGR
+P0405,Exhaust Gas Recirculation Sensor A Circuit Low,Powertrain,OBD-II Standard,,,EGR
+P0406,Exhaust Gas Recirculation Sensor A Circuit High,Powertrain,OBD-II Standard,,,EGR
+P0407,Exhaust Gas Recirculati on Sensor B Circuit Low,Powertrain,OBD-II Standard,,,EGR
+P0408,Exhaust Gas Recirculation Sensor B Circuit High,Powertrain,OBD-II Standard,,,EGR
+P0409, Exhaust Gas Recirculation Sensor A Circuit,Powertrain,OBD-II Standard,,,EGR
+P0486, Exhaust Gas Recirculation Sensor B Circuit,Powertrain,OBD-II Standard,,,EGR
+P0487, Exhaust Gas Recirculation Throttle Position Control Circuit,Powertrain,OBD-II Standard,,,EGR
+P0488, Exhaust Gas Recirculation Throttle Position Control Range/Performance,Powertrain,OBD-II Standard,,,EGR
+P0489, Exhaust Gas Recirculation Control Circuit Low,Powertrain,OBD-II Standard,,,EGR
+P0490, Exhaust Gas Recirculation Control Circuit High,Powertrain,OBD-II Standard,,,EGR
+P0510,Closed Throttle Position Switch Malfunction,Powertrain,OBD-II Standard,,,TVA
+P0555, Brake Booster Pressure Sensor Circuit,Powertrain,OBD-II Standard,,,VNT
+P0556, Brake Booster Pressure Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P0557, Brake Booster Pressure Sensor Circuit Low Input,Powertrain,OBD-II Standard,,,VNT
+P0558, Brake Booster Pressure Sensor Circuit High Input,Powertrain,OBD-II Standard,,,VNT
+P0559, Brake Booster Pressure Sensor Circuit Intermittent,Powertrain,OBD-II Standard,,,VNT
+P0638, Throttle Actuator Contro l Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P0639, Throttle Actuator Control Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P1100,MAF Sensor Intermittent/ Check of all OBDII Systems Not,Powertrain,OBD-II Standard,,,MAF
+P1101,MAF Sensor Out Of Self Test Range./KOER Not Able To,Powertrain,OBD-II Standard,,,MAF
+P1102,MAF Sensor In Range But Lower Than Expected,Powertrain,OBD-II Standard,,,MAF
+P1103,MAF Sensor In Range But Higher Than Expected,Powertrain,OBD-II Standard,,,MAF
+P1104,MAF Ground Malfunction,Powertrain,OBD-II Standard,,,MAF
+P1120,Throttle position sensor out of range,Powertrain,OBD-II Standard,,,TVA
+P1121,Throttle Position (TP) Sensor Circuit Int ermittent High Voltage,Powertrain,OBD-II Standard,,,TVA
+P1122,Throttle Position (TP) Sensor Circuit Intermittent Low Voltage,Powertrain,OBD-II Standard,,,TVA
+P1123,Throttle Position Sensor In Range But Higher Than Expected,Powertrain,OBD-II Standard,,,TVA
+P1124,Throttle Position Sensor Out Of Self Test Range,Powertrain,OBD-II Standard,,,TVA
+P1125,Throttle position sensor in termittent,Powertrain,OBD-II Standard,,,TVA
+P1126,Throttle Position (Narrow Range) Sensor Circuit Malfunction,Powertrain,OBD-II Standard,,,TVA
+P1193,EGR Drive Overcurrent,Powertrain,OBD-II Standard,,,EGR
+P1224,Throttle Position Sensor B Out Of Self Test Range,Powertrain,OBD-II Standard,,,TVA
+P1227,Wastegate Failed Closed (Over Pressure),Powertrain,OBD-II Standard,,,VNT
+P1228,Wastegate Failed Open (Under Pressure),Powertrain,OBD-II Standard,,,VNT
+P1247,Turbo Boost Pressure Low,Powertrain,OBD-II Standard,,,VNT
+P1248,Turbo Boost Pressure Not Detected,Powertrain,OBD-II Standard,,,VNT
+P1249,Wastegate Control Valve Performance,Powertrain,OBD-II Standard,,,VNT
+P1300,Boost Calibration Fault,Powertrain,OBD-II Standard,,,VNT
+P1301,Boost Calibration High,Powertrain,OBD-II Standard,,,VNT
+P1302,Boost Cal ibration Low,Powertrain,OBD-II Standard,,,VNT
+P1303,EGR Calibration Fault,Powertrain,OBD-II Standard,,,EGR
+P1304,EGR Calibration High,Powertrain,OBD-II Standard,,,EGR
+P1305,EGR Calibration Low,Powertrain,OBD-II Standard,,,EGR
+P1400,DPFE Circuit Low Input,Powertrain,OBD-II Standard,,,DPF
+P1401,DPFE Circuit High Input,Powertrain,OBD-II Standard,,,DPF
+P1402,EGR Metering Orifice Restricted,Powertrain,OBD-II Standard,,,EGR
+P1403,DPFE Sensor Hoses Reversed,Powertrain,OBD-II Standard,,,DPF
+P1404,IAT-B Circuit Malfunction/ Exhaust Gas Recirculation Closed,Powertrain,OBD-II Standard,,,EGR
+P1405,DPFE Sensor Upstream Hose Off Or Plugged,Powertrain,OBD-II Standard,,,DPF
+P1406,Exhaust Gas Recirculation (EGR) Position Sensor Performance,Powertrain,OBD-II Standard,,,EGR
+P1407,EGRNo Flow Detected,Powertrain,OBD-II Standard,,,EGR
+P1408,EGR Flow Out Of Self Test Range,Powertrain,OBD-II Standard,,,EGR
+P1426,EGI Mini -MAF Failed Out Of Range,Powertrain,OBD-II Standard,,,MAF
+P1427,EGI Mini -MAF Failed Short Circuit,Powertrain,OBD-II Standard,,,MAF
+P1428,EGI Mini -MAF Failed Open Circuit,Powertrain,OBD-II Standard,,,MAF
+P1485,EGRV Circuit Malfunction,Powertrain,OBD-II Standard,,,EGR
+P1486,EGRA Circuit Malfunction,Powertrain,OBD-II Standard,,,EGR
+P1487,EGRCHK Solenoid Circuit Malfunction,Powertrain,OBD-II Standard,,,EGR
+P1528,Subsidiary Throttle Valve Solenoid Circuit Malfunction,Powertrain,OBD-II Standard,,,TVA
+P1573,Throttle Position Not Available,Powertrain,OBD-II Standard,,,TVA
+P1574,Throttle Position Sensor Disagreement btwn Sensors,Powertrain,OBD-II Standard,,,TVA
+P1580,Electronic Throttle Monitor PCM Override,Powertrain,OBD-II Standard,,,TVA
+P1581,Electronic Throttle Monitor Malfunction,Powertrain,OBD-II Standard,,,TVA
+P1582,Electronic Throttle Monitor Data Available,Powertrain,OBD-II Standard,,,TVA
+P1583,Electronic Throttle Monitor Cruise Disable,Powertrain,OBD-II Standard,,,TVA
+P1586,Throttle Control Unit Throttle Position Malfunction,Powertrain,OBD-II Standard,,,TVA
+P1690,Wastegate Solenoid Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P1691,Turbo Pressure Control Solenoid Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P1692,Turbo Control Solenoid Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P1693,Turbo Charge Control Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P1694,Turbo Charge Relief Circuit Malfunction,Powertrain,OBD-II Standard,,,VNT
+P2000, NOx Trap Efficiency Below Threshold,Powertrain,OBD-II Standard,,,NOX
+P2001, NOx Trap Efficiency Below Threshold,Powertrain,OBD-II Standard,,,NOX
+P2002, Particulate Trap Efficiency Below Threshold,Powertrain,OBD-II Standard,,,DPF
+P2003,Particulate Trap Efficiency Below Threshold,Powertrain,OBD-II Standard,,,DPF
+P2004, Intake Manifold Runner Control Stuck Open,Powertrain,OBD-II Standard,,,DPF
+P2037, Reductant Injection Ai r Pressure Sensor Circuit,Powertrain,OBD-II Standard,,,SCR
+P2038, Reductant Injection Air Pressure Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,SCR
+P2039, Reductant Injection Air Pressure Sensor Circuit Low Input,Powertrain,OBD-II Standard,,,SCR
+P2040, Reductant Injection Air Pressure Sensor Circuit High Input,Powertrain,OBD-II Standard,,,SCR
+P2041, Reductant Injection Air Pressure Sensor Circuit Intermittent,Powertrain,OBD-II Standard,,,SCR
+P2042, Reductant Temperature Sensor Circuit,Powertrain,OBD-II Standard,,,SCR
+P2043, Reductant Temperature Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,SCR
+P2044, Reductant Temperature Sensor Circuit Low Input,Powertrain,OBD-II Standard,,,SCR
+P2045, Reductant Temperature Sensor Circuit High Input,Powertrain,OBD-II Standard,,,SCR
+P2046, Reductant Temperature Sensor Circuit Intermittent,Powertrain,OBD-II Standard,,,SCR
+P2047, Reductant Injector Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2048, Reductant Injector Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2049, Reductant Injector Circuit High,Powertrain,OBD-II Standard,,,SCR
+P205,2 Reductant Injector Circuit High,Powertrain,OBD-II Standard,,,SCR
+P2050, Reductant Injector Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2051, Reductant Injector Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2053, Reductant Injector Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2054, Reductant Injector Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2055, Reductant Injector Circuit High,Powertrain,OBD-II Standard,,,SCR
+P2056, Reductant Injector Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2057, Reductant Injector Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2058, Reductant Injector Cir cuit High,Powertrain,OBD-II Standard,,,SCR
+P2059, Reductant Injection Air Pump Control Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2060, Reductant Injection Air Pump Control Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2061, Reductant Injection Air Pump Control Circuit High,Powertrain,OBD-II Standard,,,SCR
+P2062, Reductant Supply Control Circuit/Open,Powertrain,OBD-II Standard,,,SCR
+P2063, Reductant Supply Control Circuit Low,Powertrain,OBD-II Standard,,,SCR
+P2064, Reductant Supply Control Circuit High,Powertrain,OBD-II Standard,,,SCR
+P2100, Throttle Actuator Control Motor Circuit/Open,Powertrain,OBD-II Standard,,,TVA
+P2101, Throttle Actuator Control Motor Circuit Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P2102, Throttle Actuator Control Motor Circuit Low,Powertrain,OBD-II Standard,,,TVA
+P2103, Throttle Actuator Control Motor Circuit High,Powertrain,OBD-II Standard,,,TVA
+P2104, Throttle Actuator Control System - Forced Idle,Powertrain,OBD-II Standard,,,TVA
+P2105, Throttle Actuator Control System - Forced Engine Shutdown,Powertrain,OBD-II Standard,,,TVA
+P2106, Throttle Actuator Control Sy stem - Forced Limited Power,Powertrain,OBD-II Standard,,,TVA
+P2107, Throttle Actuator Control Module Processor,Powertrain,OBD-II Standard,,,TVA
+P2108, Throttle Actuator Control Module Performance,Powertrain,OBD-II Standard,,,TVA
+P2109, Throttle/Pedal Position Sensor A Minimum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2110, Throttle Actuator Control System - Forced Limited RP M,Powertrain,OBD-II Standard,,,TVA
+P2111, Throttle Actuator Control System - Stuck Open,Powertrain,OBD-II Standard,,,TVA
+P2112, Throttle Actuator Control System - Stuck Closed,Powertrain,OBD-II Standard,,,TVA
+P2113, Throttle/Pedal Position Sensor B Minimum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2114, Throttle/Pedal Position Sensor C Minimum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2116, Throttle/Pedal Position Sensor E Minimum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2117, Throttle/Pedal Position Sensor F Minimum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2118, Throttle Actuator Control Motor Current Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P2119, Throttle Actuator Control Throttle Body Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P2120, Throttle/Pedal Position Sensor/Switch D Circuit,Powertrain,OBD-II Standard,,,TVA
+P2121, Throttle/Pedal Position Sensor/Switch D Circuit Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P2122, Throttle/Pedal Position Sensor/Switch D Circuit Low Input,Powertrain,OBD-II Standard,,,TVA
+P2123, Throttle/Pedal Position Sensor/Switch D Circuit High Input,Powertrain,OBD-II Standard,,,TVA
+P2124, Throttle/Pedal Position Sensor/Switch D Circuit Intermittent,Powertrain,OBD-II Standard,,,TVA
+P2125, Throttle/Pedal Position Sensor/Switch E Circuit,Powertrain,OBD-II Standard,,,TVA
+P2126, Throttle/Pedal Position Sensor/Switch E Circui t Range/Performance,Powertrain,OBD-II Standard,,,TVA
+P2127, Throttle/Pedal Position Sensor/Switch E Circuit Low Input,Powertrain,OBD-II Standard,,,TVA
+P2128, Throttle/Pedal Position Sensor/Switch E Circuit High Input,Powertrain,OBD-II Standard,,,TVA
+P2129, Throttle/Pedal Position Sensor/Switch E Circuit Intermittent,Powertrain,OBD-II Standard,,,TVA
+P2130, Throttle/Pedal Position Sensor/Switch F Circuit,Powertrain,OBD-II Standard,,,TVA
+P2131, Throttle/Pedal Position Sensor/Switch F Circuit Range Performance,Powertrain,OBD-II Standard,,,TVA
+P2132, Throttle/Pedal Position Sensor/Switch F Circuit Low Input,Powertrain,OBD-II Standard,,,TVA
+P2133, Throttle/Pedal Position Sensor/Switch F Circuit High Input,Powertrain,OBD-II Standard,,,TVA
+P2135, Throttle/Pedal Position Sensor/Switch A / B Voltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2136, Throttle/Pedal Position Sensor/Switch A / C Voltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2137, Throttle/Pedal Position Sensor/Switch B / C V oltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2138, Throttle/Pedal Position Sensor/Switch D / E Voltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2139, Throttle/Pedal Position Sensor/Switch D / F Voltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2140, Throttle/Pedal Position Sensor/Switch E / F Voltage Correlation,Powertrain,OBD-II Standard,,,TVA
+P2142, Exhaust Gas Recirculation Throttle Control Circuit High,Powertrain,OBD-II Standard,,,EGR
+P2143, Exhaust Gas Recirculation Vent Control Circuit/Open,Powertrain,OBD-II Standard,,,EGR
+P2144, Exhaust Gas Recirculation Vent Control Circuit Low,Powertrain,OBD-II Standard,,,EGR
+P2163, Throttle/Pedal Position Sensor A Maximum Stop Per formance,Powertrain,OBD-II Standard,,,TVA
+P2164, Throttle/Pedal Position Sensor B Maximum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2165, Throttle/Pedal Position Sensor C Maximum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2166, Throttle/Pedal Position Sensor D Maximum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2167, Throttle/Pedal Position Sensor E Maxi mum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2168, Throttle/Pedal Position Sensor F Maximum Stop Performance,Powertrain,OBD-II Standard,,,TVA
+P2172, Throttle Actuator Control System - Sudden High Airflow Detected,Powertrain,OBD-II Standard,,,TVA
+P2173, Throttle Actuator Control System - High Airflow Detected,Powertrain,OBD-II Standard,,,TVA
+P2174, Throttle Actuator Control System - Sudden Low Airflow Detected,Powertrain,OBD-II Standard,,,TVA
+P2176, Throttle Actuator Control System - Idle Position Not Learned,Powertrain,OBD-II Standard,,,TVA
+P2200, NOx Sensor Circuit,Powertrain,OBD-II Standard,,,NOX
+P2201, NOx Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,NOX
+P2202, NOx Sensor Circuit Low Input,Powertrain,OBD-II Standard,,,NOX
+P2203, NOx Sensor Circuit High Input,Powertrain,OBD-II Standard,,,NOX
+P2204, NOx Sensor Circuit Intermittent Input,Powertrain,OBD-II Standard,,,NOX
+P2205, NOx Sensor Heater Control Circu it/Open,Powertrain,OBD-II Standard,,,NOX
+P2206, NOx Sensor Heater Control Circuit Low,Powertrain,OBD-II Standard,,,NOX
+P2207, NOx Sensor Heater Control Circuit High,Powertrain,OBD-II Standard,,,NOX
+P2208, NOx Sensor Heater Sense Circuit,Powertrain,OBD-II Standard,,,NOX
+P2209, NOx Sensor Heater Sense Circuit Range/Performance,Powertrain,OBD-II Standard,,,NOX
+P2210, NOx Sensor Heater Sense Circuit Low Input,Powertrain,OBD-II Standard,,,NOX
+P2211, NOx S ensor Heater Sense Circuit High Input,Powertrain,OBD-II Standard,,,NOX
+P2212, NOx Sensor Heater Sense Circuit Intermittent,Powertrain,OBD-II Standard,,,NOX
+P2213, NOx Sensor Circuit,Powertrain,OBD-II Standard,,,NOX
+P2214, NOx Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,NOX
+P2215, NOx Sensor Circuit Low Input,Powertrain,OBD-II Standard,,,NOX
+P2216, NOx Sensor Circuit High Input,Powertrain,OBD-II Standard,,,NOX
+P2217, NOx Sensor Circu it Intermittent Input,Powertrain,OBD-II Standard,,,NOX
+P2218, NOx Sensor Heater Control Circuit/Open,Powertrain,OBD-II Standard,,,NOX
+P2219, NOx Sensor Heater Control Circuit Low,Powertrain,OBD-II Standard,,,NOX
+P2220, NOx Sensor Heater Control Circuit High,Powertrain,OBD-II Standard,,,NOX
+P2221, NOx Sensor Heater Sense Circuit,Powertrain,OBD-II Standard,,,NOX
+P2222, NOx Sensor Heater Sense Circuit Range/Performance,Powertrain,OBD-II Standard,,,NOX
+P2223, NOx Sensor Heater Sense Circuit Low,Powertrain,OBD-II Standard,,,NOX
+P2224, NOx Sensor Heater Sense Circuit High,Powertrain,OBD-II Standard,,,NOX
+P2225, NOx Sensor Heater Sense Circuit Intermittent,Powertrain,OBD-II Standard,,,NOX
+P2261, Turbo/Super Charger Bypass Valve - Mechanical,Powertrain,OBD-II Standard,,,VNT
+P2262, Turbo Boost Pressure Not Detected - Mechanical,Powertrain,OBD-II Standard,,,VNT
+P2263, Turbo/Super Charger Boost System Performance,Powertrain,OBD-II Standard,,,VNT
+P2280, Air Flow Restriction / Air Leak Bet ween Air Filter and MAF,Powertrain,OBD-II Standard,,,MAF
+P2281, Air Leak Between MAF and Throttle Body,Powertrain,OBD-II Standard,,,MAF
+P2282, Air Leak Between Throttle Body and Intake Valves,Powertrain,OBD-II Standard,,,TVA
+P2413, Exhaust Gas Recirculation System Performance,Powertrain,OBD-II Standard,,,EGR
+P2425, Exhaust Gas Recirculation Cooling Valve Control Circuit/Open,Powertrain,OBD-II Standard,,,EGR
+P2426, Exhaust Gas Recirculation Cooling Valve Control Circuit Low,Powertrain,OBD-II Standard,,,EGR
+P2427, Exhaust Gas Recirculation Cooling Valve Control Circuit High,Powertrain,OBD-II Standard,,,EGR
+P2562, Turbocharger Boost Control Position Sensor Circuit,Powertrain,OBD-II Standard,,,VNT
+P2563, Turbocharger Boost Control Position Sensor Circuit Range/Performance,Powertrain,OBD-II Standard,,,VNT
+P2564, Turbocharger Boost Control Position Sensor Circuit Low,Powertrain,OBD-II Standard,,,VNT
+P2565, Turbocharger Boost Control Pos ition Sensor Circuit High,Powertrain,OBD-II Standard,,,VNT
+P2566, Turbocharger Boost Control Position Sensor Circuit Intermittent,Powertrain,OBD-II Standard,,,VNT
+P2620, Throttle Position Output Circuit/Open,Powertrain,OBD-II Standard,,,TVA
+P2621, Throttle Position Output Circuit Low,Powertrain,OBD-II Standard,,,TVA
+U0100,Lost Communication With ECM/PCM A,Network,OBD-II Standard,,,MAF
+U0101,Lost Communication with TCM,Network,OBD-II Standard,,,MAF
+U0102,Lost Communication with Transfer Case Control Module,Network,OBD-II Standard,,,MAF
+U0103,Lost Communication With Gear Shift Module,Network,OBD-II Standard,,,MAF
+U0104,Lost Communication With Cruise Control Module,Network,OBD-II Standard,,,MAF
+U0107,Lost Communication With Throttle Actuator Control Module,Network,OBD-II Standard,,,TVA
+U0195,Lost Communication With Subscription Entertainment Receiver Module,Network,OBD-II Standard,,,SCR
+U0234,Lost Communication With Convenience Recall Module,Network,OBD-II Standard,,,VNT
+U0235,Lost Communication With Cruise Control Front Distance Range Sensor,Network,OBD-II Standard,,,VNT
+U0308,Software Incompatibility with Throttle Actuator Control Module,Network,OBD-II Standard,,,TVA
+U0400,Invalid Data Received,Network,OBD-II Standard,,,EGR
+U0401,Invalid Data Received From ECM/PCM,Network,OBD-II Standard,,,EGR
+U0402,Invalid Data Received From Transmission Control Module,Network,OBD-II Standard,,,EGR
+U0403,Invalid Data Received From Transfer Case Control Module,Network,OBD-II Standard,,,EGR
+U0404,Invalid Data Received From Gear Shift Control Module,Network,OBD-II Standard,,,EGR
+U0405,Invalid Data Received From Cruise Control Module,Network,OBD-II Standard,,,EGR
+U0406,Invalid Data Received From Fuel Injector Control Module,Network,OBD-II Standard,,,EGR
+U0407,Invalid Data Received From Glow Plug Control Module,Network,OBD-II Standard,,,EGR
+U0408,Invalid Data Received From Throttle Actuator Control Module,Network,OBD-II Standard,,,TVA
+U0409,Invalid Data Received From Alternative Fuel Control Module,Network,OBD-II Standard,,,EGR
+U1230,SCP (J1850) Invalid or Missing Data for Electric Defrost,Network,OBD-II Standard,,,SCR
+U2000,Audio R ear Control Unit is Not Responding,Network,OBD-II Standard,,,DPF
+U2001,Audio Tape Deck Unit is Not Responding,Network,OBD-II Standard,,,DPF
+U2002,Audio Bezel is Not Responding,Network,OBD-II Standard,,,DPF
+U2003,Audio Compact Disk / Disk Jockey Unit is Not Responding,Network,OBD-II Standard,,,DPF
+U2004,Audio Steering Wheel Control Unit is Not Responding,Network,OBD-II Standard,,,DPF
+U2005,Audio Rear Integrated Control Panel Unit is Not Responding,Network,OBD-II Standard,,,EGR
+P003A,Turbocharger/Supercharger Boost Control A Position Exceeded Learning Limit,,,,,VNT
+P003B,Turbocharger/Supercharger Boost Control B Position Exceeded Learning Limit,,,,,VNT
+P004A,Turbocharger/Supercharger Boost Control B Circuit/Open,,,,,VNT
+P004B,Turbocharger/Supercharger Boost Control B Circuit Range/Performance,,,,,VNT
+P004C,Turbocharger/Supercharger Boost Control B Circuit Low,,,,,VNT
+P004D,Turbocharger/Supercharger Boost Control B Circuit High,,,,,VNT
+P004E,Turbocharger/Supercharger Boost Control A Circuit Intermittent/Erratic,,,,,VNT
+P004F,Turbocharger/Supercharger Boost Control B Circuit Intermittent/Erratic,,,,,VNT
+P005E,Turbocharger/Supercharger Boost Control B Supply Voltage Circuit Low,,,,,VNT
+P005F,Turbocharger/Supercharger Boost Control B Supply Voltage Circuit High,,,,,VNT
+P006A,MAP - Mass or Volume Air Flow Correlation Bank 1,,,,,MAF
+P006C,MAP - Turbocharger/Supercharger Inlet Pressure Correlation,,,,,VNT
+P006D,Barometric Pressure - Turbocharger/Supercharger Inlet Pressure Correlation,,,,,VNT
+P006E,Turbocharger/Supercharger Boost Control A Supply Voltage Circuit Low,,,,,VNT
+P006F,Turbocharger/Supercharger Boost Control A Supply Voltage Circuit High,,,,,VNT
+P007A,Charge Air Cooler Temperature Sensor Circuit Bank 1,,,,,VNT
+P007B,Charge Air Cooler Temperature Sensor Circuit Range/Performance Bank 1,,,,,VNT
+P007C,Charge Air Cooler Temperature Sensor Circuit Low Bank 1,,,,,VNT
+P007D,Charge Air Cooler Temperature Sensor Circuit High Bank 1,,,,,VNT
+P007E,Charge Air Cooler Temperature Sensor Circuit Intermittent/Erratic Bank 1,,,,,VNT
+P007F,Charge Air Cooler Temperature Sensor Bank1/Bank2 Correlation,,,,,VNT
+P00A0,Charge Air Cooler Temperature Sensor Circuit Bank 2,,,,,VNT
+P00A1,Charge Air Cooler Temperature Sensor Circuit Range/Performance Bank 2,,,,,VNT
+P00A2,Charge Air Cooler Temperature Sensor Circuit Low Bank 2,,,,,VNT
+P00A3,Charge Air Cooler Temperature Sensor Circuit High Bank 2,,,,,VNT
+P00A4,Charge Air Cooler Temperature Sensor Circuit Intermittent/Erratic Bank 2,,,,,VNT
+P00AF,Turbocharger/Supercharger Boost Control A Module Performance,,,,,VNT
+P00B0,Turbocharger/Supercharger Boost Control B Module Performance,,,,,VNT
+P00B8,MAP - Mass or Volume Air Flow Correlation Bank 2,,,,,MAF
+P00BC,Mass or Volume Air Flow A Circuit Range/Performance - Air Flow Too Low,,,,,MAF
+P00BD,Mass or Volume Air Flow A Circuit Range/Performance - Air Flow Too High,,,,,MAF
+P00BE,Mass or Volume Air Flow B Circuit Range/Performance - Air Flow Too Low,,,,,MAF
+P00BF,Mass or Volume Air Flow B Circuit Range/Performance - Air Flow Too High,,,,,MAF
+P2BAC,Exceedence - Deactivation of EGR,,,,,EGR
+P242F,Diesel Particulate Filter Restriction - Ash Accumulation,,,,,DPF
+P245E,Particulate Filter Pressure Sensor B Circuit,,,,,DPF
+P245F,Particulate Filter Pressure Sensor B Circuit Range/Performance,,,,,DPF
+P200C,Diesel Particulate Filter Over Temperature Bank 1,,,,,DPF
+P200D,Diesel Particulate Filter Over Temperature Bank 2,,,,,DPF
+P203A,Reductant Level Sensor Circuit,,,,,SCR
+P203B,Reductant Level Sensor Circuit Range/Performance,,,,,SCR
+P203C,Reductant Level Sensor Circuit Low,,,,,SCR
+P203D,Reductant Level Sensor Circuit High,,,,,SCR
+P203E,Reductant Level Sensor Circuit Intermittent/Erratic,,,,,SCR
+P203F,Reductant Level Too Low,,,,,SCR
+P209C,Reductant Injection Air Pressure Sensor B Circuit Low,,,,,SCR
+P209D,Reductant Injection Air Pressure Sensor B Circuit High,,,,,SCR
+P209E,Reductant Injection Air Pressure Sensor A / B Correlation,,,,,SCR
+P20A0,Reductant Purge Control Valve Circuit /Open,,,,,SCR
+P20A1,Reductant Purge Control Valve Performance,,,,,SCR
+P20A2,Reductant Purge Control Valve Circuit Low,,,,,SCR
+P20A3,Reductant Purge Control Valve Circuit High,,,,,SCR
+P20A4,Reductant Purge Control Valve Stuck Open,,,,,SCR
+P20A5,Reductant Purge Control Valve Stuck Closed,,,,,SCR
+P20B9,Reductant Heater A Control Circuit/Open,,,,,SCR
+P20BA,Reductant Heater A Control Circuit Performance,,,,,SCR
+P20BB,Reductant Heater A Control Circuit Low,,,,,SCR
+P20BC,Reductant Heater A Control Circuit High,,,,,SCR
+P20BD,Reductant Heater B Control Circuit/Open,,,,,SCR
+P20BE,Reductant Heater B Control Circuit Performance,,,,,SCR
+P20BF,Reductant Heater B Control Circuit Low,,,,,SCR
+P20C0,Reductant Heater B Control Circuit High,,,,,SCR
+P20C1,Reductant Heater C Control Circuit/Open,,,,,SCR
+P20C2,Reductant Heater C Control Circuit Performance,,,,,SCR
+P20C3,Reductant Heater C Control Circuit Low,,,,,SCR
+P20C4,Reductant Heater C Control Circuit High,,,,,SCR
+P20C5,Reductant Heater D Control Circuit/Open,,,,,SCR
+P20C6,Reductant Heater D Control Circuit Performance,,,,,SCR
+P20C7,Reductant Heater D Control Circuit Low,,,,,SCR
+P20C8,Reductant Heater D Control Circuit High,,,,,SCR
+P20EC,SCR NOx Catalyst - Over Temperature Bank 1,,,,,NOX
+P20ED,SCR NOx Pre-Catalyst - Over Temperature Bank 1,,,,,NOX
+P20EE,SCR NOx Catalyst Efficiency Below Threshold Bank 1,,,,,NOX
+P20EF,SCR NOx Pre- Catalyst Efficiency Below Threshold Bank 1,,,,,NOX
+P20F0,SCR NOx Catalyst - Over Temperature Bank 2,,,,,NOX
+P20F1,SCR NOx Pre-Catalyst - Over Temperature Bank 2,,,,,NOX
+P20F2,SCR NOx Catalyst Efficiency Below Threshold Bank 2,,,,,NOX
+P20F3,SCR NOx Pre- Catalyst Efficiency Below Threshold Bank 2,,,,,NOX
+P060E,Internal Control Module Throttle Position Performance,,,,,TVA
+P022A,Charge Air Cooler Bypass Control A Circuit Open,,,,,VNT
+P022B,Charge Air Cooler Bypass Control A Circuit Low,,,,,VNT
+P022C,Charge Air Cooler Bypass Control A Circuit High,,,,,VNT
+P022D,Charge Air Cooler Bypass Control B Circuit Open,,,,,VNT
+P022E,Charge Air Cooler Bypass Control B Circuit Low,,,,,VNT
+P022F,Charge Air Cooler Bypass Control B Circuit High,,,,,VNT
+P023A,Charge Air Cooler Coolant Pump Control Circuit Open,,,,,VNT
+P023B,Charge Air Cooler Coolant Pump Control Circuit Low,,,,,VNT
+P023C,Charge Air Cooler Coolant Pump Control Circuit High,,,,,VNT
+P023D,Manifold Absolute Pressure - Turbocharger/Supercharger Boost Sensor A Correlation,,,,,VNT
+P023E,Manifold Absolute Pressure - Turbocharger/Supercharger Boost Sensor B Correlation,,,,,VNT
+P023F,Fuel Pump Secondary Circuit/Open,,,,,VNT
+P024A,Charge Air Cooler Bypass Control A Range/Performance,,,,,VNT
+P024B,Charge Air Cooler Bypass Control A Stuck,,,,,VNT
+P024C,Charge Air Cooler Bypass Position Sensor A Circuit,,,,,VNT
+P024D,Charge Air Cooler Bypass Position Sensor A Circuit Range/Performance,,,,,VNT
+P024E,Charge Air Cooler Bypass Position Sensor A Circuit Low,,,,,VNT
+P024F,Charge Air Cooler Bypass Position Sensor A Circuit High,,,,,VNT
+P02CA,Turbocharger/Supercharger B Overboost Condition,,,,,VNT
+P02CB,Turbocharger/Supercharger B Underboost Condition,,,,,VNT
+P010A,Mass or Volume Air Flow B Circuit,,,,,MAF
+P010B,Mass or Volume Air Flow B Circuit Range/Performance,,,,,MAF
+P010C,Mass or Volume Air Flow B Circuit Low,,,,,MAF
+P010D,Mass or Volume Air Flow B Circuit High,,,,,MAF
+P010E,Mass or Volume Air Flow B Circuit Intermittent/Erratic,,,,,MAF
+P010F,Mass or Volume Air Flow Sensor A/B Correlation,,,,,MAF
+P011C,Charge Air Temperature/Intake Air Temperature Correlation Bank 1,,,,,VNT
+P011D,Charge Air Temperature/Intake Air Temperature Correlation Bank 2,,,,,VNT
+P012A,Turbocharger/Supercharger Inlet Pressure Sensor Circuit (Downstream of throttle valve),,,,,VNT
+P012B,Turbocharger/Supercharger Inlet Pressure Sensor Circuit Range/Performance (Downstream of throttle valve),,,,,VNT
+P012C,Turbocharger/Supercharger Inlet Pressure Sensor Circuit Low (Downstream of throttle valve),,,,,VNT
+P012D,Turbocharger/Supercharger Inlet Pressure Sensor Circuit High (Downstream of throttle valve),,,,,VNT
+P012E,Turbocharger/Supercharger Inlet Pressure Sensor Circuit Intermittent/Erratic (Downstream of throttle valve),,,,,VNT

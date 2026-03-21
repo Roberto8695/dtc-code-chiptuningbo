@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "bnDb5ATf3tY=",
+  "dgSpecHash": "7OfoOjk9/1o=",
   "success": true,
   "projectFilePath": "C:\\Users\\rober\\Desktop\\codigos_dtc\\DtcDesk.Data\\DtcDesk.Data.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\rober\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\microsoft.data.sqlite\\10.0.2\\microsoft.data.sqlite.10.0.2.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.2\\microsoft.data.sqlite.core.10.0.2.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.25\\microsoft.net.illink.tasks.8.0.25.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.11\\sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\sqlitepclraw.core\\2.1.11\\sqlitepclraw.core.2.1.11.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.11\\sqlitepclraw.lib.e_sqlite3.2.1.11.nupkg.sha512",

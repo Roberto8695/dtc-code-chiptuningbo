@@ -71,6 +71,11 @@ public partial class AddEditCodeForm : Form
             "Network"
         });
         cmbCategory.SelectedIndex = 0;
+        
+        // Módulos
+        var modules = new[] { "", "VNT", "DPF", "EGR", "NOX", "SCR", "MAF", "TVA" };
+        cmbModule.Items.AddRange(modules);
+        cmbModule.SelectedIndex = 0;
     }
 
     private void ApplyDarkTheme()
@@ -125,6 +130,7 @@ public partial class AddEditCodeForm : Form
         txtCode.Text = _existingCode.Code;
         txtDescription.Text = _existingCode.Description;
         cmbCategory.Text = _existingCode.Category ?? "Powertrain";
+        cmbModule.Text = _existingCode.Module ?? "";
         txtSource.Text = _existingCode.Source ?? "";
         txtNotes.Text = _existingCode.Notes ?? "";
     }
@@ -169,6 +175,7 @@ public partial class AddEditCodeForm : Form
                 // Actualizar código existente
                 _existingCode.Description = txtDescription.Text.Trim();
                 _existingCode.Category = cmbCategory.Text;
+                _existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
                 _existingCode.Source = txtSource.Text.Trim();
                 _existingCode.Notes = txtNotes.Text.Trim();
 
@@ -210,6 +217,7 @@ public partial class AddEditCodeForm : Form
                     {
                         existingCode.Description = txtDescription.Text.Trim();
                         existingCode.Category = cmbCategory.Text;
+                        existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
                         existingCode.Source = txtSource.Text.Trim();
                         existingCode.Notes = txtNotes.Text.Trim();
 
@@ -225,6 +233,7 @@ public partial class AddEditCodeForm : Form
                         Code = code,
                         Description = txtDescription.Text.Trim(),
                         Category = cmbCategory.Text,
+                        Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim(),
                         Source = txtSource.Text.Trim(),
                         Notes = txtNotes.Text.Trim(),
                         IsActive = true

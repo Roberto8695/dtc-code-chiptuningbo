@@ -42,6 +42,16 @@ public class DtcCode
     public string? Notes { get; set; }
 
     /// <summary>
+    /// Etiqueta de filtro proveniente del CSV final (opcional)
+    /// </summary>
+    public string? FilterTag { get; set; }
+
+    /// <summary>
+    /// Módulo funcional (VNT, TVA, SCR, EGR, NOX, MAF, DPF)
+    /// </summary>
+    public string? Module { get; set; }
+
+    /// <summary>
     /// Fecha de creación del registro
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
