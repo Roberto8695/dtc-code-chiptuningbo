@@ -16,8 +16,6 @@ public partial class MainForm : Form
     private readonly DtcParser _parser;
     private readonly DtcRepository _repository;
     private readonly ConnectionFactory _connectionFactory;
-    private readonly ModuleFilterRepository _moduleRepository;
-    private DtcClassifierService _classifier = new([], []);
     private List<DtcLookupResult> _currentResults = new();
     private bool _suppressSelectionChange;
     private int _gridZoomPercent = GridZoomDefault;
@@ -300,6 +298,19 @@ public partial class MainForm : Form
             HeaderText = "DESCRIPCIÓN",
             DataPropertyName = "Description",
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+        });
+
+        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name = "colModule",
+            HeaderText = "MÓDULO",
+            DataPropertyName = "Module",
+            Width = 110,
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            }
         });
         
         dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
@@ -722,6 +733,16 @@ public partial class MainForm : Form
                     e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Italic);
             }
         }
+
+        if (dgvCodes.Columns[e.ColumnIndex].Name == "colModule")
+        {
+            var moduleValue = e.Value?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(moduleValue))
+            {
+                e.Value = "-";
+                e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
+            }
+        }
     }
 
     private async void BtnParse_Click(object? sender, EventArgs e)
@@ -837,6 +858,8 @@ public partial class MainForm : Form
                     Category = found ? foundCode!.Category : GetCategoryFromPrefix(prefix),
                     Source = found ? foundCode!.Source : null,
                     Notes = found ? foundCode!.Notes : null,
+                    FilterTag = found ? foundCode!.FilterTag : null,
+                    Module = found ? GetDisplayModule(foundCode!) : null,
                     DtcId = found ? foundCode!.Id : null
                 });
             }
@@ -1297,26 +1320,19 @@ public partial class MainForm : Form
             return;
         }
 
-        // Si el clasificador aún no terminó de cargarse en startup,
-        // ejecutamos la clasificación ahora de forma sincrónica (fallback seguro).
-        if (!_classifier.HasRules)
-        {
-            MessageBox.Show(
-                "El clasificador de módulos aún se está inicializando.\nEspera un momento e intenta de nuevo.",
-                $"Clasificador no listo",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+        if (!ModuleKeywords.TryGetValue(module, out var keywords))
             return;
-        }
 
-        // Asegurar que los resultados tengan FilterTag calculado
-        // (pueden no tenerlo si fueron cargados antes de que el clasificador terminara)
-        foreach (var r in _currentResults.Where(r => r.FilterTag == null))
-            _classifier.ClassifyResult(r);
-
-        // Filtrar por módulo usando FilterTag
+        // Buscar los códigos que corresponden al módulo
         var toReplace = _currentResults
-            .Where(r => string.Equals(r.FilterTag, module, StringComparison.OrdinalIgnoreCase))
+            .Where(r =>
+            {
+                var desc = (r.Description ?? "").ToUpperInvariant();
+                var code = (r.Code ?? "").ToUpperInvariant();
+                return keywords.Any(kw =>
+                    desc.Contains(kw.ToUpperInvariant()) ||
+                    code.Contains(kw.ToUpperInvariant()));
+            })
             .ToList();
 
         if (toReplace.Count == 0)
@@ -1372,78 +1388,6 @@ public partial class MainForm : Form
             $"Módulo {module} — Completado",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // BUSCADOR EN BASE DE DATOS
-    // ─────────────────────────────────────────────────────────────
-
-    private async Task ExecuteSearchAsync()
-    {
-        var term = txtSearch.Text.Trim();
-        if (string.IsNullOrWhiteSpace(term))
-        {
-            ClearSearch();
-            return;
-        }
-
-        try
-        {
-            Cursor = Cursors.WaitCursor;
-            btnSearch.Enabled = false;
-            
-            // Buscar en BD
-            var matches = await _repository.SearchAsync(term);
-            
-            // Convertir a DtcLookupResult
-            var results = matches.Select(c => new DtcLookupResult
-            {
-                Code = c.Code,
-                Found = true,
-                Description = c.Description,
-                Category = c.Category,
-                Source = c.Source,
-                Notes = c.Notes,
-                UserStatus = c.IsActive ? "Activo" : "Inactivo",
-                DtcId = c.Id
-            }).ToList();
-
-            // Clasificar los resultados encontrados (para mostrar el módulo en la UI)
-            _classifier.ClassifyAll(results);
-
-            _currentResults = results;
-
-            // Actualizar UI
-            dgvCodes.DataSource = null;
-            dgvCodes.DataSource = _currentResults;
-            ClearGridSelection();
-
-            lblSearchMode.Text = $"Mostrando {results.Count} resultados de búsqueda para '{term}'.";
-            lblStats.Text = $"Búsqueda DB: {results.Count} encontrados";
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error al buscar: {ex.Message}", "Error DB", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            Cursor = Cursors.Default;
-            btnSearch.Enabled = true;
-        }
-    }
-
-    private void ClearSearch()
-    {
-        txtSearch.Clear();
-        lblSearchMode.Text = "";
-        
-        // Si limpiamos la búsqueda, limpiamos el grid y esperamos una nueva acción del usuario
-        _currentResults.Clear();
-        dgvCodes.DataSource = null;
-        dgvCodes.DataSource = _currentResults;
-        
-        lblStats.Text = "No hay códigos cargados. Usa el botón Procesar o el Buscador.";
-        ClearGridSelection();
     }
 }
 

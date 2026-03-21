@@ -30,6 +30,8 @@ public class DbInitializer
                 Category TEXT,
                 Source TEXT,
                 Notes TEXT,
+                FilterTag TEXT,
+                Module TEXT,
                 CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
                 UpdatedAt TEXT,
                 IsActive INTEGER NOT NULL DEFAULT 1
@@ -90,6 +92,41 @@ public class DbInitializer
         using var command = connection.CreateCommand();
         command.CommandText = createTableSql;
         command.ExecuteNonQuery();
+
+        EnsureColumnExists(connection, "DtcCodes", "FilterTag", "TEXT");
+        EnsureColumnExists(connection, "DtcCodes", "Module", "TEXT");
+
+        using var moduleIndexCommand = connection.CreateCommand();
+        moduleIndexCommand.CommandText = @"
+            CREATE INDEX IF NOT EXISTS idx_dtc_module
+                ON DtcCodes(Module);
+        ";
+        moduleIndexCommand.ExecuteNonQuery();
+    }
+
+    private static void EnsureColumnExists(SqliteConnection connection, string tableName, string columnName, string columnType)
+    {
+        using var existsCommand = connection.CreateCommand();
+        existsCommand.CommandText = $"PRAGMA table_info({tableName});";
+
+        using var reader = existsCommand.ExecuteReader();
+        var exists = false;
+        while (reader.Read())
+        {
+            var existingColumn = reader.GetString(1);
+            if (string.Equals(existingColumn, columnName, StringComparison.OrdinalIgnoreCase))
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists)
+        {
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = $"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnType};";
+            alterCommand.ExecuteNonQuery();
+        }
     }
 
     /// <summary>

@@ -41,6 +41,16 @@ public class DtcLookupResult
     public string? Notes { get; set; }
 
     /// <summary>
+    /// Etiqueta de filtro importada desde CSV (null si no se encontró)
+    /// </summary>
+    public string? FilterTag { get; set; }
+
+    /// <summary>
+    /// Módulo asociado al código (VNT, TVA, SCR, EGR, NOX, MAF, DPF)
+    /// </summary>
+    public string? Module { get; set; }
+
+    /// <summary>
     /// Estado asignado por el usuario (0, F, etc.)
     /// Usado para clasificación y exportación
     /// </summary>

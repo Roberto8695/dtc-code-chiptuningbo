@@ -1,9 +1,7 @@
-using CsvHelper;
-using CsvHelper.Configuration;
 using DtcDesk.Core.Models;
 using DtcDesk.Data.Db;
 using DtcDesk.Data.Repositories;
-using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace DtcDesk.WinForms;
 
@@ -138,44 +136,104 @@ public partial class ImportForm : Form
     {
         var codes = new List<DtcCode>();
 
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        List<string> lines = new();
+        
+        try
         {
-            HasHeaderRecord = true,
-            MissingFieldFound = null,
-            BadDataFound = null
-        };
-
-        using var reader = new StreamReader(filePath);
-        using var csv = new CsvReader(reader, config);
-
-        csv.Read();
-        csv.ReadHeader();
-
-        while (csv.Read())
-        {
-            try
+            // Usar FileStream con FileShare.Read para permitir acceso compartido al archivo
+            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: false))
+            using (var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8))
             {
-                var code = new DtcCode
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
                 {
-                    Code = csv.GetField<string>("Code")?.ToUpperInvariant() ?? "",
-                    Description = csv.GetField<string>("Description") ?? "",
-                    Category = csv.GetField<string>("Category"),
-                    Source = csv.GetField<string>("Source"),
-                    Notes = csv.GetField<string>("Notes")
-                };
-
-                if (!string.IsNullOrWhiteSpace(code.Code) && !string.IsNullOrWhiteSpace(code.Description))
-                {
-                    codes.Add(code);
+                    lines.Add(line);
                 }
             }
-            catch
-            {
-                // Ignorar filas con errores
+        }
+        catch (IOException ex)
+        {
+            throw new IOException($"No se puede acceder al archivo. Asegúrese de que no está abierto en otro programa.\nDetalles: {ex.Message}", ex);
+        }
+        
+        if (lines.Count <= 1)
+            return codes;
+
+        // Saltar cabecera: Code,Description,Category,Source,Notes,FilterTag,Module
+        foreach (var rawLine in lines.Skip(1))
+        {
+            if (string.IsNullOrWhiteSpace(rawLine))
                 continue;
-            }
+
+            var cols = ParseLooseCsvLine(rawLine);
+            if (cols == null)
+                continue;
+
+            var rawCode = cols[0].Trim().ToUpperInvariant();
+            if (!IsImportCodeValid(rawCode))
+                continue;
+
+            var description = cols[1].Trim();
+
+            var code = new DtcCode
+            {
+                Code = rawCode,
+                Description = string.IsNullOrWhiteSpace(description) ? "Sin descripción" : description,
+                Category = NullIfEmpty(cols[2]),
+                Source = NullIfEmpty(cols[3]),
+                Notes = NullIfEmpty(cols[4]),
+                FilterTag = NullIfEmpty(cols[5]),
+                Module = NullIfEmpty(cols[6])?.ToUpperInvariant()
+            };
+
+            codes.Add(code);
         }
 
         return codes;
+    }
+
+    private static string[]? ParseLooseCsvLine(string line)
+    {
+        var parts = line.Split(',');
+
+        if (parts.Length < 2)
+            return null;
+
+        if (parts.Length < 7)
+        {
+            var padded = new string[7];
+            for (var i = 0; i < parts.Length; i++)
+                padded[i] = parts[i];
+
+            for (var i = parts.Length; i < 7; i++)
+                padded[i] = string.Empty;
+
+            return padded;
+        }
+
+        if (parts.Length == 7)
+            return parts;
+
+        // Soporta líneas con comas extra en Description sin comillas.
+        var code = parts[0];
+        var module = parts[^1];
+        var filterTag = parts[^2];
+        var notes = parts[^3];
+        var source = parts[^4];
+        var category = parts[^5];
+        var description = string.Join(",", parts.Skip(1).Take(parts.Length - 6));
+
+        return new[] { code, description, category, source, notes, filterTag, module };
+    }
+
+    private static string? NullIfEmpty(string? value)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
+
+    private static bool IsImportCodeValid(string code)
+    {
+        return Regex.IsMatch(code, @"^(?:[PU][0-9A-F]{4}|[CD][0-9A-F]{3}|[0-9A-F]{4})$", RegexOptions.IgnoreCase);
     }
 }

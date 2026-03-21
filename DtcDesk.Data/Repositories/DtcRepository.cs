@@ -24,7 +24,7 @@ public class DtcRepository
         using var connection = _connectionFactory.CreateConnection();
         
         const string sql = @"
-            SELECT Id, Code, Description, Category, Source, Notes, 
+            SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
                    CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Code = @Code COLLATE NOCASE AND IsActive = 1
@@ -42,7 +42,7 @@ public class DtcRepository
         using var connection = _connectionFactory.CreateConnection();
 
         const string sql = @"
-            SELECT Id, Code, Description, Category, Source, Notes,
+            SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
                    CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Id = @Id AND IsActive = 1
@@ -65,7 +65,7 @@ public class DtcRepository
         var normalizedCodes = codes.Select(c => c.ToUpperInvariant()).ToList();
 
         const string sql = @"
-            SELECT Id, Code, Description, Category, Source, Notes, 
+            SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
                    CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Code IN @Codes AND IsActive = 1;
@@ -131,8 +131,8 @@ public class DtcRepository
         using var connection = _connectionFactory.CreateConnection();
         
         const string sql = @"
-            INSERT INTO DtcCodes (Code, Description, Category, Source, Notes, CreatedAt, IsActive)
-            VALUES (@Code, @Description, @Category, @Source, @Notes, @CreatedAt, @IsActive);
+            INSERT INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, CreatedAt, IsActive)
+            VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @CreatedAt, @IsActive);
             SELECT last_insert_rowid();
         ";
 
@@ -154,8 +154,8 @@ public class DtcRepository
         try
         {
             const string sql = @"
-                INSERT OR IGNORE INTO DtcCodes (Code, Description, Category, Source, Notes, CreatedAt, IsActive)
-                VALUES (@Code, @Description, @Category, @Source, @Notes, @CreatedAt, @IsActive);
+                INSERT OR IGNORE INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, CreatedAt, IsActive)
+                VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @CreatedAt, @IsActive);
             ";
 
             var codes = dtcCodes.Select(c =>
@@ -190,6 +190,8 @@ public class DtcRepository
                 Category = @Category,
                 Source = @Source,
                 Notes = @Notes,
+                FilterTag = @FilterTag,
+                Module = @Module,
                 UpdatedAt = @UpdatedAt,
                 IsActive = @IsActive
             WHERE Id = @Id;

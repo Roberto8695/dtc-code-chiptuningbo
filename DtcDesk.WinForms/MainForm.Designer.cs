@@ -402,7 +402,7 @@ namespace DtcDesk.WinForms
             lblFilterTitle.Font = new Font("Segoe UI", 7.5F, FontStyle.Bold);
             lblFilterTitle.Height = 28;
             lblFilterTitle.Name = "lblFilterTitle";
-            lblFilterTitle.Text = "FILTROS";
+            lblFilterTitle.Text = "MODULOS";
             lblFilterTitle.TextAlign = ContentAlignment.MiddleCenter;
             lblFilterTitle.TabIndex = 0;
             // 
