@@ -16,9 +16,22 @@ public partial class MainForm : Form
     private readonly DtcParser _parser;
     private readonly DtcRepository _repository;
     private readonly ConnectionFactory _connectionFactory;
+    private readonly ModuleFilterRepository _moduleRepository;
+    private DtcClassifierService? _classifier;
     private List<DtcLookupResult> _currentResults = new();
     private bool _suppressSelectionChange;
     private int _gridZoomPercent = GridZoomDefault;
+
+    private static readonly Dictionary<string, string[]> ModuleKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["VNT"] = new[] { "VNT", "TURBO", "BOOST", "WASTEGATE", "VARIABLE" },
+        ["DPF"] = new[] { "DPF", "PARTICULATE", "SOOT", "REGENERATION", "FILTER" },
+        ["EGR"] = new[] { "EGR", "RECIRCULATION" },
+        ["NOX"] = new[] { "NOX", "NITROGEN" },
+        ["SCR"] = new[] { "SCR", "ADBLUE", "UREA", "REDUCTANT" },
+        ["MAF"] = new[] { "MAF", "AIR FLOW", "MAP", "IAT" },
+        ["TVA"] = new[] { "TVA", "THROTTLE", "ACTUATOR" }
+    };
 
     public MainForm()
     {
@@ -707,6 +720,17 @@ public partial class MainForm : Form
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
         // Mantener el código tal como se pegó (no quitar prefijos)
+        if (e.RowIndex >= 0)
+        {
+            var rowResult = dgvCodes.Rows[e.RowIndex].DataBoundItem as DtcLookupResult;
+            if (rowResult?.IsModuleDeleted == true && e.CellStyle != null)
+            {
+                e.CellStyle.BackColor = ColorTranslator.FromHtml("#2E8B57");
+                e.CellStyle.SelectionBackColor = ColorTranslator.FromHtml("#1F5F3E");
+                e.CellStyle.ForeColor = Color.White;
+                e.CellStyle.SelectionForeColor = Color.White;
+            }
+        }
         
         if (dgvCodes.Columns[e.ColumnIndex].Name == "colStatus" && e.Value != null)
         {
@@ -865,7 +889,7 @@ public partial class MainForm : Form
             }
 
             // Clasificar módulo de cada resultado (hybrid: exacto + keywords)
-            _classifier.ClassifyAll(_currentResults);
+            _classifier?.ClassifyAll(_currentResults);
 
             // Mostrar resultados
             dgvCodes.DataSource = null;
@@ -980,6 +1004,84 @@ public partial class MainForm : Form
             "U" => "Network",
             _ => "Unknown"
         };
+    }
+
+    private string? GetDisplayModule(DtcCode dtcCode)
+    {
+        if (!string.IsNullOrWhiteSpace(dtcCode.Module))
+            return dtcCode.Module!.ToUpperInvariant();
+
+        if (!string.IsNullOrWhiteSpace(dtcCode.FilterTag))
+            return dtcCode.FilterTag!.ToUpperInvariant();
+
+        return null;
+    }
+
+    private Task ExecuteSearchAsync()
+    {
+        var term = txtSearch.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            ClearSearch();
+            return Task.CompletedTask;
+        }
+
+        if (_currentResults == null || _currentResults.Count == 0)
+        {
+            lblSearchMode.Text = "Sin resultados cargados";
+            return Task.CompletedTask;
+        }
+
+        var matchingRows = _currentResults
+            .Select((r, i) => new { Result = r, Index = i })
+            .Where(x => (x.Result.Code ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                     || (x.Result.CodeAlt ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                     || (x.Result.Description ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.Index)
+            .ToList();
+
+        _suppressSelectionChange = true;
+        try
+        {
+            dgvCodes.ClearSelection();
+
+            foreach (var rowIndex in matchingRows)
+            {
+                if (rowIndex >= 0 && rowIndex < dgvCodes.Rows.Count)
+                {
+                    var cell = dgvCodes.Rows[rowIndex].Cells["colCode"];
+                    if (cell != null)
+                    {
+                        cell.Selected = true;
+                    }
+                }
+            }
+
+            if (matchingRows.Count > 0)
+            {
+                dgvCodes.CurrentCell = dgvCodes.Rows[matchingRows[0]].Cells["colCode"];
+                lblSearchMode.Text = $"{matchingRows.Count} coincidencia(s)";
+            }
+            else
+            {
+                lblSearchMode.Text = "Sin coincidencias";
+            }
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void ClearSearch()
+    {
+        txtSearch.Clear();
+        lblSearchMode.Text = string.Empty;
+        ClearGridSelection();
+        txtSearch.Focus();
     }
 
     private void BtnClear_Click(object? sender, EventArgs e)
@@ -1371,6 +1473,7 @@ public partial class MainForm : Form
             result.Source      = null;
             result.Notes       = null;
             result.FilterTag   = null;   // Limpiar tag tras borrar
+            result.IsModuleDeleted = true;
         }
 
         // Refrescar grid

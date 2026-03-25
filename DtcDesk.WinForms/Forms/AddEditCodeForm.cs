@@ -75,7 +75,6 @@ public partial class AddEditCodeForm : Form
             "Network"
         });
         cmbCategory.SelectedIndex = 0;
-<<<<<<< HEAD
 
         // Cargar módulos desde BD de forma asíncrona
         _ = LoadModulesAsync();
@@ -120,13 +119,6 @@ public partial class AddEditCodeForm : Form
         {
             cmbModule.SelectedIndex = 0;  // "(Ninguno)"
         }
-=======
-        
-        // Módulos
-        var modules = new[] { "", "VNT", "DPF", "EGR", "NOX", "SCR", "MAF", "TVA" };
-        cmbModule.Items.AddRange(modules);
-        cmbModule.SelectedIndex = 0;
->>>>>>> 5fc0c0ecf7a2e472b5d73e75db3d7cee0cb2b91c
     }
 
     private void ApplyDarkTheme()

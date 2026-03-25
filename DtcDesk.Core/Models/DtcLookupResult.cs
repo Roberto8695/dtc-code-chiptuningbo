@@ -41,7 +41,7 @@ public class DtcLookupResult
     public string? Notes { get; set; }
 
     /// <summary>
-    /// Etiqueta de filtro importada desde CSV (null si no se encontró)
+    /// Etiqueta de filtro/módulo (CSV o clasificador) para acciones rápidas.
     /// </summary>
     public string? FilterTag { get; set; }
 
@@ -62,8 +62,9 @@ public class DtcLookupResult
     public int? DtcId { get; set; }
 
     /// <summary>
-    /// Módulo/filtro detectado por el clasificador híbrido (ej. "VNT", "EGR", null si no aplica).
-    /// Calculado al procesar; usado por los botones del panel derecho.
+    /// Indica si la fila fue borrada desde los botones de módulo.
+    /// Se usa para resaltar visualmente la fila en la grilla.
     /// </summary>
-    public string? FilterTag { get; set; }
+    public bool IsModuleDeleted { get; set; }
+
 }

@@ -97,15 +97,9 @@ namespace DtcDesk.WinForms
             // 
             lblModule.AutoSize = true;
             lblModule.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-<<<<<<< HEAD
             lblModule.Location = new Point(290, 205);
             lblModule.Name = "lblModule";
             lblModule.Size = new Size(70, 19);
-=======
-            lblModule.Location = new Point(320, 205);
-            lblModule.Name = "lblModule";
-            lblModule.Size = new Size(68, 19);
->>>>>>> 5fc0c0ecf7a2e472b5d73e75db3d7cee0cb2b91c
             lblModule.TabIndex = 12;
             lblModule.Text = "Módulo:";
             // 
@@ -114,15 +108,9 @@ namespace DtcDesk.WinForms
             cmbModule.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbModule.Font = new Font("Segoe UI", 10F);
             cmbModule.FormattingEnabled = true;
-<<<<<<< HEAD
             cmbModule.Location = new Point(290, 230);
             cmbModule.Name = "cmbModule";
             cmbModule.Size = new Size(250, 25);
-=======
-            cmbModule.Location = new Point(320, 230);
-            cmbModule.Name = "cmbModule";
-            cmbModule.Size = new Size(260, 25);
->>>>>>> 5fc0c0ecf7a2e472b5d73e75db3d7cee0cb2b91c
             cmbModule.TabIndex = 13;
             // 
             // lblSource
