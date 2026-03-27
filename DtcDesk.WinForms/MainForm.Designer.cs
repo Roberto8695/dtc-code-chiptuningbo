@@ -392,7 +392,7 @@ namespace DtcDesk.WinForms
             panelFilterSide.Dock = DockStyle.Right;
             panelFilterSide.Name = "panelFilterSide";
             panelFilterSide.Padding = new Padding(8, 12, 8, 8);
-            panelFilterSide.Size = new Size(90, 596);
+            panelFilterSide.Size = new Size(122, 596);
             panelFilterSide.TabIndex = 10;
             // 
             // lblFilterTitle

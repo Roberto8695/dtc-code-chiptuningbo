@@ -32,7 +32,7 @@ public class ModuleFilterRepository
         await connection.OpenAsync();
 
         await using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, DisplayName, Description, SortOrder FROM DtcModuleFilters ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, DisplayName, Description, SortOrder, IsSystem FROM DtcModuleFilters ORDER BY SortOrder, DisplayName;";
 
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
@@ -43,7 +43,8 @@ public class ModuleFilterRepository
                 Name        = reader.GetString(1),
                 DisplayName = reader.GetString(2),
                 Description = reader.IsDBNull(3) ? null : reader.GetString(3),
-                SortOrder   = reader.GetInt32(4)
+                SortOrder   = reader.GetInt32(4),
+                IsSystem    = !reader.IsDBNull(5) && reader.GetInt64(5) == 1
             });
         }
 
@@ -147,6 +148,159 @@ public class ModuleFilterRepository
     }
 
     /// <summary>
+    /// Obtiene todos los códigos exactos asociados a un filtro.
+    /// </summary>
+    public async Task<List<string>> GetExactCodesByFilterAsync(string filterName)
+    {
+        var codes = new List<string>();
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var cmd = connection.CreateCommand();
+        cmd.CommandText = @"
+            SELECT Code
+            FROM DtcModuleExactRules
+            WHERE FilterName = @FilterName COLLATE NOCASE
+            ORDER BY Code;";
+        cmd.Parameters.AddWithValue("@FilterName", filterName);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            codes.Add(reader.GetString(0));
+        }
+
+        return codes;
+    }
+
+    /// <summary>
+    /// Inserta un módulo personalizado y reemplaza sus códigos exactos asociados.
+    /// </summary>
+    public async Task<int> CreateCustomFilterAsync(string displayName, string? description, IEnumerable<string> exactCodes)
+    {
+        var normalizedDisplayName = displayName.Trim();
+        var internalName = BuildUniqueInternalName(normalizedDisplayName);
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            var sortOrder = await GetNextSortOrderAsync(connection, (SqliteTransaction)transaction);
+
+            await using var insertFilterCmd = connection.CreateCommand();
+            insertFilterCmd.Transaction = (SqliteTransaction)transaction;
+            insertFilterCmd.CommandText = @"
+                INSERT INTO DtcModuleFilters (Name, DisplayName, Description, SortOrder, IsSystem)
+                VALUES (@Name, @DisplayName, @Description, @SortOrder, 0);
+                SELECT last_insert_rowid();";
+            insertFilterCmd.Parameters.AddWithValue("@Name", internalName);
+            insertFilterCmd.Parameters.AddWithValue("@DisplayName", normalizedDisplayName);
+            insertFilterCmd.Parameters.AddWithValue("@Description", (object?)description ?? DBNull.Value);
+            insertFilterCmd.Parameters.AddWithValue("@SortOrder", sortOrder);
+
+            var createdId = Convert.ToInt32(await insertFilterCmd.ExecuteScalarAsync());
+
+            await ReplaceExactRulesAsync(connection, (SqliteTransaction)transaction, internalName, exactCodes);
+
+            await transaction.CommitAsync();
+            return createdId;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Actualiza un módulo personalizado y reemplaza sus códigos exactos asociados.
+    /// </summary>
+    public async Task UpdateCustomFilterAsync(int filterId, string displayName, string? description, IEnumerable<string> exactCodes)
+    {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            var filter = await GetFilterByIdAsync(connection, (SqliteTransaction)transaction, filterId);
+            if (filter == null)
+            {
+                throw new InvalidOperationException("El módulo no existe.");
+            }
+
+            if (filter.IsSystem)
+            {
+                throw new InvalidOperationException("No se puede editar un módulo de sistema.");
+            }
+
+            await using (var updateFilterCmd = connection.CreateCommand())
+            {
+                updateFilterCmd.Transaction = (SqliteTransaction)transaction;
+                updateFilterCmd.CommandText = @"
+                    UPDATE DtcModuleFilters
+                    SET DisplayName = @DisplayName,
+                        Description = @Description
+                    WHERE Id = @Id;";
+                updateFilterCmd.Parameters.AddWithValue("@DisplayName", displayName.Trim());
+                updateFilterCmd.Parameters.AddWithValue("@Description", (object?)description ?? DBNull.Value);
+                updateFilterCmd.Parameters.AddWithValue("@Id", filterId);
+                await updateFilterCmd.ExecuteNonQueryAsync();
+            }
+
+            await ReplaceExactRulesAsync(connection, (SqliteTransaction)transaction, filter.Name, exactCodes);
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Elimina un módulo personalizado y sus reglas asociadas.
+    /// </summary>
+    public async Task DeleteCustomFilterAsync(int filterId)
+    {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            var filter = await GetFilterByIdAsync(connection, (SqliteTransaction)transaction, filterId);
+            if (filter == null)
+            {
+                return;
+            }
+
+            if (filter.IsSystem)
+            {
+                throw new InvalidOperationException("No se puede eliminar un módulo de sistema.");
+            }
+
+            await DeleteRulesByFilterAsync(connection, (SqliteTransaction)transaction, filter.Name);
+
+            await using var deleteFilterCmd = connection.CreateCommand();
+            deleteFilterCmd.Transaction = (SqliteTransaction)transaction;
+            deleteFilterCmd.CommandText = "DELETE FROM DtcModuleFilters WHERE Id = @Id;";
+            deleteFilterCmd.Parameters.AddWithValue("@Id", filterId);
+            await deleteFilterCmd.ExecuteNonQueryAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Elimina cualquier regla exacta asociada a un código (usado cuando se selecciona "Ninguno").
     /// </summary>
     public async Task DeleteExactRuleByCodeAsync(string code)
@@ -184,8 +338,8 @@ public class ModuleFilterRepository
             {
                 cmd.Transaction = (SqliteTransaction)transaction;
                 cmd.CommandText = @"
-                    INSERT OR IGNORE INTO DtcModuleFilters (Name, DisplayName, Description, SortOrder)
-                    VALUES (@Name, @DisplayName, @Desc, @Sort);";
+                    INSERT OR IGNORE INTO DtcModuleFilters (Name, DisplayName, Description, SortOrder, IsSystem)
+                    VALUES (@Name, @DisplayName, @Desc, @Sort, 1);";
 
                 foreach (var (name, display, desc, sort) in DtcDesk.Data.Db.ModuleRulesSeeder.DefaultFilters)
                 {
@@ -239,5 +393,111 @@ public class ModuleFilterRepository
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    private static string BuildUniqueInternalName(string displayName)
+    {
+        var cleaned = new string(displayName
+            .ToUpperInvariant()
+            .Where(char.IsLetterOrDigit)
+            .ToArray());
+
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            cleaned = "MOD";
+        }
+
+        var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+        return $"USR_{cleaned}_{suffix}";
+    }
+
+    private static async Task<int> GetNextSortOrderAsync(SqliteConnection connection, SqliteTransaction transaction)
+    {
+        await using var cmd = connection.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = "SELECT COALESCE(MAX(SortOrder), 0) + 1 FROM DtcModuleFilters;";
+        var next = await cmd.ExecuteScalarAsync();
+        return Convert.ToInt32(next);
+    }
+
+    private static async Task<DtcModuleFilter?> GetFilterByIdAsync(SqliteConnection connection, SqliteTransaction transaction, int filterId)
+    {
+        await using var cmd = connection.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = @"
+            SELECT Id, Name, DisplayName, Description, SortOrder, IsSystem
+            FROM DtcModuleFilters
+            WHERE Id = @Id;";
+        cmd.Parameters.AddWithValue("@Id", filterId);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        return new DtcModuleFilter
+        {
+            Id = reader.GetInt32(0),
+            Name = reader.GetString(1),
+            DisplayName = reader.GetString(2),
+            Description = reader.IsDBNull(3) ? null : reader.GetString(3),
+            SortOrder = reader.GetInt32(4),
+            IsSystem = !reader.IsDBNull(5) && reader.GetInt64(5) == 1
+        };
+    }
+
+    private static async Task ReplaceExactRulesAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        string filterName,
+        IEnumerable<string> exactCodes)
+    {
+        await DeleteRulesByFilterAsync(connection, transaction, filterName);
+
+        var normalizedCodes = exactCodes
+            .Select(c => c.Trim().ToUpperInvariant())
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalizedCodes.Count == 0)
+        {
+            return;
+        }
+
+        await using var insertRuleCmd = connection.CreateCommand();
+        insertRuleCmd.Transaction = transaction;
+        insertRuleCmd.CommandText = @"
+            INSERT INTO DtcModuleExactRules (FilterName, Code)
+            VALUES (@FilterName, @Code)
+            ON CONFLICT(FilterName, Code) DO NOTHING;
+
+            UPDATE DtcModuleExactRules
+            SET FilterName = @FilterName
+            WHERE Code = @Code COLLATE NOCASE AND FilterName != @FilterName;";
+
+        foreach (var code in normalizedCodes)
+        {
+            insertRuleCmd.Parameters.Clear();
+            insertRuleCmd.Parameters.AddWithValue("@FilterName", filterName);
+            insertRuleCmd.Parameters.AddWithValue("@Code", code);
+            await insertRuleCmd.ExecuteNonQueryAsync();
+        }
+    }
+
+    private static async Task DeleteRulesByFilterAsync(SqliteConnection connection, SqliteTransaction transaction, string filterName)
+    {
+        await using var deleteExactCmd = connection.CreateCommand();
+        deleteExactCmd.Transaction = transaction;
+        deleteExactCmd.CommandText = "DELETE FROM DtcModuleExactRules WHERE FilterName = @FilterName COLLATE NOCASE;";
+        deleteExactCmd.Parameters.AddWithValue("@FilterName", filterName);
+        await deleteExactCmd.ExecuteNonQueryAsync();
+
+        await using var deleteKeywordCmd = connection.CreateCommand();
+        deleteKeywordCmd.Transaction = transaction;
+        deleteKeywordCmd.CommandText = "DELETE FROM DtcModuleKeywords WHERE FilterName = @FilterName COLLATE NOCASE;";
+        deleteKeywordCmd.Parameters.AddWithValue("@FilterName", filterName);
+        await deleteKeywordCmd.ExecuteNonQueryAsync();
     }
 }

@@ -3,6 +3,7 @@ using DtcDesk.Core.Parsing;
 using DtcDesk.Core.Services;
 using DtcDesk.Data.Db;
 using DtcDesk.Data.Repositories;
+using DtcDesk.WinForms.Forms;
 
 namespace DtcDesk.WinForms;
 
@@ -19,19 +20,11 @@ public partial class MainForm : Form
     private readonly ModuleFilterRepository _moduleRepository;
     private DtcClassifierService? _classifier;
     private List<DtcLookupResult> _currentResults = new();
+    private List<DtcModuleFilter> _moduleFilters = new();
     private bool _suppressSelectionChange;
     private int _gridZoomPercent = GridZoomDefault;
-
-    private static readonly Dictionary<string, string[]> ModuleKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["VNT"] = new[] { "VNT", "TURBO", "BOOST", "WASTEGATE", "VARIABLE" },
-        ["DPF"] = new[] { "DPF", "PARTICULATE", "SOOT", "REGENERATION", "FILTER" },
-        ["EGR"] = new[] { "EGR", "RECIRCULATION" },
-        ["NOX"] = new[] { "NOX", "NITROGEN" },
-        ["SCR"] = new[] { "SCR", "ADBLUE", "UREA", "REDUCTANT" },
-        ["MAF"] = new[] { "MAF", "AIR FLOW", "MAP", "IAT" },
-        ["TVA"] = new[] { "TVA", "THROTTLE", "ACTUATOR" }
-    };
+    private FlowLayoutPanel? _moduleButtonsPanel;
+    private Button? _btnManageModules;
 
     public MainForm()
     {
@@ -69,10 +62,14 @@ public partial class MainForm : Form
             await _moduleRepository.SeedDefaultRulesAsync();
             
             // Cargar reglas en memoria
-            var exactRules  = await _moduleRepository.GetAllExactRulesAsync();
-            var keywords    = await _moduleRepository.GetAllKeywordsAsync();
+            _moduleFilters = await _moduleRepository.GetAllFiltersAsync();
+            var exactRules = await _moduleRepository.GetAllExactRulesAsync();
+            var keywords = await _moduleRepository.GetAllKeywordsAsync();
             
             _classifier = new DtcClassifierService(exactRules, keywords);
+
+            // Cargar botones de módulos desde el arranque, incluso antes de que se muestre la ventana.
+            await LoadModuleButtonsAsync();
         }
         catch (Exception ex)
         {
@@ -114,15 +111,17 @@ public partial class MainForm : Form
         
         txtInput.Font = new Font("Consolas", 10F);
         ApplyGridZoom();
-        
-        // Eventos de botones de acceso rápido por módulo (borrar/reemplazar con 0000/FFFF)
-        btnFilterVNT.Click += (s, e) => DeleteByModule("VNT");
-        btnFilterDPF.Click += (s, e) => DeleteByModule("DPF");
-        btnFilterEGR.Click += (s, e) => DeleteByModule("EGR");
-        btnFilterNOX.Click += (s, e) => DeleteByModule("NOX");
-        btnFilterSCR.Click += (s, e) => DeleteByModule("SCR");
-        btnFilterMAF.Click += (s, e) => DeleteByModule("MAF");
-        btnFilterTVA.Click += (s, e) => DeleteByModule("TVA");
+
+        SetupDynamicModulePanel();
+
+        // Fallback de seguridad: al mostrarse la ventana, asegurar que los botones estén renderizados.
+        Shown += async (_, _) =>
+        {
+            if (_moduleButtonsPanel != null && _moduleButtonsPanel.Controls.Count == 0)
+            {
+                await LoadModuleButtonsAsync();
+            }
+        };
 
         // Buscador
         btnSearch.Click     += async (s, e) => await ExecuteSearchAsync();
@@ -193,14 +192,12 @@ public partial class MainForm : Form
         panelFilterSide.BackColor = bgSide;
         lblFilterTitle.ForeColor = accentYellow;
         lblFilterTitle.BackColor = Color.Transparent;
-        
-        var filterButtons = new[] { btnFilterVNT, btnFilterDPF, btnFilterEGR, btnFilterNOX, btnFilterSCR, btnFilterMAF, btnFilterTVA };
-        foreach (var fb in filterButtons)
+
+        var legacyButtons = new[] { btnFilterVNT, btnFilterDPF, btnFilterEGR, btnFilterNOX, btnFilterSCR, btnFilterMAF, btnFilterTVA };
+        foreach (var legacyButton in legacyButtons)
         {
-            StyleButton(fb, bgTop, textMain);
-            fb.FlatAppearance.BorderSize = 1;
-            fb.FlatAppearance.BorderColor = accentYellow;
-            fb.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            legacyButton.Visible = false;
+            legacyButton.Enabled = false;
         }
         
         // Panel derecho (resultados)
@@ -251,6 +248,19 @@ public partial class MainForm : Form
         StyleButton(btnSearchClear, separator, textMain);
         lblSearchMode.ForeColor = accentYellow;
         lblSearchMode.BackColor = Color.Transparent;
+
+        if (_moduleButtonsPanel != null)
+        {
+            _moduleButtonsPanel.BackColor = bgSide;
+        }
+
+        if (_btnManageModules != null)
+        {
+            StyleButton(_btnManageModules, accentYellow, Color.Black);
+            _btnManageModules.FlatAppearance.BorderSize = 1;
+            _btnManageModules.FlatAppearance.BorderColor = accentHover;
+            _btnManageModules.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+        }
     }
 
     private void StyleButton(Button btn, Color backColor, Color foreColor)
@@ -261,6 +271,168 @@ public partial class MainForm : Form
         btn.FlatAppearance.BorderSize = 0;
         btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btn.Cursor = Cursors.Hand;
+    }
+
+    private void SetupDynamicModulePanel()
+    {
+        if (_moduleButtonsPanel != null)
+        {
+            return;
+        }
+
+        _moduleButtonsPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true,
+            Padding = new Padding(8, 6, 8, 8)
+        };
+
+        _btnManageModules = new Button
+        {
+            Text = "+ Módulo",
+            Width = 96,
+            Height = 32,
+            Margin = new Padding(8, 6, 8, 8)
+        };
+        StyleButton(_btnManageModules, ColorTranslator.FromHtml("#F8B41C"), Color.Black);
+        _btnManageModules.FlatAppearance.BorderSize = 1;
+        _btnManageModules.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#D89C17");
+        _btnManageModules.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+        _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
+
+        panelFilterSide.Controls.Add(_moduleButtonsPanel);
+        panelFilterSide.Controls.Add(_btnManageModules);
+        _btnManageModules.Dock = DockStyle.Bottom;
+        _moduleButtonsPanel.BringToFront();
+    }
+
+    private async Task LoadModuleButtonsAsync()
+    {
+        if (_moduleButtonsPanel == null)
+        {
+            return;
+        }
+
+        _moduleFilters = await _moduleRepository.GetAllFiltersAsync();
+        _moduleButtonsPanel.Controls.Clear();
+
+        foreach (var filter in _moduleFilters)
+        {
+            var moduleButton = new Button
+            {
+                Text = filter.DisplayName,
+                Width = 96,
+                Height = 38,
+                Margin = new Padding(0, 0, 0, 8),
+                Tag = filter
+            };
+
+            StyleButton(moduleButton, ColorTranslator.FromHtml("#102C44"), ColorTranslator.FromHtml("#EAEAEA"));
+            moduleButton.FlatAppearance.BorderSize = 1;
+            moduleButton.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#F8B41C");
+            moduleButton.Click += (_, _) => DeleteByModule(filter);
+
+            if (!filter.IsSystem)
+            {
+                var contextMenu = new ContextMenuStrip();
+                var editItem = new ToolStripMenuItem("Editar módulo");
+                var deleteItem = new ToolStripMenuItem("Eliminar módulo");
+
+                editItem.Click += async (_, _) => await EditCustomModuleAsync(filter);
+                deleteItem.Click += async (_, _) => await DeleteCustomModuleAsync(filter);
+
+                contextMenu.Items.Add(editItem);
+                contextMenu.Items.Add(deleteItem);
+                moduleButton.ContextMenuStrip = contextMenu;
+            }
+
+            _moduleButtonsPanel.Controls.Add(moduleButton);
+        }
+    }
+
+    private async Task CreateCustomModuleAsync()
+    {
+        using var editor = new CustomModuleEditorForm();
+        if (editor.ShowDialog(this) != DialogResult.OK)
+        {
+            return;
+        }
+
+        try
+        {
+            await _moduleRepository.CreateCustomFilterAsync(editor.ModuleDisplayName, editor.ModuleDescription, editor.ExactCodes);
+            await RefreshClassifierAndButtonsAsync();
+            MessageBox.Show("Módulo personalizado creado correctamente.", "Módulo creado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"No se pudo crear el módulo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async Task EditCustomModuleAsync(DtcModuleFilter filter)
+    {
+        try
+        {
+            var codes = await _moduleRepository.GetExactCodesByFilterAsync(filter.Name);
+            using var editor = new CustomModuleEditorForm(filter, codes);
+            if (editor.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            await _moduleRepository.UpdateCustomFilterAsync(filter.Id, editor.ModuleDisplayName, editor.ModuleDescription, editor.ExactCodes);
+            await RefreshClassifierAndButtonsAsync();
+            MessageBox.Show("Módulo personalizado actualizado correctamente.", "Módulo actualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"No se pudo actualizar el módulo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async Task DeleteCustomModuleAsync(DtcModuleFilter filter)
+    {
+        var result = MessageBox.Show(
+            $"¿Eliminar el módulo personalizado '{filter.DisplayName}'?\n\nEsta acción también elimina sus códigos configurados.",
+            "Confirmar eliminación",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2);
+
+        if (result != DialogResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            await _moduleRepository.DeleteCustomFilterAsync(filter.Id);
+            await RefreshClassifierAndButtonsAsync();
+            MessageBox.Show("Módulo personalizado eliminado correctamente.", "Módulo eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"No se pudo eliminar el módulo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async Task RefreshClassifierAndButtonsAsync()
+    {
+        _moduleFilters = await _moduleRepository.GetAllFiltersAsync();
+        var exactRules = await _moduleRepository.GetAllExactRulesAsync();
+        var keywords = await _moduleRepository.GetAllKeywordsAsync();
+        _classifier = new DtcClassifierService(exactRules, keywords);
+        await LoadModuleButtonsAsync();
+
+        if (_currentResults.Count > 0)
+        {
+            _classifier.ClassifyAll(_currentResults);
+            ApplyModuleDisplayNames();
+            dgvCodes.Refresh();
+        }
     }
 
     private void SetupDataGridView()
@@ -332,19 +504,6 @@ public partial class MainForm : Form
             HeaderText = "ESTADO",
             DataPropertyName = "Found",
             Width = 100
-        });
-
-        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name             = "colFilterTag",
-            HeaderText       = "MÓDULO",
-            DataPropertyName = "FilterTag",
-            Width            = 85,
-            DefaultCellStyle = new DataGridViewCellStyle
-            {
-                Font      = new Font("Segoe UI", 8.5F, FontStyle.Bold),
-                Alignment = DataGridViewContentAlignment.MiddleCenter
-            }
         });
         
         // Formato condicional para el estado
@@ -890,6 +1049,7 @@ public partial class MainForm : Form
 
             // Clasificar módulo de cada resultado (hybrid: exacto + keywords)
             _classifier?.ClassifyAll(_currentResults);
+            ApplyModuleDisplayNames();
 
             // Mostrar resultados
             dgvCodes.DataSource = null;
@@ -1015,6 +1175,30 @@ public partial class MainForm : Form
             return dtcCode.FilterTag!.ToUpperInvariant();
 
         return null;
+    }
+
+    private void ApplyModuleDisplayNames()
+    {
+        if (_currentResults.Count == 0 || _moduleFilters.Count == 0)
+        {
+            return;
+        }
+
+        var filterDisplayByName = _moduleFilters
+            .ToDictionary(f => f.Name, f => f.DisplayName, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var result in _currentResults)
+        {
+            if (string.IsNullOrWhiteSpace(result.FilterTag))
+            {
+                continue;
+            }
+
+            if (filterDisplayByName.TryGetValue(result.FilterTag, out var displayName))
+            {
+                result.Module = displayName;
+            }
+        }
     }
 
     private Task ExecuteSearchAsync()
@@ -1410,39 +1594,33 @@ public partial class MainForm : Form
         btnEdit.Enabled = hasSelection && isFound;
     }
 
-    private void DeleteByModule(string module)
+    private void DeleteByModule(DtcModuleFilter module)
     {
+        var moduleKey = module.Name;
+        var moduleLabel = module.DisplayName;
+
         if (_currentResults == null || _currentResults.Count == 0)
         {
             MessageBox.Show(
                 $"No hay códigos cargados.\nPrimero procesa algunos códigos DTC.",
-                $"Sin datos — {module}",
+                $"Sin datos — {moduleLabel}",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;
         }
 
-        if (!ModuleKeywords.TryGetValue(module, out var keywords))
-            return;
-
         // Buscar los códigos que corresponden al módulo
         var toReplace = _currentResults
-            .Where(r =>
-            {
-                var desc = (r.Description ?? "").ToUpperInvariant();
-                var code = (r.Code ?? "").ToUpperInvariant();
-                return keywords.Any(kw =>
-                    desc.Contains(kw.ToUpperInvariant()) ||
-                    code.Contains(kw.ToUpperInvariant()));
-            })
+            .Where(r => string.Equals(r.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
+                     || string.Equals(r.Module, moduleLabel, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (toReplace.Count == 0)
         {
             MessageBox.Show(
-                $"No se encontraron códigos clasificados como [{module}] en los resultados actuales.\n\n" +
+                $"No se encontraron códigos clasificados como [{moduleLabel}] en los resultados actuales.\n\n" +
                 $"Verifica que los códigos tengan descripción o sean los códigos exactos del módulo.",
-                $"Sin coincidencias — {module}",
+                $"Sin coincidencias — {moduleLabel}",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;
@@ -1453,9 +1631,9 @@ public partial class MainForm : Form
         if (toReplace.Count > 10) codesPreview += $" ... y {toReplace.Count - 10} más";
 
         var confirm = MessageBox.Show(
-            $"Se encontraron {toReplace.Count} código(s) del módulo [{module}]:\n{codesPreview}\n\n" +
+            $"Se encontraron {toReplace.Count} código(s) del módulo [{moduleLabel}]:\n{codesPreview}\n\n" +
             $"¿Reemplazar todos con '0000' / 'FFFF'?",
-            $"Borrar módulo {module}",
+            $"Borrar módulo {moduleLabel}",
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Warning);
 
@@ -1473,6 +1651,7 @@ public partial class MainForm : Form
             result.Source      = null;
             result.Notes       = null;
             result.FilterTag   = null;   // Limpiar tag tras borrar
+            result.Module      = null;
             result.IsModuleDeleted = true;
         }
 
@@ -1484,11 +1663,11 @@ public partial class MainForm : Form
         // Actualizar estadísticas
         var found    = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
-        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{module}: {toReplace.Count} borrado(s)]";
+        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{moduleLabel}: {toReplace.Count} borrado(s)]";
 
         MessageBox.Show(
-            $"Se reemplazaron {toReplace.Count} código(s) del módulo [{module}] con '0000' / 'FFFF'.",
-            $"Módulo {module} — Completado",
+            $"Se reemplazaron {toReplace.Count} código(s) del módulo [{moduleLabel}] con '0000' / 'FFFF'.",
+            $"Módulo {moduleLabel} — Completado",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
     }

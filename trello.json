@@ -1,0 +1,118 @@
+{
+  "name": "Proyecto Coalición - Scrum Documentado PRO",
+  "defaultLists": false,
+  "labels": [
+    { "name": "Alta prioridad", "color": "red", "id": "lab_high" },
+    { "name": "Media prioridad", "color": "yellow", "id": "lab_medium" },
+    { "name": "Baja prioridad", "color": "green", "id": "lab_low" },
+
+    { "name": "Difícil", "color": "purple", "id": "lab_hard" },
+    { "name": "Media", "color": "blue", "id": "lab_mid" },
+    { "name": "Fácil", "color": "sky", "id": "lab_easy" }
+  ],
+  "lists": [
+    {
+      "name": "📌 Backlog",
+      "cards": [
+        { "name": "[Roberto] Definir arquitectura del sistema", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Roberto] Planificación del proyecto", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Roberto] Definir roles del equipo", "idLabels": ["lab_medium", "lab_easy"] },
+
+        { "name": "[Diego] Diseño interfaz home", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Diego] Diseño sección noticias", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Diego] Diseño componentes UI reutilizables", "idLabels": ["lab_medium", "lab_mid"] },
+
+        { "name": "[Brayan] Configuración base de datos", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Brayan] Modelado de tablas principales", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Brayan] Diseño estructura backend", "idLabels": ["lab_high", "lab_mid"] },
+
+        { "name": "[Angel] Configuración entorno Node/Express", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Angel] Configuración herramientas desarrollo", "idLabels": ["lab_low", "lab_easy"] },
+        { "name": "[Angel] Definir estándares de código", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Elias] Diseño layout general", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Elias] Diseño navegación", "idLabels": ["lab_medium", "lab_easy"] },
+        { "name": "[Elias] Definir estilo visual", "idLabels": ["lab_low", "lab_easy"] }
+      ]
+    },
+
+    {
+      "name": "🚀 Sprint 1 - Base del Sistema",
+      "cards": [
+        { "name": "[Roberto] Definir estructura del proyecto", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Roberto] Organización del repositorio", "idLabels": ["lab_medium", "lab_easy"] },
+
+        { "name": "[Angel] Configurar entorno backend", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Angel] Configurar dependencias", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Brayan] Conectar base de datos PostgreSQL", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Brayan] Crear tablas principales", "idLabels": ["lab_high", "lab_hard"] },
+
+        { "name": "[Elias] Crear layout inicial", "idLabels": ["lab_medium", "lab_easy"] },
+        { "name": "[Elias] Implementar estilos base", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Diego] Crear diseño base UI", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Diego] Implementar estructura visual inicial", "idLabels": ["lab_medium", "lab_mid"] }
+      ]
+    },
+
+    {
+      "name": "🚀 Sprint 2 - Funcionalidades",
+      "cards": [
+        { "name": "[Brayan] API CRUD noticias", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Brayan] API gestión de evidencias", "idLabels": ["lab_high", "lab_hard"] },
+
+        { "name": "[Angel] Implementar autenticación (login)", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Angel] Implementar validación de usuarios", "idLabels": ["lab_medium", "lab_mid"] },
+
+        { "name": "[Diego] Visualización noticias verificadas", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Diego] Diseño de tarjetas de contenido", "idLabels": ["lab_medium", "lab_mid"] },
+
+        { "name": "[Elias] Mejora UI/UX", "idLabels": ["lab_medium", "lab_easy"] },
+        { "name": "[Elias] Optimización navegación", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Roberto] Definir flujo de publicación", "idLabels": ["lab_high", "lab_mid"] },
+        { "name": "[Roberto] Supervisión del desarrollo", "idLabels": ["lab_medium", "lab_easy"] }
+      ]
+    },
+
+    {
+      "name": "🚀 Sprint 3 - Integración y Mejora",
+      "cards": [
+        { "name": "[Roberto] Integración general del sistema", "idLabels": ["lab_high", "lab_hard"] },
+        { "name": "[Roberto] Validación final del proyecto", "idLabels": ["lab_high", "lab_mid"] },
+
+        { "name": "[Diego] Ajustes finales UI", "idLabels": ["lab_medium", "lab_easy"] },
+        { "name": "[Diego] Corrección de detalles visuales", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Brayan] Optimización backend", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Brayan] Mejora de rendimiento API", "idLabels": ["lab_medium", "lab_mid"] },
+
+        { "name": "[Angel] Configuración despliegue", "idLabels": ["lab_medium", "lab_mid"] },
+        { "name": "[Angel] Ajuste variables de entorno", "idLabels": ["lab_low", "lab_easy"] },
+
+        { "name": "[Elias] Ajustes visuales finales", "idLabels": ["lab_low", "lab_easy"] },
+        { "name": "[Elias] Mejora de experiencia usuario", "idLabels": ["lab_low", "lab_easy"] }
+      ]
+    },
+
+    {
+      "name": "🔍 En revisión",
+      "cards": [
+        { "name": "Validación de funcionalidades completas" },
+        { "name": "Pruebas del sistema" },
+        { "name": "Revisión de interfaz visual" },
+        { "name": "Verificación de seguridad básica" }
+      ]
+    },
+
+    {
+      "name": "✅ Terminado",
+      "cards": [
+        { "name": "Sistema completamente funcional" },
+        { "name": "Proyecto listo para entrega" },
+        { "name": "Documentación finalizada" }
+      ]
+    }
+  ]
+}

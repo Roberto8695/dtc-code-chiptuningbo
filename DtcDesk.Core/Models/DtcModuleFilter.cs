@@ -26,4 +26,9 @@ public class DtcModuleFilter
     /// Orden de visualización en la UI
     /// </summary>
     public int SortOrder { get; set; }
+
+    /// <summary>
+    /// Indica si el módulo es de sistema (predefinido) o personalizado por el usuario.
+    /// </summary>
+    public bool IsSystem { get; set; }
 }

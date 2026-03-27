@@ -63,7 +63,8 @@ public class DbInitializer
                 Name        TEXT NOT NULL UNIQUE COLLATE NOCASE,
                 DisplayName TEXT NOT NULL,
                 Description TEXT,
-                SortOrder   INTEGER NOT NULL DEFAULT 0
+                SortOrder   INTEGER NOT NULL DEFAULT 0,
+                IsSystem    INTEGER NOT NULL DEFAULT 0
             );
 
             -- Reglas de match exacto: un código DTC concreto → módulo
@@ -95,6 +96,7 @@ public class DbInitializer
 
         EnsureColumnExists(connection, "DtcCodes", "FilterTag", "TEXT");
         EnsureColumnExists(connection, "DtcCodes", "Module", "TEXT");
+        EnsureColumnExists(connection, "DtcModuleFilters", "IsSystem", "INTEGER NOT NULL DEFAULT 0");
 
         using var moduleIndexCommand = connection.CreateCommand();
         moduleIndexCommand.CommandText = @"
@@ -102,6 +104,14 @@ public class DbInitializer
                 ON DtcCodes(Module);
         ";
         moduleIndexCommand.ExecuteNonQuery();
+
+        using var markSystemModulesCommand = connection.CreateCommand();
+        markSystemModulesCommand.CommandText = @"
+            UPDATE DtcModuleFilters
+            SET IsSystem = 1
+            WHERE UPPER(Name) IN ('VNT', 'DPF', 'EGR', 'NOX', 'SCR', 'MAF', 'TVA');
+        ";
+        markSystemModulesCommand.ExecuteNonQuery();
     }
 
     private static void EnsureColumnExists(SqliteConnection connection, string tableName, string columnName, string columnType)
