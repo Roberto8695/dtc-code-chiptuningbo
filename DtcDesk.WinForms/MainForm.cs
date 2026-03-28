@@ -496,6 +496,20 @@ public partial class MainForm : Form
         
         // Columnas
         dgvCodes.Columns.Clear();
+
+        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name = "colRowNumber",
+            HeaderText = "#",
+            Width = 46,
+            ReadOnly = true,
+            SortMode = DataGridViewColumnSortMode.NotSortable,
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            }
+        });
         
         dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
         {
@@ -523,19 +537,6 @@ public partial class MainForm : Form
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         });
 
-        dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "colModule",
-            HeaderText = "MÓDULO",
-            DataPropertyName = "Module",
-            Width = 110,
-            DefaultCellStyle = new DataGridViewCellStyle
-            {
-                Alignment = DataGridViewContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
-            }
-        });
-        
         dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
         {
             Name = "colStatus",
@@ -992,7 +993,7 @@ public partial class MainForm : Form
             return false;
         }
 
-        for (var attempt = 1; attempt <= 5; attempt++)
+        for (var attempt = 1; attempt <= 15; attempt++)
         {
             try
             {
@@ -1001,7 +1002,7 @@ public partial class MainForm : Form
             }
             catch (ExternalException)
             {
-                Thread.Sleep(60 * attempt);
+                Thread.Sleep(GetClipboardRetryDelay(attempt));
             }
         }
 
@@ -1010,7 +1011,7 @@ public partial class MainForm : Form
 
     private static bool TrySetClipboardDataObject(DataObject dataObj)
     {
-        for (var attempt = 1; attempt <= 5; attempt++)
+        for (var attempt = 1; attempt <= 15; attempt++)
         {
             try
             {
@@ -1019,11 +1020,18 @@ public partial class MainForm : Form
             }
             catch (ExternalException)
             {
-                Thread.Sleep(60 * attempt);
+                Thread.Sleep(GetClipboardRetryDelay(attempt));
             }
         }
 
         return false;
+    }
+
+    private static int GetClipboardRetryDelay(int attempt)
+    {
+        // Backoff progresivo: tolera bloqueos cortos del portapapeles en Windows 10
+        // (RDP, gestores de portapapeles, antivirus, etc.) sin congelar demasiado la UI.
+        return Math.Min(40 * attempt * attempt, 800);
     }
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -1078,6 +1086,11 @@ public partial class MainForm : Form
                 e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
             }
         }
+
+        if (dgvCodes.Columns[e.ColumnIndex].Name == "colRowNumber")
+        {
+            e.Value = (e.RowIndex + 1).ToString();
+        }
     }
 
     private static string NormalizeModuleForDisplay(string? moduleValue)
@@ -1102,11 +1115,19 @@ public partial class MainForm : Form
 
     private async void BtnParse_Click(object? sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(txtInput.Text))
+        var inputToParse = StripInputLineNumbers(txtInput.Text);
+
+        if (string.IsNullOrWhiteSpace(inputToParse))
         {
             MessageBox.Show("Por favor, pega códigos DTC en el área de texto.", 
                 "Entrada vacía", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
+        }
+
+        var numberedInput = BuildNumberedInput(inputToParse);
+        if (!string.Equals(txtInput.Text, numberedInput, StringComparison.Ordinal))
+        {
+            txtInput.Text = numberedInput;
         }
 
         try
@@ -1115,7 +1136,7 @@ public partial class MainForm : Form
             btnParse.Enabled = false;
 
             // Parsear códigos con información de categoría
-            var parsedCodes = ParseCodesWithCategory(txtInput.Text);
+            var parsedCodes = ParseCodesWithCategory(inputToParse);
             
             if (parsedCodes.Count == 0)
             {
@@ -1339,6 +1360,50 @@ public partial class MainForm : Form
         }
 
         return codes;
+    }
+
+    private static string StripInputLineNumbers(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        var lines = input
+            .Replace("\r\n", "\n")
+            .Split('\n')
+            .Select(line => System.Text.RegularExpressions.Regex.Replace(
+                line,
+                @"^\s*(?:L\s*)?\d+\s*[:.)-]\s*",
+                string.Empty,
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            .ToList();
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    private static string BuildNumberedInput(string input)
+    {
+        var cleaned = StripInputLineNumbers(input);
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            return string.Empty;
+        }
+
+        var lines = cleaned
+            .Replace("\r\n", "\n")
+            .Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToList();
+
+        if (lines.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var numbered = lines.Select((line, index) => $"{index + 1}: {line}");
+        return string.Join(Environment.NewLine, numbered);
     }
 
     private string GetCategoryFromPrefix(string prefix)
