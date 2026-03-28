@@ -127,6 +127,7 @@ public partial class MainForm : Form
         menuEstadisticas.Click += MenuEstadisticas_Click;
         
         dgvCodes.CellDoubleClick += DgvCodes_CellDoubleClick;
+        dgvCodes.CellMouseDown += DgvCodes_CellMouseDown;
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         dgvCodes.MouseWheel += DgvCodes_MouseWheel;
         dgvCodes.Scroll += (s, e) => AlignCopyColumnButtons();
@@ -724,8 +725,9 @@ public partial class MainForm : Form
             return;
         }
 
-        // Feedback visual rápido sin diálogo para no interrumpir el flujo.
-        SelectColumnCells(columnName);
+        // Evitar dejar selección masiva activa tras copiar una columna,
+        // porque interfiere con el flujo de clic posterior entre columnas.
+        ClearGridSelection();
     }
 
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
@@ -1718,6 +1720,52 @@ public partial class MainForm : Form
         }
     }
 
+    private void DgvCodes_CellMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (_suppressSelectionChange || _autoDeletingSelection || _suppressAutoDelete)
+        {
+            return;
+        }
+
+        if (e.RowIndex < 0 || e.ColumnIndex < 0)
+        {
+            return;
+        }
+
+        var column = dgvCodes.Columns[e.ColumnIndex];
+        if (!IsSelectableCodeColumn(column))
+        {
+            return;
+        }
+
+        // Respetar selección múltiple explícita con Ctrl/Shift.
+        var modifiers = Control.ModifierKeys;
+        if ((modifiers & (Keys.Control | Keys.Shift)) != Keys.None)
+        {
+            return;
+        }
+
+        // Si había selección masiva previa (ej. tras "Copiar" de columna),
+        // un clic normal debe quedarse solo con la celda clickeada.
+        if (dgvCodes.SelectedCells.Count <= 1)
+        {
+            return;
+        }
+
+        _suppressSelectionChange = true;
+        try
+        {
+            dgvCodes.ClearSelection();
+            var clickedCell = dgvCodes.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            clickedCell.Selected = true;
+            dgvCodes.CurrentCell = clickedCell;
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+        }
+    }
+
     private void DgvCodes_SelectionChanged(object? sender, EventArgs e)
     {
         if (_suppressSelectionChange || _autoDeletingSelection || _suppressAutoDelete)
@@ -1963,12 +2011,6 @@ public partial class MainForm : Form
         var found    = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
         lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{moduleLabel}: {toReplace.Count} borrado(s)]";
-
-        MessageBox.Show(
-            $"Se reemplazaron {toReplace.Count} código(s) del módulo [{moduleLabel}] con '0000' / 'FFFF'.",
-            $"Módulo {moduleLabel} — Completado",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
     }
 }
 
