@@ -38,6 +38,9 @@ namespace DtcDesk.WinForms
             lblInput = new Label();
             panelRight = new Panel();
             dgvCodes = new CumulativeSelectionDataGridView();
+            panelColumnCopy = new Panel();
+            btnCopyCodeAltColumn = new Button();
+            btnCopyCodeColumn = new Button();
             panelButtons = new Panel();
             btnZoomIn = new Button();
             btnZoomReset = new Button();
@@ -276,6 +279,7 @@ namespace DtcDesk.WinForms
             // panelRight
             // 
             panelRight.Controls.Add(dgvCodes);
+            panelRight.Controls.Add(panelColumnCopy);
             panelRight.Controls.Add(panelButtons);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
@@ -289,11 +293,40 @@ namespace DtcDesk.WinForms
             // 
             dgvCodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvCodes.Dock = DockStyle.Fill;
-            dgvCodes.Location = new Point(10, 40);
+            dgvCodes.Location = new Point(10, 76);
             dgvCodes.Name = "dgvCodes";
             dgvCodes.RowTemplate.Height = 35;
-            dgvCodes.Size = new Size(930, 520);
+            dgvCodes.Size = new Size(930, 448);
             dgvCodes.TabIndex = 2;
+            // 
+            // panelColumnCopy
+            // 
+            panelColumnCopy.Controls.Add(btnCopyCodeAltColumn);
+            panelColumnCopy.Controls.Add(btnCopyCodeColumn);
+            panelColumnCopy.Dock = DockStyle.Top;
+            panelColumnCopy.Location = new Point(10, 40);
+            panelColumnCopy.Name = "panelColumnCopy";
+            panelColumnCopy.Size = new Size(930, 36);
+            panelColumnCopy.TabIndex = 3;
+            panelColumnCopy.Padding = new Padding(0, 3, 0, 3);
+            // 
+            // btnCopyCodeAltColumn
+            // 
+            btnCopyCodeAltColumn.Location = new Point(104, 3);
+            btnCopyCodeAltColumn.Name = "btnCopyCodeAltColumn";
+            btnCopyCodeAltColumn.Size = new Size(100, 30);
+            btnCopyCodeAltColumn.TabIndex = 1;
+            btnCopyCodeAltColumn.Text = "Copiar COL. FFFF";
+            btnCopyCodeAltColumn.UseVisualStyleBackColor = true;
+            // 
+            // btnCopyCodeColumn
+            // 
+            btnCopyCodeColumn.Location = new Point(0, 3);
+            btnCopyCodeColumn.Name = "btnCopyCodeColumn";
+            btnCopyCodeColumn.Size = new Size(100, 30);
+            btnCopyCodeColumn.TabIndex = 0;
+            btnCopyCodeColumn.Text = "Copiar CÓDIGO";
+            btnCopyCodeColumn.UseVisualStyleBackColor = true;
             // 
             // panelButtons
             // 
@@ -494,6 +527,7 @@ namespace DtcDesk.WinForms
             panelRight.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCodes).EndInit();
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
+            panelColumnCopy.ResumeLayout(false);
             panelButtons.ResumeLayout(false);
             panelFilterSide.ResumeLayout(false);
             ResumeLayout(false);
@@ -514,6 +548,9 @@ namespace DtcDesk.WinForms
         private Panel panelRight;
         private Label lblResults;
         private CumulativeSelectionDataGridView dgvCodes;
+        private Panel panelColumnCopy;
+        private Button btnCopyCodeColumn;
+        private Button btnCopyCodeAltColumn;
         private Panel panelButtons;
         private Button btnAdd;
         private Button btnEdit;

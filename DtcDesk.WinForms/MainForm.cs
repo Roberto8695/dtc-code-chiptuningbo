@@ -4,6 +4,7 @@ using DtcDesk.Core.Services;
 using DtcDesk.Data.Db;
 using DtcDesk.Data.Repositories;
 using DtcDesk.WinForms.Forms;
+using System.Runtime.InteropServices;
 
 namespace DtcDesk.WinForms;
 
@@ -97,6 +98,8 @@ public partial class MainForm : Form
         btnZoomIn.Click += BtnZoomIn_Click;
         btnZoomOut.Click += BtnZoomOut_Click;
         btnZoomReset.Click += BtnZoomReset_Click;
+        btnCopyCodeColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCode");
+        btnCopyCodeAltColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCodeAlt");
         
         // Configurar eventos del menú
         menuImportar.Click += MenuImportar_Click;
@@ -108,9 +111,13 @@ public partial class MainForm : Form
         dgvCodes.CellDoubleClick += DgvCodes_CellDoubleClick;
         dgvCodes.SelectionChanged += DgvCodes_SelectionChanged;
         dgvCodes.MouseWheel += DgvCodes_MouseWheel;
+        dgvCodes.Scroll += (s, e) => AlignCopyColumnButtons();
+        dgvCodes.ColumnWidthChanged += (s, e) => AlignCopyColumnButtons();
+        dgvCodes.Resize += (s, e) => AlignCopyColumnButtons();
         
         txtInput.Font = new Font("Consolas", 10F);
         ApplyGridZoom();
+        AlignCopyColumnButtons();
 
         SetupDynamicModulePanel();
 
@@ -226,6 +233,8 @@ public partial class MainForm : Form
         StyleButton(btnZoomOut, separator, textMain);
         StyleButton(btnZoomReset, bgTop, textMain);
         StyleButton(btnZoomIn, accentYellow, Color.Black);
+        StyleButton(btnCopyCodeColumn, bgTop, textMain);
+        StyleButton(btnCopyCodeAltColumn, bgTop, textMain);
 
         btnZoomOut.FlatAppearance.BorderSize = 1;
         btnZoomOut.FlatAppearance.BorderColor = separator;
@@ -233,6 +242,15 @@ public partial class MainForm : Form
         btnZoomReset.FlatAppearance.BorderColor = separator;
         btnZoomIn.FlatAppearance.BorderSize = 1;
         btnZoomIn.FlatAppearance.BorderColor = accentHover;
+        btnCopyCodeColumn.FlatAppearance.BorderSize = 1;
+        btnCopyCodeColumn.FlatAppearance.BorderColor = separator;
+        btnCopyCodeAltColumn.FlatAppearance.BorderSize = 1;
+        btnCopyCodeAltColumn.FlatAppearance.BorderColor = separator;
+        btnCopyCodeColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+        btnCopyCodeAltColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+
+        panelColumnCopy.BackColor = bgMain;
+        AlignCopyColumnButtons();
         
         // Estilo del menú
         menuStrip.BackColor = bgSide;
@@ -334,19 +352,16 @@ public partial class MainForm : Form
             moduleButton.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#F8B41C");
             moduleButton.Click += (_, _) => DeleteByModule(filter);
 
-            if (!filter.IsSystem)
-            {
-                var contextMenu = new ContextMenuStrip();
-                var editItem = new ToolStripMenuItem("Editar módulo");
-                var deleteItem = new ToolStripMenuItem("Eliminar módulo");
+            var contextMenu = new ContextMenuStrip();
+            var editItem = new ToolStripMenuItem("Editar módulo");
+            var deleteItem = new ToolStripMenuItem("Eliminar módulo");
 
-                editItem.Click += async (_, _) => await EditCustomModuleAsync(filter);
-                deleteItem.Click += async (_, _) => await DeleteCustomModuleAsync(filter);
+            editItem.Click += async (_, _) => await EditCustomModuleAsync(filter);
+            deleteItem.Click += async (_, _) => await DeleteCustomModuleAsync(filter);
 
-                contextMenu.Items.Add(editItem);
-                contextMenu.Items.Add(deleteItem);
-                moduleButton.ContextMenuStrip = contextMenu;
-            }
+            contextMenu.Items.Add(editItem);
+            contextMenu.Items.Add(deleteItem);
+            moduleButton.ContextMenuStrip = contextMenu;
 
             _moduleButtonsPanel.Controls.Add(moduleButton);
         }
@@ -385,7 +400,7 @@ public partial class MainForm : Form
 
             await _moduleRepository.UpdateCustomFilterAsync(filter.Id, editor.ModuleDisplayName, editor.ModuleDescription, editor.ExactCodes);
             await RefreshClassifierAndButtonsAsync();
-            MessageBox.Show("Módulo personalizado actualizado correctamente.", "Módulo actualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Módulo actualizado correctamente.", "Módulo actualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -396,7 +411,7 @@ public partial class MainForm : Form
     private async Task DeleteCustomModuleAsync(DtcModuleFilter filter)
     {
         var result = MessageBox.Show(
-            $"¿Eliminar el módulo personalizado '{filter.DisplayName}'?\n\nEsta acción también elimina sus códigos configurados.",
+            $"¿Eliminar el módulo '{filter.DisplayName}'?\n\nEsta acción también elimina sus códigos configurados.",
             "Confirmar eliminación",
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Warning,
@@ -411,7 +426,7 @@ public partial class MainForm : Form
         {
             await _moduleRepository.DeleteCustomFilterAsync(filter.Id);
             await RefreshClassifierAndButtonsAsync();
-            MessageBox.Show("Módulo personalizado eliminado correctamente.", "Módulo eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Módulo eliminado correctamente.", "Módulo eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -509,6 +524,39 @@ public partial class MainForm : Form
         // Formato condicional para el estado
         dgvCodes.CellFormatting += DgvCodes_CellFormatting;
         dgvCodes.DataBindingComplete += DgvCodes_DataBindingComplete;
+
+        AlignCopyColumnButtons();
+    }
+
+    private void AlignCopyColumnButtons()
+    {
+        if (!dgvCodes.Columns.Contains("colCode") || !dgvCodes.Columns.Contains("colCodeAlt"))
+        {
+            return;
+        }
+
+        var codeRect = dgvCodes.GetColumnDisplayRectangle(dgvCodes.Columns["colCode"].Index, true);
+        var codeAltRect = dgvCodes.GetColumnDisplayRectangle(dgvCodes.Columns["colCodeAlt"].Index, true);
+
+        // Evitar valores negativos/ocultos cuando hay scroll extremo.
+        var top = Math.Max(3, btnCopyCodeColumn.Top);
+        var buttonHeight = 30;
+
+        if (codeRect.Width > 0)
+        {
+            btnCopyCodeColumn.Left = Math.Max(0, codeRect.X);
+            btnCopyCodeColumn.Width = Math.Max(70, codeRect.Width);
+            btnCopyCodeColumn.Top = top;
+            btnCopyCodeColumn.Height = buttonHeight;
+        }
+
+        if (codeAltRect.Width > 0)
+        {
+            btnCopyCodeAltColumn.Left = Math.Max(0, codeAltRect.X);
+            btnCopyCodeAltColumn.Width = Math.Max(70, codeAltRect.Width);
+            btnCopyCodeAltColumn.Top = top;
+            btnCopyCodeAltColumn.Height = buttonHeight;
+        }
     }
 
     private void ApplyGridZoom()
@@ -600,6 +648,54 @@ public partial class MainForm : Form
         {
             _suppressSelectionChange = false;
         }
+    }
+
+    private void CopyWholeColumnToClipboard(string columnName)
+    {
+        if (_currentResults == null || _currentResults.Count == 0)
+        {
+            return;
+        }
+
+        if (!dgvCodes.Columns.Contains(columnName))
+        {
+            return;
+        }
+
+        var values = new List<string>(_currentResults.Count);
+        foreach (var result in _currentResults)
+        {
+            string? value = columnName switch
+            {
+                "colCode" => result.Code,
+                "colCodeAlt" => result.CodeAlt,
+                _ => null
+            };
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                values.Add(value.Trim());
+            }
+        }
+
+        if (values.Count == 0)
+        {
+            return;
+        }
+
+        var copied = TrySetClipboardText(string.Join(Environment.NewLine, values));
+        if (!copied)
+        {
+            MessageBox.Show(
+                "No se pudo acceder al portapapeles en este momento. Cierra aplicaciones que lo estén usando e intenta de nuevo.",
+                "Portapapeles ocupado",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Feedback visual rápido sin diálogo para no interrumpir el flujo.
+        SelectColumnCells(columnName);
     }
 
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
@@ -836,7 +932,14 @@ public partial class MainForm : Form
 
             if (!string.IsNullOrEmpty(outputText))
             {
-                Clipboard.SetText(outputText);
+                if (!TrySetClipboardText(outputText))
+                {
+                    MessageBox.Show(
+                        "No se pudo acceder al portapapeles en este momento. Cierra aplicaciones que lo estén usando e intenta de nuevo.",
+                        "Portapapeles ocupado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
             }
         }
         catch (Exception ex)
@@ -860,7 +963,15 @@ public partial class MainForm : Form
             DataObject dataObj = dgvCodes.GetClipboardContent();
             if (dataObj != null)
             {
-                Clipboard.SetDataObject(dataObj);
+                if (!TrySetClipboardDataObject(dataObj))
+                {
+                    MessageBox.Show(
+                        "No se pudo acceder al portapapeles en este momento. Cierra aplicaciones que lo estén usando e intenta de nuevo.",
+                        "Portapapeles ocupado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
             }
             
             // Limpiar selección
@@ -874,6 +985,47 @@ public partial class MainForm : Form
             MessageBox.Show($"Error al copiar: {ex.Message}", "Error", 
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private static bool TrySetClipboardText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        for (var attempt = 1; attempt <= 5; attempt++)
+        {
+            try
+            {
+                Clipboard.SetText(text);
+                return true;
+            }
+            catch (ExternalException)
+            {
+                Thread.Sleep(60 * attempt);
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TrySetClipboardDataObject(DataObject dataObj)
+    {
+        for (var attempt = 1; attempt <= 5; attempt++)
+        {
+            try
+            {
+                Clipboard.SetDataObject(dataObj, true);
+                return true;
+            }
+            catch (ExternalException)
+            {
+                Thread.Sleep(60 * attempt);
+            }
+        }
+
+        return false;
     }
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -919,13 +1071,35 @@ public partial class MainForm : Form
 
         if (dgvCodes.Columns[e.ColumnIndex].Name == "colModule")
         {
-            var moduleValue = e.Value?.ToString()?.Trim();
-            if (string.IsNullOrWhiteSpace(moduleValue))
+            var moduleValue = e.Value?.ToString();
+            var normalized = NormalizeModuleForDisplay(moduleValue);
+            e.Value = normalized;
+
+            if (normalized == "-")
             {
-                e.Value = "-";
                 e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
             }
         }
+    }
+
+    private static string NormalizeModuleForDisplay(string? moduleValue)
+    {
+        if (string.IsNullOrWhiteSpace(moduleValue))
+        {
+            return "-";
+        }
+
+        var cleaned = new string(moduleValue
+            .Where(ch => char.IsLetterOrDigit(ch) || ch == ' ' || ch == '-' || ch == '_')
+            .ToArray())
+            .Trim();
+
+        if (string.IsNullOrWhiteSpace(cleaned) || !cleaned.Any(char.IsLetterOrDigit))
+        {
+            return "-";
+        }
+
+        return cleaned.ToUpperInvariant();
     }
 
     private async void BtnParse_Click(object? sender, EventArgs e)
