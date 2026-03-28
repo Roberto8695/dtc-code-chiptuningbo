@@ -10,6 +10,20 @@ namespace DtcDesk.WinForms;
 
 public partial class MainForm : Form
 {
+    private sealed class ManualSelectionSnapshot
+    {
+        public string Code { get; init; } = string.Empty;
+        public string CodeAlt { get; init; } = string.Empty;
+        public bool Found { get; init; }
+        public string? Description { get; init; }
+        public string? Category { get; init; }
+        public string? Source { get; init; }
+        public string? Notes { get; init; }
+        public string? FilterTag { get; init; }
+        public string? Module { get; init; }
+        public bool IsModuleDeleted { get; init; }
+    }
+
     private const int GridZoomMin = 50;
     private const int GridZoomMax = 180;
     private const int GridZoomStep = 10;
@@ -22,7 +36,10 @@ public partial class MainForm : Form
     private DtcClassifierService? _classifier;
     private List<DtcLookupResult> _currentResults = new();
     private List<DtcModuleFilter> _moduleFilters = new();
+    private readonly Dictionary<int, ManualSelectionSnapshot> _manualSelectionSnapshots = new();
     private bool _suppressSelectionChange;
+    private bool _autoDeletingSelection;
+    private bool _suppressAutoDelete;
     private int _gridZoomPercent = GridZoomDefault;
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
@@ -100,6 +117,7 @@ public partial class MainForm : Form
         btnZoomReset.Click += BtnZoomReset_Click;
         btnCopyCodeColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCode");
         btnCopyCodeAltColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCodeAlt");
+        btnClearSelectionTop.Click += (s, e) => ClearGridSelection();
         
         // Configurar eventos del menú
         menuImportar.Click += MenuImportar_Click;
@@ -235,6 +253,7 @@ public partial class MainForm : Form
         StyleButton(btnZoomIn, accentYellow, Color.Black);
         StyleButton(btnCopyCodeColumn, bgTop, textMain);
         StyleButton(btnCopyCodeAltColumn, bgTop, textMain);
+        StyleButton(btnClearSelectionTop, separator, textMain);
 
         btnZoomOut.FlatAppearance.BorderSize = 1;
         btnZoomOut.FlatAppearance.BorderColor = separator;
@@ -246,8 +265,11 @@ public partial class MainForm : Form
         btnCopyCodeColumn.FlatAppearance.BorderColor = separator;
         btnCopyCodeAltColumn.FlatAppearance.BorderSize = 1;
         btnCopyCodeAltColumn.FlatAppearance.BorderColor = separator;
+        btnClearSelectionTop.FlatAppearance.BorderSize = 1;
+        btnClearSelectionTop.FlatAppearance.BorderColor = separator;
         btnCopyCodeColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         btnCopyCodeAltColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+        btnClearSelectionTop.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
 
         panelColumnCopy.BackColor = bgMain;
         AlignCopyColumnButtons();
@@ -557,6 +579,11 @@ public partial class MainForm : Form
             btnCopyCodeAltColumn.Top = top;
             btnCopyCodeAltColumn.Height = buttonHeight;
         }
+
+        btnClearSelectionTop.Top = top;
+        btnClearSelectionTop.Height = buttonHeight;
+        btnClearSelectionTop.Width = 128;
+        btnClearSelectionTop.Left = Math.Max(0, panelColumnCopy.Width - btnClearSelectionTop.Width - 8);
     }
 
     private void ApplyGridZoom()
@@ -608,6 +635,9 @@ public partial class MainForm : Form
     private void DgvCodes_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
     {
         ClearGridSelection();
+
+        // Asegurar que no quede la primera celda seleccionada automáticamente tras el binding.
+        BeginInvoke((MethodInvoker)(() => ClearGridSelection()));
     }
 
     private void ClearGridSelection()
@@ -705,50 +735,8 @@ public partial class MainForm : Form
 
     private void SetupContextMenu()
     {
-        var contextMenu = new ContextMenuStrip();
-        
-        // Configurar renderer personalizado para colores
-        contextMenu.Renderer = new ToolStripProfessionalRenderer(new CustomMenuColorTable());
-        
-        // Opciones Copiar (horizontal/vertical)
-        var copyHorizontalMenuItem = new ToolStripMenuItem("Copiar Horizontal");
-        copyHorizontalMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-        copyHorizontalMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard(true);
-
-        var copyVerticalMenuItem = new ToolStripMenuItem("Copiar Vertical");
-        copyVerticalMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.C;
-        copyVerticalMenuItem.Click += (sender, e) => CopySelectedCellsToClipboard(false);
-        
-        // Opción Borrar (reemplazar con 0000/FFFF)
-        var deleteMenuItem = new ToolStripMenuItem("Borrar");
-        deleteMenuItem.Click += (sender, e) => DeleteAndReplaceSelectedCodes();
-
-        // Opción Deseleccionar
-        var clearSelectionMenuItem = new ToolStripMenuItem("Deseleccionar Todo");
-        clearSelectionMenuItem.ShortcutKeyDisplayString = "Esc";
-        clearSelectionMenuItem.Click += (sender, e) => ClearGridSelection();
-
-        // Opción Seleccionar columnas
-        var selectCodeColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO");
-        selectCodeColumnItem.Click += (sender, e) => SelectColumnCells("colCode");
-
-        var selectCodeAltColumnItem = new ToolStripMenuItem("Seleccionar Columna CÓDIGO ALT");
-        selectCodeAltColumnItem.Click += (sender, e) => SelectColumnCells("colCodeAlt");
-        
-        contextMenu.Items.Add(copyHorizontalMenuItem);
-        contextMenu.Items.Add(copyVerticalMenuItem);
-        contextMenu.Items.Add(new ToolStripSeparator());
-        contextMenu.Items.Add(deleteMenuItem);
-        contextMenu.Items.Add(new ToolStripSeparator());
-        contextMenu.Items.Add(clearSelectionMenuItem);
-        contextMenu.Items.Add(selectCodeColumnItem);
-        contextMenu.Items.Add(selectCodeAltColumnItem);
-        
-        // Aplicar tema oscuro al menú contextual
-        contextMenu.BackColor = ColorTranslator.FromHtml("#102C44");
-        contextMenu.ForeColor = ColorTranslator.FromHtml("#EAEAEA");
-        
-        dgvCodes.ContextMenuStrip = contextMenu;
+        // Deshabilitar menú contextual por click derecho.
+        dgvCodes.ContextMenuStrip = null;
         
         // También permitir Ctrl+C/Ctrl+Shift+C directamente y Backspace para borrar/reemplazar códigos
         dgvCodes.KeyDown += DgvCodes_KeyDown;
@@ -877,9 +865,18 @@ public partial class MainForm : Form
         }
 
         // Refrescar el DataGridView
-        dgvCodes.DataSource = null;
-        dgvCodes.DataSource = _currentResults;
-        ClearGridSelection();
+        _manualSelectionSnapshots.Clear();
+        _suppressSelectionChange = true;
+        try
+        {
+            dgvCodes.DataSource = null;
+            dgvCodes.DataSource = _currentResults;
+            ClearGridSelection();
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+        }
 
         // Actualizar estadísticas
         var found = _currentResults.Count(r => r.Found);
@@ -1031,7 +1028,7 @@ public partial class MainForm : Form
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
         // Mantener el código tal como se pegó (no quitar prefijos)
-        if (e.RowIndex >= 0)
+        if (e.RowIndex >= 0 && e.RowIndex < dgvCodes.Rows.Count)
         {
             var rowResult = dgvCodes.Rows[e.RowIndex].DataBoundItem as DtcLookupResult;
             if (rowResult?.IsModuleDeleted == true && e.CellStyle != null)
@@ -1157,6 +1154,7 @@ public partial class MainForm : Form
 
             // Crear resultados solo para la categoría correspondiente
             _currentResults = new List<DtcLookupResult>();
+            _manualSelectionSnapshots.Clear();
             
             foreach (var parsed in parsedCodes)
             {
@@ -1225,10 +1223,22 @@ public partial class MainForm : Form
             _classifier?.ClassifyAll(_currentResults);
             ApplyModuleDisplayNames();
 
-            // Mostrar resultados
-            dgvCodes.DataSource = null;
-            dgvCodes.DataSource = _currentResults;
-            ClearGridSelection();
+            // Mostrar resultados sin disparar auto-borrado por selección inicial del grid
+            _suppressAutoDelete = true;
+            _suppressSelectionChange = true;
+            try
+            {
+                dgvCodes.DataSource = null;
+                dgvCodes.DataSource = _currentResults;
+                ClearGridSelection();
+            }
+            finally
+            {
+                _suppressSelectionChange = false;
+                _suppressAutoDelete = false;
+            }
+
+            BeginInvoke((MethodInvoker)(() => ClearGridSelection()));
             
             // Actualizar estadísticas
             var foundCount = _currentResults.Count(r => r.Found);
@@ -1447,6 +1457,7 @@ public partial class MainForm : Form
         txtInput.Clear();
         dgvCodes.DataSource = null;
         _currentResults.Clear();
+        _manualSelectionSnapshots.Clear();
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
     }
@@ -1709,7 +1720,7 @@ public partial class MainForm : Form
 
     private void DgvCodes_SelectionChanged(object? sender, EventArgs e)
     {
-        if (_suppressSelectionChange)
+        if (_suppressSelectionChange || _autoDeletingSelection || _suppressAutoDelete)
         {
             return;
         }
@@ -1737,35 +1748,127 @@ public partial class MainForm : Form
             _suppressSelectionChange = false;
         }
 
-        // Habilitar/deshabilitar botones según selección
-        var hasSelection = dgvCodes.SelectedCells
+        var selectedRows = dgvCodes.SelectedCells
             .Cast<DataGridViewCell>()
-            .Any(cell => IsSelectableCodeColumn(cell.OwningColumn));
+            .Where(cell => IsSelectableCodeColumn(cell.OwningColumn))
+            .Select(cell => cell.RowIndex)
+            .Where(rowIndex => rowIndex >= 0 && rowIndex < _currentResults.Count)
+            .Distinct()
+            .ToList();
+
+        ApplyManualSelectionState(selectedRows);
+
+        // Habilitar/deshabilitar botones según selección
+        var hasSelection = selectedRows.Count > 0;
+
         var isFound = false;
 
         if (hasSelection)
         {
-            // Obtener la fila desde la primera celda seleccionada
-            DataGridViewRow? selectedRow = null;
-            
-            if (dgvCodes.SelectedCells.Count > 0)
+            var firstRowIndex = selectedRows[0];
+            if (firstRowIndex >= 0 && firstRowIndex < _currentResults.Count)
             {
-                var selectedCell = dgvCodes.SelectedCells[0];
-                selectedRow = dgvCodes.Rows[selectedCell.RowIndex];
-            }
-            else if (dgvCodes.CurrentRow != null)
-            {
-                selectedRow = dgvCodes.CurrentRow;
-            }
-            
-            if (selectedRow != null)
-            {
-                var selectedResult = selectedRow.DataBoundItem as DtcLookupResult;
-                isFound = selectedResult?.Found ?? false;
+                isFound = _currentResults[firstRowIndex].Found;
             }
         }
 
         btnEdit.Enabled = hasSelection && isFound;
+    }
+
+    private void ApplyManualSelectionState(List<int> selectedRows)
+    {
+        if (_currentResults.Count == 0)
+        {
+            return;
+        }
+
+        var selectedSet = selectedRows.ToHashSet();
+
+        _autoDeletingSelection = true;
+        try
+        {
+            // Restaurar filas que ya no están seleccionadas.
+            var rowsToRestore = _manualSelectionSnapshots.Keys
+                .Where(rowIndex => !selectedSet.Contains(rowIndex))
+                .ToList();
+
+            foreach (var rowIndex in rowsToRestore)
+            {
+                if (rowIndex < 0 || rowIndex >= _currentResults.Count)
+                {
+                    _manualSelectionSnapshots.Remove(rowIndex);
+                    continue;
+                }
+
+                var snapshot = _manualSelectionSnapshots[rowIndex];
+                var result = _currentResults[rowIndex];
+
+                result.Code = snapshot.Code;
+                result.CodeAlt = snapshot.CodeAlt;
+                result.Found = snapshot.Found;
+                result.Description = snapshot.Description;
+                result.Category = snapshot.Category;
+                result.Source = snapshot.Source;
+                result.Notes = snapshot.Notes;
+                result.FilterTag = snapshot.FilterTag;
+                result.Module = snapshot.Module;
+                result.IsModuleDeleted = snapshot.IsModuleDeleted;
+
+                _manualSelectionSnapshots.Remove(rowIndex);
+            }
+
+            // Aplicar borrado temporal a filas seleccionadas manualmente.
+            foreach (var rowIndex in selectedSet)
+            {
+                if (_manualSelectionSnapshots.ContainsKey(rowIndex))
+                {
+                    continue;
+                }
+
+                var result = _currentResults[rowIndex];
+
+                // Si ya fue borrado por módulo, mantener ese estado permanente.
+                if (result.IsModuleDeleted)
+                {
+                    continue;
+                }
+
+                _manualSelectionSnapshots[rowIndex] = new ManualSelectionSnapshot
+                {
+                    Code = result.Code,
+                    CodeAlt = result.CodeAlt,
+                    Found = result.Found,
+                    Description = result.Description,
+                    Category = result.Category,
+                    Source = result.Source,
+                    Notes = result.Notes,
+                    FilterTag = result.FilterTag,
+                    Module = result.Module,
+                    IsModuleDeleted = result.IsModuleDeleted
+                };
+
+                result.Code = "0000";
+                result.CodeAlt = "FFFF";
+                result.Description = "Sin resultados";
+                result.Found = false;
+                result.Category = "Hex";
+                result.Source = null;
+                result.Notes = null;
+                result.FilterTag = null;
+                result.Module = null;
+                result.IsModuleDeleted = true;
+            }
+
+            dgvCodes.Refresh();
+
+            var found = _currentResults.Count(r => r.Found);
+            var notFound = _currentResults.Count - found;
+            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+        }
+        finally
+        {
+            _autoDeletingSelection = false;
+        }
     }
 
     private void DeleteByModule(DtcModuleFilter module)
@@ -1815,8 +1918,20 @@ public partial class MainForm : Form
             return;
 
         // Reemplazar
-        foreach (var result in toReplace)
+        for (var i = 0; i < _currentResults.Count; i++)
         {
+            var result = _currentResults[i];
+            var isTarget = string.Equals(result.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(result.Module, moduleLabel, StringComparison.OrdinalIgnoreCase);
+
+            if (!isTarget)
+            {
+                continue;
+            }
+
+            // Si esta fila tenía snapshot manual, eliminarlo para evitar restauraciones inconsistentes.
+            _manualSelectionSnapshots.Remove(i);
+
             result.Code        = "0000";
             result.CodeAlt     = "FFFF";
             result.Description = "Sin resultados";
@@ -1830,9 +1945,19 @@ public partial class MainForm : Form
         }
 
         // Refrescar grid
-        dgvCodes.DataSource = null;
-        dgvCodes.DataSource = _currentResults;
-        ClearGridSelection();
+        _suppressAutoDelete = true;
+        _suppressSelectionChange = true;
+        try
+        {
+            dgvCodes.DataSource = null;
+            dgvCodes.DataSource = _currentResults;
+            ClearGridSelection();
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+            _suppressAutoDelete = false;
+        }
 
         // Actualizar estadísticas
         var found    = _currentResults.Count(r => r.Found);

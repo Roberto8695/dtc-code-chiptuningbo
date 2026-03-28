@@ -39,6 +39,7 @@ namespace DtcDesk.WinForms
             panelRight = new Panel();
             dgvCodes = new CumulativeSelectionDataGridView();
             panelColumnCopy = new Panel();
+            btnClearSelectionTop = new Button();
             btnCopyCodeAltColumn = new Button();
             btnCopyCodeColumn = new Button();
             panelButtons = new Panel();
@@ -301,6 +302,7 @@ namespace DtcDesk.WinForms
             // 
             // panelColumnCopy
             // 
+            panelColumnCopy.Controls.Add(btnClearSelectionTop);
             panelColumnCopy.Controls.Add(btnCopyCodeAltColumn);
             panelColumnCopy.Controls.Add(btnCopyCodeColumn);
             panelColumnCopy.Dock = DockStyle.Top;
@@ -309,6 +311,16 @@ namespace DtcDesk.WinForms
             panelColumnCopy.Size = new Size(930, 36);
             panelColumnCopy.TabIndex = 3;
             panelColumnCopy.Padding = new Padding(0, 3, 0, 3);
+            // 
+            // btnClearSelectionTop
+            // 
+            btnClearSelectionTop.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClearSelectionTop.Location = new Point(794, 3);
+            btnClearSelectionTop.Name = "btnClearSelectionTop";
+            btnClearSelectionTop.Size = new Size(128, 30);
+            btnClearSelectionTop.TabIndex = 2;
+            btnClearSelectionTop.Text = "Deseleccionar";
+            btnClearSelectionTop.UseVisualStyleBackColor = true;
             // 
             // btnCopyCodeAltColumn
             // 
@@ -551,6 +563,7 @@ namespace DtcDesk.WinForms
         private Panel panelColumnCopy;
         private Button btnCopyCodeColumn;
         private Button btnCopyCodeAltColumn;
+        private Button btnClearSelectionTop;
         private Panel panelButtons;
         private Button btnAdd;
         private Button btnEdit;

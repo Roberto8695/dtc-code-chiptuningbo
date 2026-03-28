@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "H2A2/Jq/1bk=",
+  "dgSpecHash": "8FBL/TI01us=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
+  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VICTUS\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\VICTUS\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",

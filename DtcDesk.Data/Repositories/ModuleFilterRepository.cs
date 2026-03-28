@@ -232,11 +232,6 @@ public class ModuleFilterRepository
                 throw new InvalidOperationException("El módulo no existe.");
             }
 
-            if (filter.IsSystem)
-            {
-                throw new InvalidOperationException("No se puede editar un módulo de sistema.");
-            }
-
             await using (var updateFilterCmd = connection.CreateCommand())
             {
                 updateFilterCmd.Transaction = (SqliteTransaction)transaction;
@@ -276,11 +271,6 @@ public class ModuleFilterRepository
             if (filter == null)
             {
                 return;
-            }
-
-            if (filter.IsSystem)
-            {
-                throw new InvalidOperationException("No se puede eliminar un módulo de sistema.");
             }
 
             await DeleteRulesByFilterAsync(connection, (SqliteTransaction)transaction, filter.Name);
