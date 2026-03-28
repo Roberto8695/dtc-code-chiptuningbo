@@ -725,19 +725,8 @@ public partial class MainForm : Form
             return;
         }
 
-        // Evitar dejar selección masiva activa tras copiar una columna,
-        // sin disparar restauración de filas convertidas manualmente.
-        _suppressAutoDelete = true;
-        _suppressSelectionChange = true;
-        try
-        {
-            ClearGridSelection();
-        }
-        finally
-        {
-            _suppressSelectionChange = false;
-            _suppressAutoDelete = false;
-        }
+        // No alterar selección después de copiar.
+        // Limpiarla aquí provoca restauraciones no deseadas en el siguiente clic.
     }
 
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
@@ -1084,7 +1073,7 @@ public partial class MainForm : Form
             var normalized = NormalizeModuleForDisplay(moduleValue);
             e.Value = normalized;
 
-            if (normalized == "-")
+            if (normalized == "-" && e.CellStyle != null)
             {
                 e.CellStyle.ForeColor = ColorTranslator.FromHtml("#B0B7BE");
             }
@@ -1747,33 +1736,6 @@ public partial class MainForm : Form
         {
             return;
         }
-
-        // Respetar selección múltiple explícita con Ctrl/Shift.
-        var modifiers = Control.ModifierKeys;
-        if ((modifiers & (Keys.Control | Keys.Shift)) != Keys.None)
-        {
-            return;
-        }
-
-        // Si había selección masiva previa (ej. tras "Copiar" de columna),
-        // un clic normal debe quedarse solo con la celda clickeada.
-        if (dgvCodes.SelectedCells.Count <= 1)
-        {
-            return;
-        }
-
-        _suppressSelectionChange = true;
-        try
-        {
-            dgvCodes.ClearSelection();
-            var clickedCell = dgvCodes.Rows[e.RowIndex].Cells[e.ColumnIndex];
-            clickedCell.Selected = true;
-            dgvCodes.CurrentCell = clickedCell;
-        }
-        finally
-        {
-            _suppressSelectionChange = false;
-        }
     }
 
     private void DgvCodes_SelectionChanged(object? sender, EventArgs e)
@@ -1840,11 +1802,43 @@ public partial class MainForm : Form
             return;
         }
 
+        var selectedSet = selectedRows.ToHashSet();
+
         _autoDeletingSelection = true;
         try
         {
-            // Aplicar borrado manual persistente a filas seleccionadas.
-            foreach (var rowIndex in selectedRows)
+            // Restaurar filas que ya no están seleccionadas (segundo clic = toggle off).
+            var rowsToRestore = _manualSelectionSnapshots.Keys
+                .Where(rowIndex => !selectedSet.Contains(rowIndex))
+                .ToList();
+
+            foreach (var rowIndex in rowsToRestore)
+            {
+                if (rowIndex < 0 || rowIndex >= _currentResults.Count)
+                {
+                    _manualSelectionSnapshots.Remove(rowIndex);
+                    continue;
+                }
+
+                var snapshot = _manualSelectionSnapshots[rowIndex];
+                var result = _currentResults[rowIndex];
+
+                result.Code = snapshot.Code;
+                result.CodeAlt = snapshot.CodeAlt;
+                result.Found = snapshot.Found;
+                result.Description = snapshot.Description;
+                result.Category = snapshot.Category;
+                result.Source = snapshot.Source;
+                result.Notes = snapshot.Notes;
+                result.FilterTag = snapshot.FilterTag;
+                result.Module = snapshot.Module;
+                result.IsModuleDeleted = snapshot.IsModuleDeleted;
+
+                _manualSelectionSnapshots.Remove(rowIndex);
+            }
+
+            // Aplicar conversión en filas seleccionadas que aún no tenían snapshot.
+            foreach (var rowIndex in selectedSet)
             {
                 if (_manualSelectionSnapshots.ContainsKey(rowIndex))
                 {
