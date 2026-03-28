@@ -726,8 +726,18 @@ public partial class MainForm : Form
         }
 
         // Evitar dejar selección masiva activa tras copiar una columna,
-        // porque interfiere con el flujo de clic posterior entre columnas.
-        ClearGridSelection();
+        // sin disparar restauración de filas convertidas manualmente.
+        _suppressAutoDelete = true;
+        _suppressSelectionChange = true;
+        try
+        {
+            ClearGridSelection();
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+            _suppressAutoDelete = false;
+        }
     }
 
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
@@ -1830,43 +1840,11 @@ public partial class MainForm : Form
             return;
         }
 
-        var selectedSet = selectedRows.ToHashSet();
-
         _autoDeletingSelection = true;
         try
         {
-            // Restaurar filas que ya no están seleccionadas.
-            var rowsToRestore = _manualSelectionSnapshots.Keys
-                .Where(rowIndex => !selectedSet.Contains(rowIndex))
-                .ToList();
-
-            foreach (var rowIndex in rowsToRestore)
-            {
-                if (rowIndex < 0 || rowIndex >= _currentResults.Count)
-                {
-                    _manualSelectionSnapshots.Remove(rowIndex);
-                    continue;
-                }
-
-                var snapshot = _manualSelectionSnapshots[rowIndex];
-                var result = _currentResults[rowIndex];
-
-                result.Code = snapshot.Code;
-                result.CodeAlt = snapshot.CodeAlt;
-                result.Found = snapshot.Found;
-                result.Description = snapshot.Description;
-                result.Category = snapshot.Category;
-                result.Source = snapshot.Source;
-                result.Notes = snapshot.Notes;
-                result.FilterTag = snapshot.FilterTag;
-                result.Module = snapshot.Module;
-                result.IsModuleDeleted = snapshot.IsModuleDeleted;
-
-                _manualSelectionSnapshots.Remove(rowIndex);
-            }
-
-            // Aplicar borrado temporal a filas seleccionadas manualmente.
-            foreach (var rowIndex in selectedSet)
+            // Aplicar borrado manual persistente a filas seleccionadas.
+            foreach (var rowIndex in selectedRows)
             {
                 if (_manualSelectionSnapshots.ContainsKey(rowIndex))
                 {
