@@ -40,6 +40,8 @@ public partial class MainForm : Form
     private bool _suppressSelectionChange;
     private bool _autoDeletingSelection;
     private bool _suppressAutoDelete;
+    private bool _suppressManualReplace;
+    private bool _suspendManualReplaceUntilClearSelection;
     private int _gridZoomPercent = GridZoomDefault;
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
@@ -642,6 +644,7 @@ public partial class MainForm : Form
 
     private void ClearGridSelection()
     {
+        _suspendManualReplaceUntilClearSelection = false;
         dgvCodes.ClearSelection();
         dgvCodes.CurrentCell = null;
     }
@@ -659,6 +662,8 @@ public partial class MainForm : Form
         }
 
         _suppressSelectionChange = true;
+        _suppressManualReplace = true;
+        _suspendManualReplaceUntilClearSelection = true;
         try
         {
             dgvCodes.ClearSelection();
@@ -678,6 +683,8 @@ public partial class MainForm : Form
         {
             _suppressSelectionChange = false;
         }
+
+        BeginInvoke((MethodInvoker)(() => _suppressManualReplace = false));
     }
 
     private void CopyWholeColumnToClipboard(string columnName)
@@ -724,8 +731,23 @@ public partial class MainForm : Form
             return;
         }
 
-        // Feedback visual rápido sin diálogo para no interrumpir el flujo.
-        SelectColumnCells(columnName);
+        var header = dgvCodes.Columns[columnName].HeaderText;
+        MessageBox.Show(
+            $"Se copiaron {values.Count} código(s) de la columna {header}.",
+            "Copiado correctamente",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+
+        // Limpiar selección para evitar acciones no deseadas tras el copiado.
+        _suppressSelectionChange = true;
+        try
+        {
+            ClearGridSelection();
+        }
+        finally
+        {
+            _suppressSelectionChange = false;
+        }
     }
 
     private static bool IsSelectableCodeColumn(DataGridViewColumn? column)
@@ -1748,6 +1770,11 @@ public partial class MainForm : Form
             _suppressSelectionChange = false;
         }
 
+        if (_suppressManualReplace)
+        {
+            return;
+        }
+
         var selectedRows = dgvCodes.SelectedCells
             .Cast<DataGridViewCell>()
             .Where(cell => IsSelectableCodeColumn(cell.OwningColumn))
@@ -1756,7 +1783,14 @@ public partial class MainForm : Form
             .Distinct()
             .ToList();
 
-        ApplyManualSelectionState(selectedRows);
+        if (_suspendManualReplaceUntilClearSelection)
+        {
+            // Al copiar columna completa, permitir selección visual sin reemplazo automático.
+        }
+        else
+        {
+            ApplyManualSelectionState(selectedRows);
+        }
 
         // Habilitar/deshabilitar botones según selección
         var hasSelection = selectedRows.Count > 0;
@@ -1964,11 +1998,6 @@ public partial class MainForm : Form
         var notFound = _currentResults.Count - found;
         lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{moduleLabel}: {toReplace.Count} borrado(s)]";
 
-        MessageBox.Show(
-            $"Se reemplazaron {toReplace.Count} código(s) del módulo [{moduleLabel}] con '0000' / 'FFFF'.",
-            $"Módulo {moduleLabel} — Completado",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
     }
 }
 
