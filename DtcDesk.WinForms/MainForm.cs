@@ -1701,21 +1701,61 @@ public partial class MainForm : Form
         }
     }
 
-    private void DgvCodes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    private async void DgvCodes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex < 0) return;
         
-        // Doble clic abre editar/añadir
+        // Doble clic abre editar/añadir usando la fila clickeada,
+        // sin depender de la selección actual de celdas.
         var selectedResult = dgvCodes.Rows[e.RowIndex].DataBoundItem as DtcLookupResult;
         if (selectedResult == null) return;
 
         if (selectedResult.Found)
         {
-            BtnEdit_Click(sender, e);
+            try
+            {
+                DtcCode? dtcCode = null;
+                if (selectedResult.DtcId.HasValue)
+                {
+                    dtcCode = await _repository.GetByIdAsync(selectedResult.DtcId.Value);
+                }
+                else
+                {
+                    dtcCode = await _repository.GetByCodeAsync(selectedResult.Code);
+                }
+
+                if (dtcCode == null)
+                {
+                    MessageBox.Show("No se pudo cargar el código para editar.",
+                        "Código no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var editForm = new AddEditCodeForm(dtcCode);
+                if (editForm.ShowDialog() == DialogResult.OK)
+                {
+                    BtnParse_Click(sender, EventArgs.Empty); // Re-parsear para actualizar
+                    LoadStatistics();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el código: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         else
         {
-            BtnAdd_Click(sender, e);
+            var addForm = new AddEditCodeForm(selectedResult.Code);
+            if (addForm.ShowDialog() == DialogResult.OK)
+            {
+                if (addForm.DtcCode != null && _currentResults.Any(r => r.Code == addForm.DtcCode.Code))
+                {
+                    BtnParse_Click(sender, EventArgs.Empty); // Re-parsear para actualizar
+                }
+
+                LoadStatistics();
+            }
         }
     }
 
