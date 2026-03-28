@@ -37,6 +37,7 @@ public partial class MainForm : Form
     private List<DtcLookupResult> _currentResults = new();
     private List<DtcModuleFilter> _moduleFilters = new();
     private readonly Dictionary<int, ManualSelectionSnapshot> _manualSelectionSnapshots = new();
+    private readonly Dictionary<int, (string ModuleKey, ManualSelectionSnapshot Snapshot)> _moduleToggleSnapshots = new();
     private bool _suppressSelectionChange;
     private bool _autoDeletingSelection;
     private bool _suppressAutoDelete;
@@ -868,6 +869,7 @@ public partial class MainForm : Form
 
         // Refrescar el DataGridView
         _manualSelectionSnapshots.Clear();
+        _moduleToggleSnapshots.Clear();
         _suppressSelectionChange = true;
         try
         {
@@ -1177,6 +1179,7 @@ public partial class MainForm : Form
             // Crear resultados solo para la categoría correspondiente
             _currentResults = new List<DtcLookupResult>();
             _manualSelectionSnapshots.Clear();
+            _moduleToggleSnapshots.Clear();
             
             foreach (var parsed in parsedCodes)
             {
@@ -1524,6 +1527,7 @@ public partial class MainForm : Form
         dgvCodes.DataSource = null;
         _currentResults.Clear();
         _manualSelectionSnapshots.Clear();
+        _moduleToggleSnapshots.Clear();
         lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
         txtInput.Focus();
     }
@@ -2011,6 +2015,55 @@ public partial class MainForm : Form
             return;
         }
 
+        // Toggle: si ya se aplicó este módulo antes, restaurar esas filas.
+        var rowsToRestore = _moduleToggleSnapshots
+            .Where(kvp => string.Equals(kvp.Value.ModuleKey, moduleKey, StringComparison.OrdinalIgnoreCase))
+            .Select(kvp => kvp.Key)
+            .Where(index => index >= 0 && index < _currentResults.Count)
+            .Distinct()
+            .ToList();
+
+        if (rowsToRestore.Count > 0)
+        {
+            foreach (var rowIndex in rowsToRestore)
+            {
+                var snapshot = _moduleToggleSnapshots[rowIndex].Snapshot;
+                var result = _currentResults[rowIndex];
+
+                result.Code = snapshot.Code;
+                result.CodeAlt = snapshot.CodeAlt;
+                result.Found = snapshot.Found;
+                result.Description = snapshot.Description;
+                result.Category = snapshot.Category;
+                result.Source = snapshot.Source;
+                result.Notes = snapshot.Notes;
+                result.FilterTag = snapshot.FilterTag;
+                result.Module = snapshot.Module;
+                result.IsModuleDeleted = snapshot.IsModuleDeleted;
+
+                _moduleToggleSnapshots.Remove(rowIndex);
+            }
+
+            _suppressAutoDelete = true;
+            _suppressSelectionChange = true;
+            try
+            {
+                dgvCodes.DataSource = null;
+                dgvCodes.DataSource = _currentResults;
+                ClearGridSelection();
+            }
+            finally
+            {
+                _suppressSelectionChange = false;
+                _suppressAutoDelete = false;
+            }
+
+            var restoredFound = _currentResults.Count(r => r.Found);
+            var restoredNotFound = _currentResults.Count - restoredFound;
+            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {restoredFound} | No encontrados: {restoredNotFound}  [{moduleLabel}: {rowsToRestore.Count} restaurado(s)]";
+            return;
+        }
+
         // Buscar los códigos que corresponden al módulo
         var toReplace = _currentResults
             .Where(r => string.Equals(r.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
@@ -2056,6 +2109,20 @@ public partial class MainForm : Form
 
             // Si esta fila tenía snapshot manual, eliminarlo para evitar restauraciones inconsistentes.
             _manualSelectionSnapshots.Remove(i);
+
+            _moduleToggleSnapshots[i] = (moduleKey, new ManualSelectionSnapshot
+            {
+                Code = result.Code,
+                CodeAlt = result.CodeAlt,
+                Found = result.Found,
+                Description = result.Description,
+                Category = result.Category,
+                Source = result.Source,
+                Notes = result.Notes,
+                FilterTag = result.FilterTag,
+                Module = result.Module,
+                IsModuleDeleted = result.IsModuleDeleted
+            });
 
             result.Code        = "0000";
             result.CodeAlt     = "FFFF";
