@@ -989,36 +989,48 @@ public partial class MainForm : Form
         }
     }
 
-    private static bool TrySetClipboardText(string text)
+    private bool TrySetClipboardText(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
             return false;
         }
 
-        for (var attempt = 1; attempt <= 15; attempt++)
+        // Garantizar acceso al portapapeles desde hilo UI (STA).
+        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(text, true, 20, 120));
+    }
+
+    private bool TrySetClipboardDataObject(DataObject dataObj)
+    {
+        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(dataObj, true, 20, 120));
+    }
+
+    private bool TryClipboardOnUiThread(Action action)
+    {
+        if (InvokeRequired)
         {
             try
             {
-                Clipboard.SetText(text);
-                return true;
+                var success = false;
+                Invoke((MethodInvoker)(() => success = TryClipboardOperation(action)));
+                return success;
             }
-            catch (ExternalException)
+            catch
             {
-                Thread.Sleep(GetClipboardRetryDelay(attempt));
+                return false;
             }
         }
 
-        return false;
+        return TryClipboardOperation(action);
     }
 
-    private static bool TrySetClipboardDataObject(DataObject dataObj)
+    private static bool TryClipboardOperation(Action action)
     {
-        for (var attempt = 1; attempt <= 15; attempt++)
+        for (var attempt = 1; attempt <= 12; attempt++)
         {
             try
             {
-                Clipboard.SetDataObject(dataObj, true);
+                action();
                 return true;
             }
             catch (ExternalException)
@@ -1952,7 +1964,6 @@ public partial class MainForm : Form
 
                 result.Code = "0000";
                 result.CodeAlt = "FFFF";
-                result.Description = "Sin resultados";
                 result.Found = false;
                 result.Category = "Hex";
                 result.Source = null;
@@ -2100,7 +2111,6 @@ public partial class MainForm : Form
 
             result.Code        = "0000";
             result.CodeAlt     = "FFFF";
-            result.Description = "Sin resultados";
             result.Found       = false;
             result.Category    = "Hex";
             result.Source      = null;
