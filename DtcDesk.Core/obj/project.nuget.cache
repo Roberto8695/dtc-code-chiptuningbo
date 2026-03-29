@@ -1,10 +1,18 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "C+NOYbu0XPU=",
+=======
+  "dgSpecHash": "kzhZR7od1dE=",
+>>>>>>> d53cf809309fe0215aa867d9f150d66a4f3d650f
   "success": true,
   "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
   "expectedPackageFiles": [
+<<<<<<< HEAD
     "C:\\Users\\VICTUS\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
+=======
+    "C:\\Users\\Home\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
+>>>>>>> d53cf809309fe0215aa867d9f150d66a4f3d650f
   ],
   "logs": [
     {

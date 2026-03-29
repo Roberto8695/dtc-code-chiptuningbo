@@ -989,36 +989,48 @@ public partial class MainForm : Form
         }
     }
 
-    private static bool TrySetClipboardText(string text)
+    private bool TrySetClipboardText(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
             return false;
         }
 
-        for (var attempt = 1; attempt <= 15; attempt++)
+        // Garantizar acceso al portapapeles desde hilo UI (STA).
+        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(text, true, 20, 120));
+    }
+
+    private bool TrySetClipboardDataObject(DataObject dataObj)
+    {
+        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(dataObj, true, 20, 120));
+    }
+
+    private bool TryClipboardOnUiThread(Action action)
+    {
+        if (InvokeRequired)
         {
             try
             {
-                Clipboard.SetText(text);
-                return true;
+                var success = false;
+                Invoke((MethodInvoker)(() => success = TryClipboardOperation(action)));
+                return success;
             }
-            catch (ExternalException)
+            catch
             {
-                Thread.Sleep(GetClipboardRetryDelay(attempt));
+                return false;
             }
         }
 
-        return false;
+        return TryClipboardOperation(action);
     }
 
-    private static bool TrySetClipboardDataObject(DataObject dataObj)
+    private static bool TryClipboardOperation(Action action)
     {
-        for (var attempt = 1; attempt <= 15; attempt++)
+        for (var attempt = 1; attempt <= 12; attempt++)
         {
             try
             {
-                Clipboard.SetDataObject(dataObj, true);
+                action();
                 return true;
             }
             catch (ExternalException)
@@ -1123,10 +1135,10 @@ public partial class MainForm : Form
             return;
         }
 
-        var numberedInput = BuildNumberedInput(inputToParse);
-        if (!string.Equals(txtInput.Text, numberedInput, StringComparison.Ordinal))
+        // Mantener el área de pegado sin numeración visual.
+        if (!string.Equals(txtInput.Text, inputToParse, StringComparison.Ordinal))
         {
-            txtInput.Text = numberedInput;
+            txtInput.Text = inputToParse;
         }
 
         try
@@ -1381,30 +1393,6 @@ public partial class MainForm : Form
             .ToList();
 
         return string.Join(Environment.NewLine, lines);
-    }
-
-    private static string BuildNumberedInput(string input)
-    {
-        var cleaned = StripInputLineNumbers(input);
-        if (string.IsNullOrWhiteSpace(cleaned))
-        {
-            return string.Empty;
-        }
-
-        var lines = cleaned
-            .Replace("\r\n", "\n")
-            .Split('\n')
-            .Select(line => line.Trim())
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .ToList();
-
-        if (lines.Count == 0)
-        {
-            return string.Empty;
-        }
-
-        var numbered = lines.Select((line, index) => $"{index + 1}: {line}");
-        return string.Join(Environment.NewLine, numbered);
     }
 
     private string GetCategoryFromPrefix(string prefix)
@@ -1976,7 +1964,6 @@ public partial class MainForm : Form
 
                 result.Code = "0000";
                 result.CodeAlt = "FFFF";
-                result.Description = "Sin resultados";
                 result.Found = false;
                 result.Category = "Hex";
                 result.Source = null;
@@ -2124,7 +2111,6 @@ public partial class MainForm : Form
 
             result.Code        = "0000";
             result.CodeAlt     = "FFFF";
-            result.Description = "Sin resultados";
             result.Found       = false;
             result.Category    = "Hex";
             result.Source      = null;
