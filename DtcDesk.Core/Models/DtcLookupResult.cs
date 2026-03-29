@@ -6,6 +6,12 @@ namespace DtcDesk.Core.Models;
 public class DtcLookupResult
 {
     /// <summary>
+    /// Código original pegado por el usuario.
+    /// Se mantiene fijo para referencia visual aunque Code/CodeAlt cambien a 0000/FFFF.
+    /// </summary>
+    public string OriginalCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// Código DTC buscado (normalizado)
     /// </summary>
     public string Code { get; set; } = string.Empty;

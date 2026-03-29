@@ -501,14 +501,15 @@ public partial class MainForm : Form
         dgvCodes.Columns.Add(new DataGridViewTextBoxColumn
         {
             Name = "colRowNumber",
-            HeaderText = "#",
-            Width = 46,
+            HeaderText = "REAL",
+            DataPropertyName = "OriginalCode",
+            Width = 80,
             ReadOnly = true,
             SortMode = DataGridViewColumnSortMode.NotSortable,
             DefaultCellStyle = new DataGridViewCellStyle
             {
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                Font = new Font("Consolas", 10F, FontStyle.Bold)
             }
         });
         
@@ -1089,10 +1090,6 @@ public partial class MainForm : Form
             }
         }
 
-        if (dgvCodes.Columns[e.ColumnIndex].Name == "colRowNumber")
-        {
-            e.Value = (e.RowIndex + 1).ToString();
-        }
     }
 
     private static string NormalizeModuleForDisplay(string? moduleValue)
@@ -1231,6 +1228,7 @@ public partial class MainForm : Form
                 
                 _currentResults.Add(new DtcLookupResult
                 {
+                    OriginalCode = parsed.OriginalCode,
                     Code = parsed.OriginalCode, // Mantener formato original (C301, P0420, etc.)
                     CodeAlt = parsed.OriginalCode, // Inicializar con el mismo código
                     Found = found,
