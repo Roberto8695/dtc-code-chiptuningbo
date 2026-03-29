@@ -38,9 +38,11 @@ public partial class MainForm : Form
     private List<DtcModuleFilter> _moduleFilters = new();
     private readonly Dictionary<int, ManualSelectionSnapshot> _manualSelectionSnapshots = new();
     private readonly Dictionary<int, (string ModuleKey, ManualSelectionSnapshot Snapshot)> _moduleToggleSnapshots = new();
+    private readonly SemaphoreSlim _clipboardSemaphore = new(1, 1);
     private bool _suppressSelectionChange;
     private bool _autoDeletingSelection;
     private bool _suppressAutoDelete;
+    private bool _preserveSelectionOnNextDataBinding;
     private int _gridZoomPercent = GridZoomDefault;
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
@@ -116,8 +118,8 @@ public partial class MainForm : Form
         btnZoomIn.Click += BtnZoomIn_Click;
         btnZoomOut.Click += BtnZoomOut_Click;
         btnZoomReset.Click += BtnZoomReset_Click;
-        btnCopyCodeColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCode");
-        btnCopyCodeAltColumn.Click += (s, e) => CopyWholeColumnToClipboard("colCodeAlt");
+        btnCopyCodeColumn.Click += async (s, e) => await CopyWholeColumnToClipboardAsync("colCode");
+        btnCopyCodeAltColumn.Click += async (s, e) => await CopyWholeColumnToClipboardAsync("colCodeAlt");
         btnClearSelectionTop.Click += (s, e) => ClearGridSelection();
         
         // Configurar eventos del menú
@@ -638,6 +640,14 @@ public partial class MainForm : Form
 
     private void DgvCodes_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
     {
+        if (_preserveSelectionOnNextDataBinding)
+        {
+            _preserveSelectionOnNextDataBinding = false;
+            ReapplyManualSelectionToGrid();
+            ReapplyModuleSelectionToGrid();
+            return;
+        }
+
         ClearGridSelection();
 
         // Asegurar que no quede la primera celda seleccionada automáticamente tras el binding.
@@ -684,7 +694,7 @@ public partial class MainForm : Form
         }
     }
 
-    private void CopyWholeColumnToClipboard(string columnName)
+    private async Task CopyWholeColumnToClipboardAsync(string columnName)
     {
         if (_currentResults == null || _currentResults.Count == 0)
         {
@@ -717,7 +727,7 @@ public partial class MainForm : Form
             return;
         }
 
-        var copied = TrySetClipboardText(string.Join(Environment.NewLine, values));
+        var copied = await TrySetClipboardTextAsync(string.Join(Environment.NewLine, values));
         if (!copied)
         {
             MessageBox.Show(
@@ -746,7 +756,7 @@ public partial class MainForm : Form
         dgvCodes.KeyDown += DgvCodes_KeyDown;
     }
 
-    private void DgvCodes_KeyDown(object? sender, KeyEventArgs e)
+    private async void DgvCodes_KeyDown(object? sender, KeyEventArgs e)
     {
         // Zoom rápido con teclado
         if (e.Control && (e.KeyCode == Keys.Add || e.KeyCode == Keys.Oemplus))
@@ -776,14 +786,14 @@ public partial class MainForm : Form
         // Copiar con Ctrl+Shift+C (vertical)
         if (e.Control && e.Shift && e.KeyCode == Keys.C)
         {
-            CopySelectedCellsToClipboard(false);
+            await CopySelectedCellsToClipboardAsync(false);
             e.Handled = true;
         }
 
         // Copiar con Ctrl+C (horizontal)
         if (e.Control && !e.Shift && e.KeyCode == Keys.C)
         {
-            CopySelectedCellsToClipboard(true);
+            await CopySelectedCellsToClipboardAsync(true);
             e.Handled = true;
         }
 
@@ -892,7 +902,7 @@ public partial class MainForm : Form
             "Códigos Reemplazados", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
-    private void CopySelectedCellsToClipboard(bool horizontal)
+    private async Task CopySelectedCellsToClipboardAsync(bool horizontal)
     {
         if (dgvCodes.GetCellCount(DataGridViewElementStates.Selected) == 0)
             return;
@@ -934,7 +944,7 @@ public partial class MainForm : Form
 
             if (!string.IsNullOrEmpty(outputText))
             {
-                if (!TrySetClipboardText(outputText))
+                if (!await TrySetClipboardTextAsync(outputText))
                 {
                     MessageBox.Show(
                         "No se pudo acceder al portapapeles en este momento. Cierra aplicaciones que lo estén usando e intenta de nuevo.",
@@ -951,7 +961,7 @@ public partial class MainForm : Form
         }
     }
 
-    private void CopyAllDataToClipboard()
+    private async Task CopyAllDataToClipboardAsync()
     {
         if (_currentResults == null || _currentResults.Count == 0)
             return;
@@ -965,7 +975,7 @@ public partial class MainForm : Form
             DataObject dataObj = dgvCodes.GetClipboardContent();
             if (dataObj != null)
             {
-                if (!TrySetClipboardDataObject(dataObj))
+                if (!await TrySetClipboardDataObjectAsync(dataObj))
                 {
                     MessageBox.Show(
                         "No se pudo acceder al portapapeles en este momento. Cierra aplicaciones que lo estén usando e intenta de nuevo.",
@@ -989,44 +999,39 @@ public partial class MainForm : Form
         }
     }
 
-    private bool TrySetClipboardText(string text)
+    private Task<bool> TrySetClipboardTextAsync(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
-            return false;
+            return Task.FromResult(false);
         }
 
-        // Garantizar acceso al portapapeles desde hilo UI (STA).
-        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(text, true, 20, 120));
+        return TrySetClipboardWithLockAsync(() => Clipboard.SetDataObject(text, true, 3, 40));
     }
 
-    private bool TrySetClipboardDataObject(DataObject dataObj)
+    private Task<bool> TrySetClipboardDataObjectAsync(DataObject dataObj)
     {
-        return TryClipboardOnUiThread(() => Clipboard.SetDataObject(dataObj, true, 20, 120));
+        return TrySetClipboardWithLockAsync(() => Clipboard.SetDataObject(dataObj, true, 3, 40));
     }
 
-    private bool TryClipboardOnUiThread(Action action)
+    private async Task<bool> TrySetClipboardWithLockAsync(Action action)
     {
-        if (InvokeRequired)
+        await _clipboardSemaphore.WaitAsync();
+        try
         {
-            try
-            {
-                var success = false;
-                Invoke((MethodInvoker)(() => success = TryClipboardOperation(action)));
-                return success;
-            }
-            catch
-            {
-                return false;
-            }
+            return await TryClipboardOperationAsync(action);
         }
-
-        return TryClipboardOperation(action);
+        finally
+        {
+            _clipboardSemaphore.Release();
+        }
     }
 
-    private static bool TryClipboardOperation(Action action)
+    private static async Task<bool> TryClipboardOperationAsync(Action action)
     {
-        for (var attempt = 1; attempt <= 12; attempt++)
+        const int maxAttempts = 3;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
@@ -1035,7 +1040,12 @@ public partial class MainForm : Form
             }
             catch (ExternalException)
             {
-                Thread.Sleep(GetClipboardRetryDelay(attempt));
+                if (attempt >= maxAttempts)
+                {
+                    return false;
+                }
+
+                await Task.Delay(GetClipboardRetryDelay(attempt));
             }
         }
 
@@ -1044,9 +1054,8 @@ public partial class MainForm : Form
 
     private static int GetClipboardRetryDelay(int attempt)
     {
-        // Backoff progresivo: tolera bloqueos cortos del portapapeles en Windows 10
-        // (RDP, gestores de portapapeles, antivirus, etc.) sin congelar demasiado la UI.
-        return Math.Min(40 * attempt * attempt, 800);
+        // Backoff corto para no congelar la UI cuando el portapapeles está temporalmente ocupado.
+        return Math.Min(50 * attempt, 150);
     }
 
     private void DgvCodes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -1932,10 +1941,45 @@ public partial class MainForm : Form
                 _manualSelectionSnapshots.Remove(rowIndex);
             }
 
+            // Permitir restaurar filas borradas por módulo al deseleccionarlas manualmente.
+            var moduleRowsToRestore = _moduleToggleSnapshots.Keys
+                .Where(rowIndex => !selectedSet.Contains(rowIndex))
+                .ToList();
+
+            foreach (var rowIndex in moduleRowsToRestore)
+            {
+                if (rowIndex < 0 || rowIndex >= _currentResults.Count)
+                {
+                    _moduleToggleSnapshots.Remove(rowIndex);
+                    continue;
+                }
+
+                var snapshot = _moduleToggleSnapshots[rowIndex].Snapshot;
+                var result = _currentResults[rowIndex];
+
+                result.Code = snapshot.Code;
+                result.CodeAlt = snapshot.CodeAlt;
+                result.Found = snapshot.Found;
+                result.Description = snapshot.Description;
+                result.Category = snapshot.Category;
+                result.Source = snapshot.Source;
+                result.Notes = snapshot.Notes;
+                result.FilterTag = snapshot.FilterTag;
+                result.Module = snapshot.Module;
+                result.IsModuleDeleted = snapshot.IsModuleDeleted;
+
+                _moduleToggleSnapshots.Remove(rowIndex);
+            }
+
             // Aplicar conversión en filas seleccionadas que aún no tenían snapshot.
             foreach (var rowIndex in selectedSet)
             {
                 if (_manualSelectionSnapshots.ContainsKey(rowIndex))
+                {
+                    continue;
+                }
+
+                if (_moduleToggleSnapshots.ContainsKey(rowIndex))
                 {
                     continue;
                 }
@@ -1983,6 +2027,62 @@ public partial class MainForm : Form
         {
             _autoDeletingSelection = false;
         }
+    }
+
+    private void ReapplyManualSelectionToGrid()
+    {
+        if (_manualSelectionSnapshots.Count == 0 || dgvCodes.Rows.Count == 0)
+        {
+            return;
+        }
+
+        var invalidKeys = _manualSelectionSnapshots.Keys
+            .Where(rowIndex => rowIndex < 0 || rowIndex >= _currentResults.Count || rowIndex >= dgvCodes.Rows.Count)
+            .ToList();
+
+        foreach (var rowIndex in invalidKeys)
+        {
+            _manualSelectionSnapshots.Remove(rowIndex);
+        }
+
+        foreach (var rowIndex in _manualSelectionSnapshots.Keys.OrderBy(i => i))
+        {
+            var cell = dgvCodes.Rows[rowIndex].Cells["colCode"];
+            if (cell != null)
+            {
+                cell.Selected = true;
+            }
+        }
+
+        dgvCodes.CurrentCell = null;
+    }
+
+    private void ReapplyModuleSelectionToGrid()
+    {
+        if (_moduleToggleSnapshots.Count == 0 || dgvCodes.Rows.Count == 0)
+        {
+            return;
+        }
+
+        var invalidKeys = _moduleToggleSnapshots.Keys
+            .Where(rowIndex => rowIndex < 0 || rowIndex >= _currentResults.Count || rowIndex >= dgvCodes.Rows.Count)
+            .ToList();
+
+        foreach (var rowIndex in invalidKeys)
+        {
+            _moduleToggleSnapshots.Remove(rowIndex);
+        }
+
+        foreach (var rowIndex in _moduleToggleSnapshots.Keys.OrderBy(i => i))
+        {
+            var cell = dgvCodes.Rows[rowIndex].Cells["colCode"];
+            if (cell != null)
+            {
+                cell.Selected = true;
+            }
+        }
+
+        dgvCodes.CurrentCell = null;
     }
 
     private void DeleteByModule(DtcModuleFilter module)
@@ -2033,9 +2133,11 @@ public partial class MainForm : Form
             _suppressSelectionChange = true;
             try
             {
+                _preserveSelectionOnNextDataBinding = true;
                 dgvCodes.DataSource = null;
                 dgvCodes.DataSource = _currentResults;
-                ClearGridSelection();
+                ReapplyManualSelectionToGrid();
+                ReapplyModuleSelectionToGrid();
             }
             finally
             {
@@ -2125,9 +2227,11 @@ public partial class MainForm : Form
         _suppressSelectionChange = true;
         try
         {
+            _preserveSelectionOnNextDataBinding = true;
             dgvCodes.DataSource = null;
             dgvCodes.DataSource = _currentResults;
-            ClearGridSelection();
+            ReapplyManualSelectionToGrid();
+            ReapplyModuleSelectionToGrid();
         }
         finally
         {
