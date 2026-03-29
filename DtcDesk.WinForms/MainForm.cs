@@ -1123,10 +1123,10 @@ public partial class MainForm : Form
             return;
         }
 
-        var numberedInput = BuildNumberedInput(inputToParse);
-        if (!string.Equals(txtInput.Text, numberedInput, StringComparison.Ordinal))
+        // Mantener el área de pegado sin numeración visual.
+        if (!string.Equals(txtInput.Text, inputToParse, StringComparison.Ordinal))
         {
-            txtInput.Text = numberedInput;
+            txtInput.Text = inputToParse;
         }
 
         try
@@ -1381,30 +1381,6 @@ public partial class MainForm : Form
             .ToList();
 
         return string.Join(Environment.NewLine, lines);
-    }
-
-    private static string BuildNumberedInput(string input)
-    {
-        var cleaned = StripInputLineNumbers(input);
-        if (string.IsNullOrWhiteSpace(cleaned))
-        {
-            return string.Empty;
-        }
-
-        var lines = cleaned
-            .Replace("\r\n", "\n")
-            .Split('\n')
-            .Select(line => line.Trim())
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .ToList();
-
-        if (lines.Count == 0)
-        {
-            return string.Empty;
-        }
-
-        var numbered = lines.Select((line, index) => $"{index + 1}: {line}");
-        return string.Join(Environment.NewLine, numbered);
     }
 
     private string GetCategoryFromPrefix(string prefix)
