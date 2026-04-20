@@ -1,28 +1,10 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "C+NOYbu0XPU=",
-=======
-  "dgSpecHash": "kzhZR7od1dE=",
->>>>>>> d53cf809309fe0215aa867d9f150d66a4f3d650f
+  "dgSpecHash": "Cp2GpRkh3mM=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
   "expectedPackageFiles": [
-<<<<<<< HEAD
     "C:\\Users\\VICTUS\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
-=======
-    "C:\\Users\\Home\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
->>>>>>> d53cf809309fe0215aa867d9f150d66a4f3d650f
   ],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "message": "Problema al leer el archivo de caché C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
-      "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

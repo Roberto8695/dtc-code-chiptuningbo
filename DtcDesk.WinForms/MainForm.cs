@@ -46,6 +46,24 @@ public partial class MainForm : Form
     private int _gridZoomPercent = GridZoomDefault;
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
+    private int _dbTotalCodes = 0;
+
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
+
+    private void ApplyRoundedRegion(Control c, int radius)
+    {
+        if (c == null || c.Width == 0 || c.Height == 0) return;
+        c.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, c.Width, c.Height, radius, radius));
+    }
+
+    private void MakeRounded(Control control, int radius)
+    {
+        if (control == null) return;
+        ApplyRoundedRegion(control, radius);
+        control.Resize -= (s, e) => ApplyRoundedRegion(control, radius); // prevenir duplicados en caso de re-llamadas
+        control.Resize += (s, e) => ApplyRoundedRegion(control, radius);
+    }
 
     public MainForm()
     {
@@ -109,7 +127,7 @@ public partial class MainForm : Form
         
         // Cargar logo
         LoadLogo();
-        
+
         // Configurar eventos
         btnParse.Click += BtnParse_Click;
         btnClear.Click += BtnClear_Click;
@@ -136,10 +154,21 @@ public partial class MainForm : Form
         dgvCodes.Scroll += (s, e) => AlignCopyColumnButtons();
         dgvCodes.ColumnWidthChanged += (s, e) => AlignCopyColumnButtons();
         dgvCodes.Resize += (s, e) => AlignCopyColumnButtons();
+
+        // Contador de líneas en tiempo real
+        txtInput.TextChanged += (s, e) =>
+        {
+            var lines = string.IsNullOrWhiteSpace(txtInput.Text) ? 0
+                : txtInput.Text.Split('\n').Length;
+            lblLineCount.Text = $"≡  {lines} línea{(lines == 1 ? "" : "s")}";
+        };
         
         txtInput.Font = new Font("Consolas", 10F);
         ApplyGridZoom();
         AlignCopyColumnButtons();
+
+        // Estado vacío visible al inicio
+        ShowEmptyState(true);
 
         SetupDynamicModulePanel();
 
@@ -159,81 +188,145 @@ public partial class MainForm : Form
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true;  // Evitar sonido de beep
+                e.SuppressKeyPress = true;
                 await ExecuteSearchAsync();
             }
         };
+    }
+
+    private void ShowEmptyState(bool show)
+    {
+        if (panelEmptyState == null || dgvCodes == null) return;
+        dgvCodes.Visible = !show;
+        panelEmptyState.Visible = show;
     }
 
     private void LoadLogo()
     {
         try
         {
-            // Intentar cargar el logo desde el directorio de la aplicación
             var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.jpg");
-            
             if (File.Exists(logoPath))
             {
-                picLogo.Image = Image.FromFile(logoPath);
+                var img = Image.FromFile(logoPath);
+                picLogo.Image = img;
                 picLogo.BackColor = Color.Transparent;
+                // Reutilizar el mismo logo en el panel derecho si no hay uno separado
+                picLogoRight.Image = img;
+                picLogoRight.BackColor = Color.Transparent;
             }
             else
             {
-                // Si no existe el logo, usar el título sin logo
                 picLogo.Visible = false;
+                picLogoRight.Visible = false;
             }
         }
         catch
         {
-            // Si hay error al cargar, ocultar el PictureBox
             picLogo.Visible = false;
+            picLogoRight.Visible = false;
         }
     }
 
     private void ApplyDarkTheme()
     {
-        // Paleta de colores del design.md
-        var bgMain = ColorTranslator.FromHtml("#0F1E2B");
-        var bgSide = ColorTranslator.FromHtml("#153C59");
-        var bgTop = ColorTranslator.FromHtml("#102C44");
-        var textMain = ColorTranslator.FromHtml("#EAEAEA");
+        // ─── Paleta de colores ───────────────────────────────────────────
+        var bgMain       = ColorTranslator.FromHtml("#0F1E2B");
+        var bgSide       = ColorTranslator.FromHtml("#153C59");
+        var bgTop        = ColorTranslator.FromHtml("#102C44");
+        var bgCard       = ColorTranslator.FromHtml("#112233");
+        var textMain     = ColorTranslator.FromHtml("#EAEAEA");
         var textSecondary = ColorTranslator.FromHtml("#B0B7BE");
-        var separator = ColorTranslator.FromHtml("#2A3B4C");
+        var separator    = ColorTranslator.FromHtml("#2A3B4C");
         var accentYellow = ColorTranslator.FromHtml("#F8B41C");
-        var accentHover = ColorTranslator.FromHtml("#D89C17");
-        
-        // Fondo principal
+        var accentHover  = ColorTranslator.FromHtml("#D89C17");
+        var colorFound   = ColorTranslator.FromHtml("#27AE60");
+        var colorNotFound = ColorTranslator.FromHtml("#E74C3C");
+
+        // ─── Fondo principal ─────────────────────────────────────────────
         this.BackColor = bgMain;
-        
-        // Panel superior
+
+        // ─── Panel superior ──────────────────────────────────────────────
         panelTop.BackColor = bgTop;
         lblTitle.ForeColor = textMain;
-        lblStats.ForeColor = textSecondary;
-        
-        // Panel izquierdo (entrada)
+        lblTitle.BackColor = Color.Transparent;
+        lblSubtitle.ForeColor = textSecondary;
+        lblSubtitle.BackColor = Color.Transparent;
+        lblStats.ForeColor = textSecondary; // invisible, mantenemos por compatibilidad
+
+        // ─── Tarjetas de estadísticas ─────────────────────────────────────
+        panelStatsBar.BackColor = bgMain;
+
+        // Tarjeta TOTAL — borde izquierdo naranja
+        StyleStatCard(panelStatTotal, bgCard, accentYellow);
+        lblStatTotalIcon.ForeColor  = accentYellow;
+        lblStatTotalIcon.BackColor  = Color.Transparent;
+        lblStatTotalValue.ForeColor = textMain;
+        lblStatTotalValue.BackColor = Color.Transparent;
+        lblStatTotalLabel.ForeColor = textSecondary;
+        lblStatTotalLabel.BackColor = Color.Transparent;
+
+        // Tarjeta ENCONTRADOS — borde izquierdo verde
+        StyleStatCard(panelStatFound, bgCard, colorFound);
+        lblStatFoundIcon.ForeColor  = colorFound;
+        lblStatFoundIcon.BackColor  = Color.Transparent;
+        lblStatFoundValue.ForeColor = colorFound;
+        lblStatFoundValue.BackColor = Color.Transparent;
+        lblStatFoundLabel.ForeColor = textSecondary;
+        lblStatFoundLabel.BackColor = Color.Transparent;
+
+        // Tarjeta NO ENCONTRADOS — borde izquierdo rojo
+        StyleStatCard(panelStatNotFound, bgCard, colorNotFound);
+        lblStatNotFoundIcon.ForeColor  = colorNotFound;
+        lblStatNotFoundIcon.BackColor  = Color.Transparent;
+        lblStatNotFoundValue.ForeColor = colorNotFound;
+        lblStatNotFoundValue.BackColor = Color.Transparent;
+        lblStatNotFoundLabel.ForeColor = textSecondary;
+        lblStatNotFoundLabel.BackColor = Color.Transparent;
+
+        // ─── Panel izquierdo ─────────────────────────────────────────────
         panelLeft.BackColor = bgSide;
-        lblInput.ForeColor = textMain;
+        lblInput.ForeColor = accentYellow;
+        lblInput.BackColor = Color.Transparent;
+        lblLineCount.ForeColor = textSecondary;
+        lblLineCount.BackColor = Color.Transparent;
         txtInput.BackColor = bgMain;
         txtInput.ForeColor = textMain;
         txtInput.BorderStyle = BorderStyle.FixedSingle;
-        
-        // Panel de filtros lateral (derecha)
+
+        // ─── Panel de filtros lateral ─────────────────────────────────────
         panelFilterSide.BackColor = bgSide;
         lblFilterTitle.ForeColor = accentYellow;
         lblFilterTitle.BackColor = Color.Transparent;
 
-        var legacyButtons = new[] { btnFilterVNT, btnFilterDPF, btnFilterEGR, btnFilterNOX, btnFilterSCR, btnFilterMAF, btnFilterTVA };
-        foreach (var legacyButton in legacyButtons)
-        {
-            legacyButton.Visible = false;
-            legacyButton.Enabled = false;
-        }
-        
-        // Panel derecho (resultados)
+        var legacyButtons = new[] { btnFilterVNT, btnFilterDPF, btnFilterEGR,
+                                    btnFilterNOX, btnFilterSCR, btnFilterMAF, btnFilterTVA };
+        foreach (var lb in legacyButtons) { lb.Visible = false; lb.Enabled = false; }
+
+        // ─── Panel derecho ────────────────────────────────────────────────
         panelRight.BackColor = bgMain;
-        lblResults.ForeColor = textMain;
-        
-        // DataGridView
+        panelButtons.BackColor = bgMain;
+        lblResults.ForeColor = accentYellow;
+        lblResults.BackColor = Color.Transparent;
+
+        // Contenedor principal del DataGridView (crea el efecto de borde y también se redondea)
+        if (panelGridContainer != null)
+        {
+            panelGridContainer.BackColor = separator;
+            MakeRounded(panelGridContainer, 8);
+        }
+        panelGridContainer.Padding = new Padding(1);
+
+        // Estado vacío
+        panelEmptyState.BackColor = bgTop;
+        lblEmptyStateIcon.ForeColor = textSecondary;
+        lblEmptyStateIcon.BackColor = Color.Transparent;
+        lblEmptyStateTitle.ForeColor = textMain;
+        lblEmptyStateTitle.BackColor = Color.Transparent;
+        lblEmptyStateDesc.ForeColor = textSecondary;
+        lblEmptyStateDesc.BackColor = Color.Transparent;
+
+        // ─── DataGridView ─────────────────────────────────────────────────
         dgvCodes.BackgroundColor = bgMain;
         dgvCodes.GridColor = separator;
         dgvCodes.BorderStyle = BorderStyle.None;
@@ -246,65 +339,110 @@ public partial class MainForm : Form
         dgvCodes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         dgvCodes.EnableHeadersVisualStyles = false;
         dgvCodes.AlternatingRowsDefaultCellStyle.BackColor = ColorTranslator.FromHtml("#0A1520");
-        
-        // Botones con acento amarillo
-        StyleButton(btnParse, accentYellow, Color.Black);
-        StyleButton(btnClear, separator, textMain);
-        StyleButton(btnAdd, accentYellow, Color.Black);
-        StyleButton(btnEdit, accentHover, Color.Black);
-        StyleButton(btnZoomOut, separator, textMain);
-        StyleButton(btnZoomReset, bgTop, textMain);
-        StyleButton(btnZoomIn, accentYellow, Color.Black);
-        StyleButton(btnCopyCodeColumn, bgTop, textMain);
-        StyleButton(btnCopyCodeAltColumn, bgTop, textMain);
-        StyleButton(btnClearSelectionTop, separator, textMain);
 
-        btnZoomOut.FlatAppearance.BorderSize = 1;
-        btnZoomOut.FlatAppearance.BorderColor = separator;
-        btnZoomReset.FlatAppearance.BorderSize = 1;
-        btnZoomReset.FlatAppearance.BorderColor = separator;
-        btnZoomIn.FlatAppearance.BorderSize = 1;
-        btnZoomIn.FlatAppearance.BorderColor = accentHover;
-        btnCopyCodeColumn.FlatAppearance.BorderSize = 1;
-        btnCopyCodeColumn.FlatAppearance.BorderColor = separator;
+        // ─── Botones Inferiores - Izquierda ───────────────────────────────
+        StyleButton(btnParse, accentYellow, Color.Black);
+        btnParse.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+        btnParse.FlatAppearance.BorderSize = 0;
+        MakeRounded(btnParse, 5);
+
+        // btnClear — color diferenciado del botón principal
+        StyleButton(btnClear, ColorTranslator.FromHtml("#1E3A4A"), ColorTranslator.FromHtml("#B0B7BE"));
+        btnClear.FlatAppearance.BorderSize = 0;
+        MakeRounded(btnClear, 5);
+
+        // Botones Inferiores - Derecha
+        StyleButton(btnAdd, bgSide, textMain);
+        StyleButton(btnEdit, bgSide, Color.White); // Texto blanco puro
+        MakeRounded(btnAdd, 5);
+        MakeRounded(btnEdit, 5);
+        btnEdit.Paint -= DrawAccentBorder; // prevenir doble subscripción
+        btnEdit.Paint += DrawAccentBorder;
+
+        // Botones de zoom
+        StyleButton(btnZoomOut, bgTop, textMain);
+        StyleButton(btnZoomReset, bgTop, textMain);
+        StyleButton(btnZoomIn, bgTop, textMain);
+        MakeRounded(btnZoomOut, 5);
+        MakeRounded(btnZoomReset, 5);
+        MakeRounded(btnZoomIn, 5);
+
+        // Botones de copia de columna
+        StyleButton(btnCopyCodeColumn,    bgTop, textSecondary);
+        StyleButton(btnCopyCodeAltColumn, bgTop, textSecondary);
+        StyleButton(btnClearSelectionTop, separator, textMain);
+        btnCopyCodeColumn.FlatAppearance.BorderSize    = 1;
+        btnCopyCodeColumn.FlatAppearance.BorderColor   = separator;
         btnCopyCodeAltColumn.FlatAppearance.BorderSize = 1;
-        btnCopyCodeAltColumn.FlatAppearance.BorderColor = separator;
+        btnCopyCodeAltColumn.FlatAppearance.BorderColor= separator;
         btnClearSelectionTop.FlatAppearance.BorderSize = 1;
-        btnClearSelectionTop.FlatAppearance.BorderColor = separator;
-        btnCopyCodeColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+        btnClearSelectionTop.FlatAppearance.BorderColor= separator;
+        btnCopyCodeColumn.Font    = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         btnCopyCodeAltColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         btnClearSelectionTop.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
 
         panelColumnCopy.BackColor = bgMain;
         AlignCopyColumnButtons();
-        
-        // Estilo del menú
+
+        // ─── Menú ─────────────────────────────────────────────────────────
         menuStrip.BackColor = bgSide;
         menuStrip.ForeColor = textMain;
         menuArchivo.ForeColor = textMain;
         menuHerramientas.ForeColor = textMain;
 
-        // Buscador
+        // ─── Buscador ─────────────────────────────────────────────────────
         txtSearch.BackColor = bgMain;
         txtSearch.ForeColor = textMain;
-        txtSearch.BorderStyle = BorderStyle.FixedSingle;
-        StyleButton(btnSearch, accentYellow, Color.Black);
+        txtSearch.BorderStyle = BorderStyle.None; // Mejor interfaz al estar redondeado
+        StyleButton(btnSearch, accentYellow, Color.White);
+        btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        MakeRounded(btnSearch, 5);
+        
         StyleButton(btnSearchClear, separator, textMain);
+        btnSearchClear.FlatAppearance.BorderSize = 0;
+        MakeRounded(btnSearchClear, 5);
+        
         lblSearchMode.ForeColor = accentYellow;
         lblSearchMode.BackColor = Color.Transparent;
 
-        if (_moduleButtonsPanel != null)
+        // ─── Status Strip ────────────────────────────────────────────────
+        statusStrip.BackColor = bgSide;
+        statusStrip.ForeColor = textSecondary;
+        foreach (ToolStripItem item in statusStrip.Items)
         {
-            _moduleButtonsPanel.BackColor = bgSide;
+            item.ForeColor = textSecondary;
+            item.BackColor = bgSide;
         }
+        statusLabelCount.ForeColor = accentYellow;
+
+        // ─── Panel de módulos dinámico ────────────────────────────────────
+        if (_moduleButtonsPanel != null)
+            _moduleButtonsPanel.BackColor = bgSide;
 
         if (_btnManageModules != null)
         {
             StyleButton(_btnManageModules, accentYellow, Color.Black);
             _btnManageModules.FlatAppearance.BorderSize = 1;
             _btnManageModules.FlatAppearance.BorderColor = accentHover;
-            _btnManageModules.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            _btnManageModules.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         }
+    }
+
+    /// <summary>Dibuja el fondo con borde izquierdo de color para cada tarjeta de stat.</summary>
+    private static void StyleStatCard(Panel panel, Color backColor, Color borderColor)
+    {
+        panel.BackColor = backColor;
+        panel.Paint -= StatCard_Paint; // evitar doble suscripción
+        panel.Paint += StatCard_Paint;
+        panel.Tag = borderColor;
+    }
+
+    private static void StatCard_Paint(object? sender, PaintEventArgs e)
+    {
+        if (sender is not Panel p) return;
+        var borderColor = p.Tag is Color c ? c : Color.Orange;
+        using var pen = new Pen(borderColor, 4);
+        e.Graphics.DrawLine(pen, 0, 0, 0, p.Height);
     }
 
     private void StyleButton(Button btn, Color backColor, Color foreColor)
@@ -313,76 +451,140 @@ public partial class MainForm : Form
         btn.ForeColor = foreColor;
         btn.FlatStyle = FlatStyle.Flat;
         btn.FlatAppearance.BorderSize = 0;
-        btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        if (btn.Font == null || btn.Font.Name != "Segoe UI")
+            btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btn.Cursor = Cursors.Hand;
+    }
+
+    /// <summary>Actualiza las 3 tarjetas de estadísticas y el contador inferior.</summary>
+    private void UpdateStatsCards(int total, int found, int notFound)
+    {
+        lblStatTotalValue.Text    = total.ToString();
+        lblStatFoundValue.Text    = found.ToString();
+        lblStatNotFoundValue.Text = notFound.ToString();
+        // Label legacy oculto — mantenemos por si hay referencias internas
+        lblStats.Text = $"Total: {total} | Encontrados: {found} | No encontrados: {notFound}";
     }
 
     private void SetupDynamicModulePanel()
     {
-        if (_moduleButtonsPanel != null)
-        {
-            return;
-        }
+        if (_moduleButtonsPanel != null) return;
+
+        var accent = ColorTranslator.FromHtml("#F8B41C");
+        var accentHover = ColorTranslator.FromHtml("#D89C17");
 
         _moduleButtonsPanel = new FlowLayoutPanel
         {
-            Dock = DockStyle.Fill,
+            Dock          = DockStyle.Fill,
             FlowDirection = FlowDirection.TopDown,
-            WrapContents = false,
-            AutoScroll = true,
-            Padding = new Padding(8, 6, 8, 8)
+            WrapContents  = false,
+            AutoScroll    = true,
+            // Sin padding lateral para que los botones puedan centrarse con sus propios márgenes
+            Padding       = new Padding(0, 6, 0, 4),
+            BackColor     = ColorTranslator.FromHtml("#153C59")
         };
 
         _btnManageModules = new Button
         {
-            Text = "+ Módulo",
-            Width = 96,
-            Height = 32,
-            Margin = new Padding(8, 6, 8, 8)
+            Text      = "+  Añadir Módulo",
+            Height    = 34,
+            Width     = 114,
+            FlatStyle = FlatStyle.Flat,
+            Cursor    = Cursors.Hand
         };
-        StyleButton(_btnManageModules, ColorTranslator.FromHtml("#F8B41C"), Color.Black);
-        _btnManageModules.FlatAppearance.BorderSize = 1;
-        _btnManageModules.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#D89C17");
-        _btnManageModules.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+        StyleButton(_btnManageModules, accent, Color.Black);
+        _btnManageModules.FlatAppearance.BorderSize = 0;
+        _btnManageModules.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+        MakeRounded(_btnManageModules, 5);
         _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
+        
+        // Centrar matemáticamente: FlowLayoutPanel tiene margen izq 4. Los modulos margen izq 14. 
+        // 4 + 14 = 18px en X desde el borde absoluto del panelFilterSide.
+        _btnManageModules.Location = new Point(18, panelFilterSide.Height - _btnManageModules.Height - panelFilterSide.Padding.Bottom);
+        _btnManageModules.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
         panelFilterSide.Controls.Add(_btnManageModules);
-        _btnManageModules.Dock = DockStyle.Bottom;
         _moduleButtonsPanel.BringToFront();
+    }
+
+    private void DrawAccentBorder(object? sender, PaintEventArgs e)
+    {
+        if (sender is Control c)
+        {
+            var accent = ColorTranslator.FromHtml("#F8B41C");
+            using var pen = new Pen(accent, 1.5f);
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            
+            // Dibuja un rectángulo redondeado al interior de los límites evitando el recorte del Region
+            int r = 5;
+            int d = r * 2;
+            var rect = new Rectangle(0, 0, c.Width - 1, c.Height - 1);
+            using var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            
+            e.Graphics.DrawPath(pen, path);
+        }
     }
 
     private async Task LoadModuleButtonsAsync()
     {
-        if (_moduleButtonsPanel == null)
-        {
-            return;
-        }
+        if (_moduleButtonsPanel == null) return;
+
+        var bgBtn    = ColorTranslator.FromHtml("#102C44");
+        var fgBtn    = ColorTranslator.FromHtml("#EAEAEA");
+        var accent   = ColorTranslator.FromHtml("#F8B41C");
+        var bgMenu   = ColorTranslator.FromHtml("#102C44");
+        var fgMenu   = ColorTranslator.FromHtml("#EAEAEA");
 
         _moduleFilters = await _moduleRepository.GetAllFiltersAsync();
         _moduleButtonsPanel.Controls.Clear();
 
         foreach (var filter in _moduleFilters)
         {
+            // Ancho 114 y margen 14 dan (114+14+14) = 142px. Ésto es exactamente el espacio interior 
+            // del panel de 150px (que tiene 4px padding izq, 4px der). Esto asegura el centrado perfecto!
             var moduleButton = new Button
             {
-                Text = filter.DisplayName,
-                Width = 96,
-                Height = 38,
-                Margin = new Padding(0, 0, 0, 8),
-                Tag = filter
+                Text      = filter.DisplayName,
+                Width     = 114,
+                Height    = 40,
+                Margin    = new Padding(14, 0, 0, 8),
+                Tag       = filter,
+                FlatStyle = FlatStyle.Flat,
+                Cursor    = Cursors.Hand
             };
 
-            StyleButton(moduleButton, ColorTranslator.FromHtml("#102C44"), ColorTranslator.FromHtml("#EAEAEA"));
-            moduleButton.FlatAppearance.BorderSize = 1;
-            moduleButton.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#F8B41C");
+            StyleButton(moduleButton, bgBtn, fgBtn);
+            moduleButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            moduleButton.FlatAppearance.BorderSize  = 0;
+            MakeRounded(moduleButton, 5);
+            moduleButton.Paint += DrawAccentBorder;
             moduleButton.Click += (_, _) => DeleteByModule(filter);
 
-            var contextMenu = new ContextMenuStrip();
-            var editItem = new ToolStripMenuItem("Editar módulo");
-            var deleteItem = new ToolStripMenuItem("Eliminar módulo");
+            // Hover effect
+            moduleButton.MouseEnter += (_, _) =>
+            {
+                moduleButton.BackColor = ColorTranslator.FromHtml("#1a3d5c");
+            };
+            moduleButton.MouseLeave += (_, _) =>
+            {
+                moduleButton.BackColor = bgBtn;
+            };
 
-            editItem.Click += async (_, _) => await EditCustomModuleAsync(filter);
+            var contextMenu = new ContextMenuStrip();
+            contextMenu.BackColor = bgMenu;
+            contextMenu.ForeColor = fgMenu;
+            var editItem   = new ToolStripMenuItem("✏  Editar módulo");
+            var deleteItem = new ToolStripMenuItem("🗑  Eliminar módulo");
+            editItem.ForeColor   = fgMenu;
+            deleteItem.ForeColor = fgMenu;
+
+            editItem.Click   += async (_, _) => await EditCustomModuleAsync(filter);
             deleteItem.Click += async (_, _) => await DeleteCustomModuleAsync(filter);
 
             contextMenu.Items.Add(editItem);
@@ -521,6 +723,7 @@ public partial class MainForm : Form
             HeaderText = "CÓDIGO",
             DataPropertyName = "Code",
             Width = 100,
+            SortMode = DataGridViewColumnSortMode.NotSortable,
             DefaultCellStyle = new DataGridViewCellStyle { Font = new Font("Consolas", 10F, FontStyle.Bold) }
         });
         
@@ -530,6 +733,7 @@ public partial class MainForm : Form
             HeaderText = "COL. FFFF",
             DataPropertyName = "CodeAlt",
             Width = 100,
+            SortMode = DataGridViewColumnSortMode.NotSortable,
             DefaultCellStyle = new DataGridViewCellStyle { Font = new Font("Consolas", 10F, FontStyle.Bold) }
         });
         
@@ -538,6 +742,7 @@ public partial class MainForm : Form
             Name = "colDescription",
             HeaderText = "DESCRIPCIÓN",
             DataPropertyName = "Description",
+            SortMode = DataGridViewColumnSortMode.NotSortable,
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
         });
 
@@ -546,6 +751,7 @@ public partial class MainForm : Form
             Name = "colStatus",
             HeaderText = "ESTADO",
             DataPropertyName = "Found",
+            SortMode = DataGridViewColumnSortMode.NotSortable,
             Width = 100
         });
         
@@ -896,7 +1102,7 @@ public partial class MainForm : Form
         // Actualizar estadísticas
         var found = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
-        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+        UpdateStatsCards(_currentResults.Count, found, notFound);
 
         MessageBox.Show($"Se reemplazaron {selectedCodeCells.Count} código(s) con '{selectedReplacement}'.",
             "Códigos Reemplazados", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1284,10 +1490,11 @@ public partial class MainForm : Form
 
             BeginInvoke((MethodInvoker)(() => ClearGridSelection()));
             
-            // Actualizar estadísticas
+            // Actualizar tarjetas de estadísticas
             var foundCount = _currentResults.Count(r => r.Found);
             var notFound = _currentResults.Count - foundCount;
-            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {foundCount} | No encontrados: {notFound}";
+            UpdateStatsCards(_currentResults.Count, foundCount, notFound);
+            ShowEmptyState(_currentResults.Count == 0);
         }
         catch (Exception ex)
         {
@@ -1476,8 +1683,6 @@ public partial class MainForm : Form
         _suppressSelectionChange = true;
         try
         {
-            dgvCodes.ClearSelection();
-
             foreach (var rowIndex in matchingRows)
             {
                 if (rowIndex >= 0 && rowIndex < dgvCodes.Rows.Count)
@@ -1492,7 +1697,9 @@ public partial class MainForm : Form
 
             if (matchingRows.Count > 0)
             {
-                dgvCodes.CurrentCell = dgvCodes.Rows[matchingRows[0]].Cells["colCode"];
+                // Llevar la primera coincidencia a la vista sin romper la selección acumulada.
+                dgvCodes.FirstDisplayedScrollingRowIndex = Math.Max(0, matchingRows[0]);
+                dgvCodes.CurrentCell = null;
                 lblSearchMode.Text = $"{matchingRows.Count} coincidencia(s)";
             }
             else
@@ -1523,7 +1730,8 @@ public partial class MainForm : Form
         _currentResults.Clear();
         _manualSelectionSnapshots.Clear();
         _moduleToggleSnapshots.Clear();
-        lblStats.Text = "Total: 0 | Encontrados: 0 | No encontrados: 0";
+        UpdateStatsCards(0, 0, 0);
+        ShowEmptyState(true);
         txtInput.Focus();
     }
 
@@ -1757,7 +1965,17 @@ public partial class MainForm : Form
         try
         {
             var count = await _repository.GetCountAsync();
+            _dbTotalCodes = (int)count;
             this.Text = $"DtcDesk - Diccionario de Códigos DTC ({count:N0} códigos en BD)";
+
+            // Actualizar barra de estado inferior
+            if (statusLabelCount != null)
+                statusLabelCount.Text = $"  🗄  {count:N0} códigos disponibles";
+            if (statusLabelInfo != null)
+            {
+                var today = DateTime.Now.ToString("dd/MM/yyyy");
+                statusLabelInfo.Text = $"ℹ  Lista actualizada: {today} — Base de datos ecu tuning";
+            }
         }
         catch
         {
@@ -1767,7 +1985,13 @@ public partial class MainForm : Form
 
     private async void DgvCodes_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
-        if (e.RowIndex < 0) return;
+        if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+        // Solo permitir editar/añadir con doble clic en la columna DESCRIPCIÓN.
+        if (!string.Equals(dgvCodes.Columns[e.ColumnIndex].Name, "colDescription", StringComparison.Ordinal))
+        {
+            return;
+        }
         
         // Doble clic abre editar/añadir usando la fila clickeada,
         // sin depender de la selección actual de celdas.
@@ -1896,7 +2120,7 @@ public partial class MainForm : Form
             }
         }
 
-        btnEdit.Enabled = hasSelection && isFound;
+        // btnEdit.Enabled = hasSelection && isFound; // Comentado para evitar que Windows lo ponga en gris feo. Ya está validado a nivel del evento en BtnEdit_Click!
     }
 
     private void ApplyManualSelectionState(List<int> selectedRows)
@@ -2021,7 +2245,7 @@ public partial class MainForm : Form
 
             var found = _currentResults.Count(r => r.Found);
             var notFound = _currentResults.Count - found;
-            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}";
+            UpdateStatsCards(_currentResults.Count, found, notFound);
         }
         finally
         {
@@ -2147,7 +2371,7 @@ public partial class MainForm : Form
 
             var restoredFound = _currentResults.Count(r => r.Found);
             var restoredNotFound = _currentResults.Count - restoredFound;
-            lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {restoredFound} | No encontrados: {restoredNotFound}  [{moduleLabel}: {rowsToRestore.Count} restaurado(s)]";
+            UpdateStatsCards(_currentResults.Count, restoredFound, restoredNotFound);
             return;
         }
 
@@ -2242,7 +2466,7 @@ public partial class MainForm : Form
         // Actualizar estadísticas
         var found    = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
-        lblStats.Text = $"Total: {_currentResults.Count} | Encontrados: {found} | No encontrados: {notFound}  [{moduleLabel}: {toReplace.Count} borrado(s)]";
+        UpdateStatsCards(_currentResults.Count, found, notFound);
     }
 }
 
@@ -2266,6 +2490,13 @@ public class CumulativeSelectionDataGridView : DataGridView
     private bool _isSelecting;
     private bool _isDeselectingDrag;
     private readonly HashSet<(int Row, int Column)> _processedCells = new();
+    private int _lastDragRow = -1;
+    private int _lastDragColumn = -1;
+
+    protected override void OnColumnHeaderMouseClick(DataGridViewCellMouseEventArgs e)
+    {
+        // Encabezado sin comportamiento: no ordenar ni alterar selección.
+    }
 
     private void ApplyDragStateToCell(int rowIndex, int columnIndex)
     {
@@ -2273,8 +2504,37 @@ public class CumulativeSelectionDataGridView : DataGridView
         cell.Selected = !_isDeselectingDrag;
     }
 
+    private void ApplyDragStateBetweenCells(int fromRow, int fromColumn, int toRow, int toColumn)
+    {
+        var startRow = Math.Min(fromRow, toRow);
+        var endRow = Math.Max(fromRow, toRow);
+        var startColumn = Math.Min(fromColumn, toColumn);
+        var endColumn = Math.Max(fromColumn, toColumn);
+
+        for (var row = startRow; row <= endRow; row++)
+        {
+            for (var column = startColumn; column <= endColumn; column++)
+            {
+                var cellKey = (row, column);
+                if (_processedCells.Contains(cellKey))
+                {
+                    continue;
+                }
+
+                ApplyDragStateToCell(row, column);
+                _processedCells.Add(cellKey);
+            }
+        }
+    }
+
     protected override void OnCellMouseDown(DataGridViewCellMouseEventArgs e)
     {
+        if (e.RowIndex < 0)
+        {
+            // Ignorar por completo clics en encabezados.
+            return;
+        }
+
         // Solo procesar clicks izquierdos en celdas válidas
         if (e.Button == MouseButtons.Left && e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
@@ -2286,6 +2546,8 @@ public class CumulativeSelectionDataGridView : DataGridView
 
             ApplyDragStateToCell(e.RowIndex, e.ColumnIndex);
             _processedCells.Add((e.RowIndex, e.ColumnIndex));
+            _lastDragRow = e.RowIndex;
+            _lastDragColumn = e.ColumnIndex;
 
             // Evitar que el comportamiento base limpie o re-seleccione celdas de forma automática.
             return;
@@ -2299,14 +2561,21 @@ public class CumulativeSelectionDataGridView : DataGridView
         // Arrastre continuo para seleccionar o deseleccionar según el estado inicial.
         if (_isSelecting && e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
-            var cellKey = (e.RowIndex, e.ColumnIndex);
-            if (_processedCells.Contains(cellKey))
+            if (_lastDragRow < 0 || _lastDragColumn < 0)
+            {
+                _lastDragRow = e.RowIndex;
+                _lastDragColumn = e.ColumnIndex;
+            }
+
+            if (_lastDragRow == e.RowIndex && _lastDragColumn == e.ColumnIndex)
             {
                 return;
             }
 
-            ApplyDragStateToCell(e.RowIndex, e.ColumnIndex);
-            _processedCells.Add(cellKey);
+            // Rellenar rango entre la celda anterior y la actual evita saltos al arrastrar rápido.
+            ApplyDragStateBetweenCells(_lastDragRow, _lastDragColumn, e.RowIndex, e.ColumnIndex);
+            _lastDragRow = e.RowIndex;
+            _lastDragColumn = e.ColumnIndex;
             return;
         }
 
@@ -2318,6 +2587,8 @@ public class CumulativeSelectionDataGridView : DataGridView
         _isSelecting = false;
         _isDeselectingDrag = false;
         _processedCells.Clear();
+        _lastDragRow = -1;
+        _lastDragColumn = -1;
         base.OnMouseUp(e);
     }
 }

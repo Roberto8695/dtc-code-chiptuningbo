@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TqFqHh/dCxM=",
+  "dgSpecHash": "945D4S9eyT0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+  "projectFilePath": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VICTUS\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\VICTUS\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",

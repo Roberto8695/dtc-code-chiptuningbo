@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DTCDesk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e4c3d088e01460972e8c14a35ee9f78174990446")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+93a410593f80e1c8908f6bea97f45f9dc63cbbfb")]
 [assembly: System.Reflection.AssemblyProductAttribute("DTCDesk")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DTCDesk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
