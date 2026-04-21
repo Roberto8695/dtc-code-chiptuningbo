@@ -434,20 +434,20 @@ public partial class MainForm : Form
         _rdoObd2.FlatStyle = FlatStyle.Flat;
         _rdoObd2.FlatAppearance.BorderSize = 0;
         _rdoObd2.TextAlign = ContentAlignment.MiddleCenter;
-        _rdoObd2.Size = new Size(135, 30);
+        _rdoObd2.Size = new Size(112, 30);
         _rdoObd2.Location = new Point(12, 56); // Debajo del titulo
         _rdoObd2.Anchor = AnchorStyles.Top | AnchorStyles.Left; 
         _rdoObd2.Checked = true;
         _rdoObd2.Cursor = Cursors.Hand;
         _rdoObd2.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
 
-        _rdoObd1.Text = "OBD-I";
+        _rdoObd1.Text = "SPN";
         _rdoObd1.Appearance = Appearance.Button;
         _rdoObd1.FlatStyle = FlatStyle.Flat;
         _rdoObd1.FlatAppearance.BorderSize = 0;
         _rdoObd1.TextAlign = ContentAlignment.MiddleCenter;
-        _rdoObd1.Size = new Size(135, 30);
-        _rdoObd1.Location = new Point(159, 56);
+        _rdoObd1.Size = new Size(112, 30);
+        _rdoObd1.Location = new Point(136, 56);
         _rdoObd1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
         _rdoObd1.Cursor = Cursors.Hand;
         _rdoObd1.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
@@ -465,6 +465,11 @@ public partial class MainForm : Form
         _rdoObd1.CheckedChanged += styleToggles;
         styleToggles(null, EventArgs.Empty);
 
+        panelLeft.Resize -= PanelLeft_Resize;
+        panelLeft.Resize += PanelLeft_Resize;
+        LayoutObdButtons();
+        LayoutLeftActionButtons();
+
         // Bajar el cuadro de texto para hacerles espacio (garantizado en Top)
         int desplazoY = 94 - txtInput.Top;
         if (desplazoY > 0)
@@ -477,6 +482,78 @@ public partial class MainForm : Form
         panelLeft.Controls.Add(_rdoObd1);
         _rdoObd2.BringToFront();
         _rdoObd1.BringToFront();
+    }
+
+    private void PanelLeft_Resize(object? sender, EventArgs e)
+    {
+        LayoutObdButtons();
+        LayoutLeftActionButtons();
+    }
+
+    private void LayoutObdButtons()
+    {
+        if (_rdoObd2 == null || _rdoObd1 == null)
+        {
+            return;
+        }
+
+        const int leftPadding = 12;
+        const int top = 56;
+        const int gap = 12;
+        const int minButtonWidth = 96;
+        const int buttonHeight = 30;
+
+        var availableWidth = panelLeft.ClientSize.Width - (leftPadding * 2) - gap;
+        var buttonWidth = Math.Max(minButtonWidth, availableWidth / 2);
+
+        _rdoObd2.Location = new Point(leftPadding, top);
+        _rdoObd2.Size = new Size(buttonWidth, buttonHeight);
+
+        _rdoObd1.Location = new Point(leftPadding + buttonWidth + gap, top);
+        _rdoObd1.Size = new Size(buttonWidth, buttonHeight);
+
+        ApplyRoundedRegion(_rdoObd2, 5);
+        ApplyRoundedRegion(_rdoObd1, 5);
+    }
+
+    private void LayoutLeftActionButtons()
+    {
+        const int sidePadding = 12;
+        const int gap = 8;
+        const int minClearWidth = 62;
+        const int maxClearWidth = 80;
+        const int minParseWidth = 110;
+
+        var availableWidth = panelLeft.ClientSize.Width - (sidePadding * 2);
+        if (availableWidth <= 0)
+        {
+            return;
+        }
+
+        var clearWidth = Math.Clamp(availableWidth / 3, minClearWidth, maxClearWidth);
+        var parseWidth = availableWidth - clearWidth - gap;
+
+        if (parseWidth < minParseWidth)
+        {
+            parseWidth = minParseWidth;
+            clearWidth = Math.Max(minClearWidth, availableWidth - parseWidth - gap);
+        }
+
+        if (parseWidth + clearWidth + gap > availableWidth)
+        {
+            clearWidth = Math.Max(minClearWidth, availableWidth - parseWidth - gap);
+        }
+
+        var y = Math.Max(0, panelLeft.ClientSize.Height - btnParse.Height - 2);
+
+        btnParse.Location = new Point(sidePadding, y);
+        btnParse.Size = new Size(parseWidth, btnParse.Height);
+
+        btnClear.Location = new Point(sidePadding + parseWidth + gap, y);
+        btnClear.Size = new Size(clearWidth, btnClear.Height);
+
+        ApplyRoundedRegion(btnParse, 5);
+        ApplyRoundedRegion(btnClear, 5);
     }
 
     /// <summary>Dibuja el fondo con borde izquierdo de color para cada tarjeta de stat.</summary>
@@ -535,6 +612,13 @@ public partial class MainForm : Form
             BackColor     = ColorTranslator.FromHtml("#153C59")
         };
 
+        var moduleFooterPanel = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 56,
+            BackColor = ColorTranslator.FromHtml("#153C59")
+        };
+
         _btnManageModules = new Button
         {
             Text      = "+  Añadir Módulo",
@@ -549,13 +633,25 @@ public partial class MainForm : Form
         MakeRounded(_btnManageModules, 5);
         _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
         
-        // Centrar matemáticamente: FlowLayoutPanel tiene margen izq 4. Los modulos margen izq 14. 
-        // 4 + 14 = 18px en X desde el borde absoluto del panelFilterSide.
-        _btnManageModules.Location = new Point(18, panelFilterSide.Height - _btnManageModules.Height - panelFilterSide.Padding.Bottom);
-        _btnManageModules.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        _btnManageModules.Anchor = AnchorStyles.None;
+        _btnManageModules.Location = new Point(14, 10);
 
+        void CenterManageButton()
+        {
+            if (_btnManageModules == null)
+            {
+                return;
+            }
+
+            var centeredX = Math.Max(0, (moduleFooterPanel.ClientSize.Width - _btnManageModules.Width) / 2);
+            _btnManageModules.Location = new Point(centeredX, 10);
+        }
+
+        moduleFooterPanel.Controls.Add(_btnManageModules);
+        moduleFooterPanel.Resize += (_, _) => CenterManageButton();
+        CenterManageButton();
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
-        panelFilterSide.Controls.Add(_btnManageModules);
+        panelFilterSide.Controls.Add(moduleFooterPanel);
         _moduleButtonsPanel.BringToFront();
     }
 
