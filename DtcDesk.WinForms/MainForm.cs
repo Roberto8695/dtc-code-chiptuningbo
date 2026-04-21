@@ -136,7 +136,6 @@ public partial class MainForm : Form
         btnParse.Click += BtnParse_Click;
         btnClear.Click += BtnClear_Click;
         btnAdd.Click += BtnAdd_Click;
-        btnEdit.Click += BtnEdit_Click;
         btnZoomIn.Click += BtnZoomIn_Click;
         btnZoomOut.Click += BtnZoomOut_Click;
         btnZoomReset.Click += BtnZoomReset_Click;
@@ -357,11 +356,9 @@ public partial class MainForm : Form
 
         // Botones Inferiores - Derecha
         StyleButton(btnAdd, bgSide, textMain);
-        StyleButton(btnEdit, bgSide, Color.White); // Texto blanco puro
         MakeRounded(btnAdd, 5);
-        MakeRounded(btnEdit, 5);
-        btnEdit.Paint -= DrawAccentBorder; // prevenir doble subscripción
-        btnEdit.Paint += DrawAccentBorder;
+
+        btnEdit.Visible = false;
 
         // Botones de zoom
         StyleButton(btnZoomOut, bgTop, textMain);
