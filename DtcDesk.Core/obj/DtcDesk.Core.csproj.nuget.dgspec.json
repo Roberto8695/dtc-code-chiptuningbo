@@ -52,12 +52,6 @@
             "CsvHelper": {
               "target": "Package",
               "version": "[33.1.0, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.23, )",
-              "autoReferenced": true
             }
           },
           "imports": [
@@ -84,12 +78,6 @@
             "CsvHelper": {
               "target": "Package",
               "version": "[33.1.0, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.23, )",
-              "autoReferenced": true
             }
           },
           "imports": [
@@ -109,11 +97,6 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
         }
       }
     }
