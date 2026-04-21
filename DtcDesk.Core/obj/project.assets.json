@@ -74,11 +74,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+      "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
       "projectName": "DtcDesk.Core",
-      "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+      "projectPath": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
       "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
+      "outputPath": "C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "configFilePaths": [
@@ -167,5 +167,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema al leer el archivo de caché C:\\Users\\VICTUS\\Desktop\\Carpetas-Descktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
+    }
+  ]
 }

@@ -6,6 +6,12 @@ namespace DtcDesk.Core.Models;
 public class DtcLookupResult
 {
     /// <summary>
+    /// Código original pegado por el usuario.
+    /// Se mantiene fijo para referencia visual aunque Code/CodeAlt cambien a 0000/FFFF.
+    /// </summary>
+    public string OriginalCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// Código DTC buscado (normalizado)
     /// </summary>
     public string Code { get; set; } = string.Empty;
@@ -49,6 +55,11 @@ public class DtcLookupResult
     /// Módulo asociado al código (VNT, TVA, SCR, EGR, NOX, MAF, DPF)
     /// </summary>
     public string? Module { get; set; }
+
+    /// <summary>
+    /// Protocolo OBD (OBD-I o OBD-II)
+    /// </summary>
+    public string ObdType { get; set; } = "OBD-II";
 
     /// <summary>
     /// Estado asignado por el usuario (0, F, etc.)

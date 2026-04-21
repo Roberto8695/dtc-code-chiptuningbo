@@ -11,15 +11,17 @@ public partial class AddEditCodeForm : Form
     private readonly ModuleFilterRepository _moduleRepository;
     private DtcCode? _existingCode;
     private readonly bool _isEditMode;
+    private readonly string _currentObdType;
     private string? _preselectedModule;  // Usado en modo edición para mostrar el módulo actual
 
     public DtcCode? DtcCode { get; private set; }
 
     // Constructor para añadir nuevo código
-    public AddEditCodeForm(string? prefilledCode = null)
+    public AddEditCodeForm(string obdType, string? prefilledCode = null)
     {
         InitializeComponent();
         _isEditMode = false;
+        _currentObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType;
 
         var dbPath = ConnectionFactory.GetDefaultDatabasePath();
         _connectionFactory = new ConnectionFactory(dbPath);
@@ -43,6 +45,7 @@ public partial class AddEditCodeForm : Form
         InitializeComponent();
         _isEditMode = true;
         _existingCode = existingCode;
+        _currentObdType = string.IsNullOrWhiteSpace(existingCode.ObdType) ? "OBD-II" : existingCode.ObdType;
 
         var dbPath = ConnectionFactory.GetDefaultDatabasePath();
         _connectionFactory = new ConnectionFactory(dbPath);
@@ -69,12 +72,25 @@ public partial class AddEditCodeForm : Form
         txtCode.MaxLength = 5;
         
         // Categorías DTC
-        cmbCategory.Items.AddRange(new object[]
+        cmbCategory.Items.Clear();
+        if (_currentObdType == "OBD-I")
         {
-            "Powertrain",
-            "Network"
-        });
-        cmbCategory.SelectedIndex = 0;
+            cmbCategory.Items.Add("No Aplica (OBD-I)");
+            cmbCategory.SelectedIndex = 0;
+            cmbCategory.Enabled = false;
+        }
+        else
+        {
+            cmbCategory.Items.AddRange(new object[]
+            {
+                "Powertrain",
+                "Network",
+                "Chassis",
+                "Body"
+            });
+            cmbCategory.SelectedIndex = 0;
+            cmbCategory.Enabled = true;
+        }
 
         // Cargar módulos desde BD de forma asíncrona
         _ = LoadModulesAsync();
@@ -172,7 +188,12 @@ public partial class AddEditCodeForm : Form
 
         txtCode.Text = _existingCode.Code;
         txtDescription.Text = _existingCode.Description;
-        cmbCategory.Text = _existingCode.Category ?? "Powertrain";
+        
+        if (_currentObdType == "OBD-I")
+            cmbCategory.Text = "No Aplica (OBD-I)";
+        else
+            cmbCategory.Text = _existingCode.Category ?? "Powertrain";
+
         cmbModule.Text = _existingCode.Module ?? "";
         txtSource.Text = _existingCode.Source ?? "";
         txtNotes.Text = _existingCode.Notes ?? "";
@@ -229,7 +250,8 @@ public partial class AddEditCodeForm : Form
             {
                 // Actualizar código existente
                 _existingCode.Description = txtDescription.Text.Trim();
-                _existingCode.Category = cmbCategory.Text;
+                _existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
+                _existingCode.ObdType = _currentObdType;
                 _existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
                 _existingCode.Source = txtSource.Text.Trim();
                 _existingCode.Notes = txtNotes.Text.Trim();
@@ -272,7 +294,8 @@ public partial class AddEditCodeForm : Form
                     if (existingCode != null)
                     {
                         existingCode.Description = txtDescription.Text.Trim();
-                        existingCode.Category = cmbCategory.Text;
+                        existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
+                        existingCode.ObdType = _currentObdType;
                         existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
                         existingCode.Source = txtSource.Text.Trim();
                         existingCode.Notes = txtNotes.Text.Trim();
@@ -289,7 +312,8 @@ public partial class AddEditCodeForm : Form
                     {
                         Code = code,
                         Description = txtDescription.Text.Trim(),
-                        Category = cmbCategory.Text,
+                        Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text,
+                        ObdType = _currentObdType,
                         Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim(),
                         Source = txtSource.Text.Trim(),
                         Notes = txtNotes.Text.Trim(),
@@ -347,6 +371,11 @@ public partial class AddEditCodeForm : Form
     private bool IsValidCodeFormat(string code)
     {
         if (string.IsNullOrWhiteSpace(code)) return false;
+
+        if (_currentObdType == "OBD-I")
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(code, @"^[a-zA-Z0-9]{1,5}$");
+        }
 
         // P-codes, C-codes, B-codes, U-codes (letra + 4 caracteres hexadecimales)
         if (System.Text.RegularExpressions.Regex.IsMatch(code, @"^[PCBU][0-9A-F]{4}$"))

@@ -32,6 +32,7 @@ public class DbInitializer
                 Notes TEXT,
                 FilterTag TEXT,
                 Module TEXT,
+                ObdType TEXT NOT NULL DEFAULT 'OBD-II',
                 CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
                 UpdatedAt TEXT,
                 IsActive INTEGER NOT NULL DEFAULT 1
@@ -96,6 +97,7 @@ public class DbInitializer
 
         EnsureColumnExists(connection, "DtcCodes", "FilterTag", "TEXT");
         EnsureColumnExists(connection, "DtcCodes", "Module", "TEXT");
+        EnsureColumnExists(connection, "DtcCodes", "ObdType", "TEXT NOT NULL DEFAULT 'OBD-II'");
         EnsureColumnExists(connection, "DtcModuleFilters", "IsSystem", "INTEGER NOT NULL DEFAULT 0");
 
         using var moduleIndexCommand = connection.CreateCommand();
