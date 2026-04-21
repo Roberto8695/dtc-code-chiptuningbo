@@ -52,6 +52,11 @@ public class DtcCode
     public string? Module { get; set; }
 
     /// <summary>
+    /// Protocolo o tipo original (OBD-II o OBD-I)
+    /// </summary>
+    public string ObdType { get; set; } = "OBD-II";
+
+    /// <summary>
     /// Fecha de creación del registro
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

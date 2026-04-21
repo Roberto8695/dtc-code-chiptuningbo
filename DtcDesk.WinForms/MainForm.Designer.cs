@@ -417,7 +417,7 @@ namespace DtcDesk.WinForms
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(282, 390);
+            txtInput.Size = new Size(282, 350);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             txtInput.PlaceholderText = "Pega aquí tus códigos DTC...\r\n\r\nEjemplos:\r\nMID128 SID231 FMI5\r\nP20EE";
@@ -426,7 +426,7 @@ namespace DtcDesk.WinForms
             lblLineCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblLineCount.AutoSize = true;
             lblLineCount.Font = new Font("Segoe UI", 8F);
-            lblLineCount.Location = new Point(12, 452);
+            lblLineCount.Location = new Point(12, 412);
             lblLineCount.Name = "lblLineCount";
             lblLineCount.TabIndex = 4;
             lblLineCount.Text = "≡  0 líneas";

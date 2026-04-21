@@ -47,6 +47,10 @@ public partial class MainForm : Form
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
     private int _dbTotalCodes = 0;
+    
+    // Controles para seleccionar tipo de OBD
+    private RadioButton _rdoObd2 = new();
+    private RadioButton _rdoObd1 = new();
 
     [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
     private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
@@ -426,6 +430,56 @@ public partial class MainForm : Form
             _btnManageModules.FlatAppearance.BorderColor = accentHover;
             _btnManageModules.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         }
+
+        // ─── Botones de selección OBD ─────────────────────────────────────
+        _rdoObd2.Text = "OBD-II";
+        _rdoObd2.Appearance = Appearance.Button;
+        _rdoObd2.FlatStyle = FlatStyle.Flat;
+        _rdoObd2.FlatAppearance.BorderSize = 0;
+        _rdoObd2.TextAlign = ContentAlignment.MiddleCenter;
+        _rdoObd2.Size = new Size(135, 30);
+        _rdoObd2.Location = new Point(12, 56); // Debajo del titulo
+        _rdoObd2.Anchor = AnchorStyles.Top | AnchorStyles.Left; 
+        _rdoObd2.Checked = true;
+        _rdoObd2.Cursor = Cursors.Hand;
+        _rdoObd2.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+
+        _rdoObd1.Text = "OBD-I";
+        _rdoObd1.Appearance = Appearance.Button;
+        _rdoObd1.FlatStyle = FlatStyle.Flat;
+        _rdoObd1.FlatAppearance.BorderSize = 0;
+        _rdoObd1.TextAlign = ContentAlignment.MiddleCenter;
+        _rdoObd1.Size = new Size(135, 30);
+        _rdoObd1.Location = new Point(159, 56);
+        _rdoObd1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+        _rdoObd1.Cursor = Cursors.Hand;
+        _rdoObd1.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+
+        MakeRounded(_rdoObd2, 5);
+        MakeRounded(_rdoObd1, 5);
+
+        EventHandler styleToggles = (s, e) => {
+            _rdoObd2.BackColor = _rdoObd2.Checked ? accentYellow : separator;
+            _rdoObd2.ForeColor = _rdoObd2.Checked ? Color.Black : textMain;
+            _rdoObd1.BackColor = _rdoObd1.Checked ? accentYellow : separator;
+            _rdoObd1.ForeColor = _rdoObd1.Checked ? Color.Black : textMain;
+        };
+        _rdoObd2.CheckedChanged += styleToggles;
+        _rdoObd1.CheckedChanged += styleToggles;
+        styleToggles(null, EventArgs.Empty);
+
+        // Bajar el cuadro de texto para hacerles espacio (garantizado en Top)
+        int desplazoY = 94 - txtInput.Top;
+        if (desplazoY > 0)
+        {
+            txtInput.Top = 94;
+            txtInput.Height -= desplazoY;
+        }
+
+        panelLeft.Controls.Add(_rdoObd2);
+        panelLeft.Controls.Add(_rdoObd1);
+        _rdoObd2.BringToFront();
+        _rdoObd1.BringToFront();
     }
 
     /// <summary>Dibuja el fondo con borde izquierdo de color para cada tarjeta de stat.</summary>
@@ -1361,8 +1415,10 @@ public partial class MainForm : Form
             Cursor = Cursors.WaitCursor;
             btnParse.Enabled = false;
 
+            string currentObdType = _rdoObd2.Checked ? "OBD-II" : "OBD-I";
+
             // Parsear códigos con información de categoría
-            var parsedCodes = ParseCodesWithCategory(inputToParse);
+            var parsedCodes = ParseCodesWithCategory(inputToParse, currentObdType);
             
             if (parsedCodes.Count == 0)
             {
@@ -1375,7 +1431,11 @@ public partial class MainForm : Form
             var allCodesToSearch = new List<string>();
             foreach (var parsed in parsedCodes)
             {
-                if (parsed.WasCOrD)
+                if (currentObdType == "OBD-I")
+                {
+                    allCodesToSearch.Add(parsed.OriginalCode);
+                }
+                else if (parsed.WasCOrD)
                 {
                     // Si empezaba con C o D, buscar tanto el original como el transformado en categoría U
                     allCodesToSearch.Add(parsed.OriginalCode);
@@ -1395,7 +1455,9 @@ public partial class MainForm : Form
             }
 
             // Buscar en base de datos
-            var dbCodes = await _repository.GetByCodesAsync(allCodesToSearch);
+            var rawDbCodes = await _repository.GetByCodesAsync(allCodesToSearch);
+            // Aislar estrictamente a los códigos del tipo activo para evitar descripciones cruzadas
+            var dbCodes = rawDbCodes.Where(c => c.ObdType == currentObdType).ToList();
 
             // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
@@ -1408,45 +1470,53 @@ public partial class MainForm : Form
             foreach (var parsed in parsedCodes)
             {
                 // Determinar la categoría y código de búsqueda según el código original
-                string prefix;
-                string searchCode;
+                string prefix = "";
+                string searchCode = parsed.OriginalCode;
                 
-                if (parsed.WasCOrD)
+                if (currentObdType == "OBD-II")
                 {
-                    // Códigos C/D → Network (U)
-                    prefix = "U";
-                    searchCode = "U" + parsed.ConvertedCode;
-                }
-                else if (parsed.OriginalCode.StartsWith("P"))
-                {
-                    // Ya tiene prefijo P → Powertrain
-                    prefix = "P";
-                    searchCode = parsed.OriginalCode;
-                }
-                else if (parsed.OriginalCode.StartsWith("U"))
-                {
-                    // Ya tiene prefijo U → Network
-                    prefix = "U";
-                    searchCode = parsed.OriginalCode;
+                    if (parsed.WasCOrD)
+                    {
+                        // Códigos C/D → Network (U)
+                        prefix = "U";
+                        searchCode = "U" + parsed.ConvertedCode;
+                    }
+                    else if (parsed.OriginalCode.StartsWith("P"))
+                    {
+                        // Ya tiene prefijo P → Powertrain
+                        prefix = "P";
+                        searchCode = parsed.OriginalCode;
+                    }
+                    else if (parsed.OriginalCode.StartsWith("U"))
+                    {
+                        // Ya tiene prefijo U → Network
+                        prefix = "U";
+                        searchCode = parsed.OriginalCode;
+                    }
+                    else
+                    {
+                        // Hex puro → Powertrain por defecto
+                        prefix = "P";
+                        searchCode = "P" + parsed.ConvertedCode;
+                    }
                 }
                 else
                 {
-                    // Hex puro → Powertrain por defecto
-                    prefix = "P";
-                    searchCode = "P" + parsed.ConvertedCode;
+                    // OBD-I usa el nombre real siempre para la categoría por defecto (Hex)
+                    prefix = "Hex";
                 }
                 
-                // Buscar en múltiples variantes
+                // Buscar en múltiples variantes asegurando que nada de OBD-II cruce
                 DtcCode? foundCode = null;
                 if (dbCodesDict.ContainsKey(parsed.OriginalCode))
                 {
                     foundCode = dbCodesDict[parsed.OriginalCode];
                 }
-                else if (dbCodesDict.ContainsKey(searchCode))
+                else if (currentObdType == "OBD-II" && dbCodesDict.ContainsKey(searchCode))
                 {
                     foundCode = dbCodesDict[searchCode];
                 }
-                else if (dbCodesDict.ContainsKey(parsed.ConvertedCode))
+                else if (currentObdType == "OBD-II" && dbCodesDict.ContainsKey(parsed.ConvertedCode))
                 {
                     foundCode = dbCodesDict[parsed.ConvertedCode];
                 }
@@ -1465,6 +1535,7 @@ public partial class MainForm : Form
                     Notes = found ? foundCode!.Notes : null,
                     FilterTag = found ? foundCode!.FilterTag : null,
                     Module = found ? GetDisplayModule(foundCode!) : null,
+                    ObdType = found ? foundCode!.ObdType : currentObdType,
                     DtcId = found ? foundCode!.Id : null
                 });
             }
@@ -1547,22 +1618,40 @@ public partial class MainForm : Form
         public bool WasCOrD { get; set; }
     }
 
-    private List<ParsedCodeInfo> ParseCodesWithCategory(string input)
+    private List<ParsedCodeInfo> ParseCodesWithCategory(string input, string obdType)
     {
         if (string.IsNullOrWhiteSpace(input))
             return new List<ParsedCodeInfo>();
 
-        // Patrón que captura: 
-        // - P/U + 4 hex (P0420, U0360)
-        // - C/D + 3 hex (C301, D11E)  
-        // - 4 hex puros (0420, 079A)
+        var codes = new List<ParsedCodeInfo>();
+
+        if (obdType == "OBD-I")
+        {
+            // OBD-I: extrae números o combinaciones alfanuméricas de hasta 5 caracteres (ej. 10, 11, 2013)
+            var obd1Pattern = new System.Text.RegularExpressions.Regex(@"\b[0-9A-Z]{1,5}\b", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                
+            var matches = obd1Pattern.Matches(input);
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                var originalCode = match.Value.ToUpperInvariant();
+                codes.Add(new ParsedCodeInfo
+                {
+                    OriginalCode = originalCode,
+                    ConvertedCode = originalCode,
+                    WasCOrD = false
+                });
+            }
+            return codes;
+        }
+
+        // Patrón OBD-II regular
         var hexPattern = new System.Text.RegularExpressions.Regex(@"\b(?:[PU][0-9A-F]{4}|[CD][0-9A-F]{3}|[0-9A-F]{4})\b", 
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         
-        var matches = hexPattern.Matches(input);
-        var codes = new List<ParsedCodeInfo>();
+        var hexMatches = hexPattern.Matches(input);
 
-        foreach (System.Text.RegularExpressions.Match match in matches)
+        foreach (System.Text.RegularExpressions.Match match in hexMatches)
         {
             var originalCode = match.Value.ToUpperInvariant();
             var convertedCode = originalCode;
@@ -1762,7 +1851,8 @@ public partial class MainForm : Form
             }
         }
 
-        var addForm = new AddEditCodeForm(prefilledCode);
+        string currentObdType = _rdoObd2.Checked ? "OBD-II" : "OBD-I";
+        var addForm = new AddEditCodeForm(currentObdType, prefilledCode);
         if (addForm.ShowDialog() == DialogResult.OK)
         {
             // Refrescar si el código estaba en la lista actual
@@ -2034,7 +2124,8 @@ public partial class MainForm : Form
         }
         else
         {
-            var addForm = new AddEditCodeForm(selectedResult.Code);
+            string currentObdType = _rdoObd2.Checked ? "OBD-II" : "OBD-I";
+            var addForm = new AddEditCodeForm(currentObdType, selectedResult.Code);
             if (addForm.ShowDialog() == DialogResult.OK)
             {
                 if (addForm.DtcCode != null && _currentResults.Any(r => r.Code == addForm.DtcCode.Code))

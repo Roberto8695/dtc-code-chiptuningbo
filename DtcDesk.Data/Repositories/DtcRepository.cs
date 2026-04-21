@@ -25,7 +25,7 @@ public class DtcRepository
         
         const string sql = @"
             SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
-                   CreatedAt, UpdatedAt, IsActive
+                   ObdType, CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Code = @Code COLLATE NOCASE AND IsActive = 1
             LIMIT 1;
@@ -43,7 +43,7 @@ public class DtcRepository
 
         const string sql = @"
             SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
-                   CreatedAt, UpdatedAt, IsActive
+                   ObdType, CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Id = @Id AND IsActive = 1
             LIMIT 1;
@@ -66,7 +66,7 @@ public class DtcRepository
 
         const string sql = @"
             SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
-                   CreatedAt, UpdatedAt, IsActive
+                   ObdType, CreatedAt, UpdatedAt, IsActive
             FROM DtcCodes
             WHERE Code IN @Codes AND IsActive = 1;
         ";
@@ -131,8 +131,8 @@ public class DtcRepository
         using var connection = _connectionFactory.CreateConnection();
         
         const string sql = @"
-            INSERT INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, CreatedAt, IsActive)
-            VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @CreatedAt, @IsActive);
+            INSERT INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, ObdType, CreatedAt, IsActive)
+            VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @ObdType, @CreatedAt, @IsActive);
             SELECT last_insert_rowid();
         ";
 
@@ -154,8 +154,8 @@ public class DtcRepository
         try
         {
             const string sql = @"
-                INSERT OR IGNORE INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, CreatedAt, IsActive)
-                VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @CreatedAt, @IsActive);
+                INSERT OR IGNORE INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, ObdType, CreatedAt, IsActive)
+                VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @ObdType, @CreatedAt, @IsActive);
             ";
 
             var codes = dtcCodes.Select(c =>
@@ -192,6 +192,7 @@ public class DtcRepository
                 Notes = @Notes,
                 FilterTag = @FilterTag,
                 Module = @Module,
+                ObdType = @ObdType,
                 UpdatedAt = @UpdatedAt,
                 IsActive = @IsActive
             WHERE Id = @Id;

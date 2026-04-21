@@ -57,6 +57,11 @@ public class DtcLookupResult
     public string? Module { get; set; }
 
     /// <summary>
+    /// Protocolo OBD (OBD-I o OBD-II)
+    /// </summary>
+    public string ObdType { get; set; } = "OBD-II";
+
+    /// <summary>
     /// Estado asignado por el usuario (0, F, etc.)
     /// Usado para clasificación y exportación
     /// </summary>
