@@ -344,9 +344,16 @@ public partial class MainForm : Form
         dgvCodes.EnableHeadersVisualStyles = false;
         dgvCodes.AlternatingRowsDefaultCellStyle.BackColor = ColorTranslator.FromHtml("#0A1520");
 
+        // ─── Botones de Formato - Izquierda ───────────────────────────────
+        StyleButton(btnFormatObd, ColorTranslator.FromHtml("#F8CE5A"), Color.Black);
+        MakeRounded(btnFormatObd, 5);
+
+        StyleButton(btnFormatSpn, ColorTranslator.FromHtml("#263D52"), ColorTranslator.FromHtml("#B5C4D3"));
+        MakeRounded(btnFormatSpn, 5);
+
         // ─── Botones Inferiores - Izquierda ───────────────────────────────
         StyleButton(btnParse, accentYellow, Color.Black);
-        btnParse.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+        btnParse.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         btnParse.FlatAppearance.BorderSize = 0;
         MakeRounded(btnParse, 5);
 
@@ -525,26 +532,26 @@ public partial class MainForm : Form
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents  = true,
             AutoScroll    = true,
-            Padding       = new Padding(6, 6, 6, 6),
+            Padding       = new Padding(18, 10, 0, 10), // Padding ajustado algebraicamente a 18px
             BackColor     = ColorTranslator.FromHtml("#153C59")
         };
 
         _btnManageModules = new Button
         {
             Text      = "+  Añadir Módulo",
-            Height    = 34,
-            Width     = 126,
+            Height    = 36,
+            Width     = 276, // Ancho combinado para las dos columnas
             FlatStyle = FlatStyle.Flat,
             Cursor    = Cursors.Hand
         };
         StyleButton(_btnManageModules, accent, Color.Black);
         _btnManageModules.FlatAppearance.BorderSize = 0;
         _btnManageModules.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
-        MakeRounded(_btnManageModules, 5);
+        MakeRounded(_btnManageModules, 6);
         _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
         
-        _btnManageModules.Dock = DockStyle.Bottom;
-        _btnManageModules.Margin = new Padding(0);
+        _btnManageModules.Location = new Point(18, panelFilterSide.Height - _btnManageModules.Height - 12);
+        _btnManageModules.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
         panelFilterSide.Controls.Add(_btnManageModules);
@@ -589,13 +596,15 @@ public partial class MainForm : Form
 
         foreach (var filter in _moduleFilters)
         {
-            // Ancho pensado para que entren dos columnas dentro del panel lateral ampliado.
+            // Ancho pensado para que entren dos columnas dentro del panel lateral de 312px.
+            // Padding izquierdo 12, cada botón 130 + margen derecho 16 = 146.
+            // Dos botones = 292. Más padding izq 12 = 304 (con pad extra en la derecha queda perfeto centrado).
             var moduleButton = new Button
             {
                 Text      = filter.DisplayName,
-                Width     = 126,
+                Width     = 130,
                 Height    = 40,
-                Margin    = new Padding(6, 0, 6, 8),
+                Margin    = new Padding(0, 0, 16, 12),
                 Tag       = filter,
                 FlatStyle = FlatStyle.Flat,
                 Cursor    = Cursors.Hand

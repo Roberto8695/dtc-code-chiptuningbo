@@ -53,6 +53,8 @@ namespace DtcDesk.WinForms
             lblLineCount = new Label();
             btnClear = new Button();
             btnParse = new Button();
+            btnFormatObd = new Button();
+            btnFormatSpn = new Button();
             txtInput = new TextBox();
             lblInput = new Label();
             panelRight = new Panel();
@@ -257,8 +259,8 @@ namespace DtcDesk.WinForms
             panelStatsBar.Controls.Add(panelStatTotal);
             panelStatsBar.Controls.Add(panelStatFound);
             panelStatsBar.Controls.Add(panelStatNotFound);
-            panelStatsBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            panelStatsBar.Location = new Point(12, 300);
+            panelStatsBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelStatsBar.Location = new Point(12, 320);
             panelStatsBar.Name = "panelStatsBar";
             panelStatsBar.Size = new Size(286, 132);
             panelStatsBar.Padding = new Padding(0);
@@ -388,6 +390,8 @@ namespace DtcDesk.WinForms
             // ──────────────────────────────────────────────────────────────
             // panelLeft
             // ──────────────────────────────────────────────────────────────
+            panelLeft.Controls.Add(btnFormatObd);
+            panelLeft.Controls.Add(btnFormatSpn);
             panelLeft.Controls.Add(lblLineCount);
             panelLeft.Controls.Add(btnClear);
             panelLeft.Controls.Add(btnParse);
@@ -397,7 +401,7 @@ namespace DtcDesk.WinForms
             panelLeft.Dock = DockStyle.Left;
             panelLeft.Location = new Point(0, 172);
             panelLeft.Name = "panelLeft";
-            panelLeft.Padding = new Padding(12, 12, 12, 12);
+            panelLeft.Padding = new Padding(12);
             panelLeft.Size = new Size(310, 510);
             panelLeft.TabIndex = 2;
 
@@ -405,20 +409,40 @@ namespace DtcDesk.WinForms
             lblInput.AutoSize = false;
             lblInput.Dock = DockStyle.Top;
             lblInput.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblInput.Height = 36;
+            lblInput.Height = 32;
             lblInput.Name = "lblInput";
             lblInput.TabIndex = 0;
-            lblInput.Text = "📋  PEGAR CÓDIGOS DTC AQUÍ";
+            lblInput.Text = "📋  PEGAR CÓDIGOS DTC";
             lblInput.TextAlign = ContentAlignment.MiddleLeft;
-            lblInput.Padding = new Padding(0, 0, 0, 4);
+            lblInput.Padding = new Padding(0);
+
+            // btnFormatObd
+            btnFormatObd.Location = new Point(12, 40);
+            btnFormatObd.Name = "btnFormatObd";
+            btnFormatObd.Size = new Size(138, 28);
+            btnFormatObd.TabIndex = 5;
+            btnFormatObd.Text = "OBD-II";
+            btnFormatObd.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnFormatObd.Cursor = Cursors.Hand;
+            btnFormatObd.FlatStyle = FlatStyle.Flat;
+
+            // btnFormatSpn
+            btnFormatSpn.Location = new Point(160, 40);
+            btnFormatSpn.Name = "btnFormatSpn";
+            btnFormatSpn.Size = new Size(138, 28);
+            btnFormatSpn.TabIndex = 6;
+            btnFormatSpn.Text = "SPN";
+            btnFormatSpn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnFormatSpn.Cursor = Cursors.Hand;
+            btnFormatSpn.FlatStyle = FlatStyle.Flat;
 
             // txtInput
             txtInput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            txtInput.Location = new Point(12, 56);
+            txtInput.Location = new Point(12, 76);
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(282, 258);
+            txtInput.Size = new Size(286, 215);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             txtInput.PlaceholderText = "Pega aquí tus códigos DTC...\r\n\r\nEjemplos:\r\nMID128 SID231 FMI5\r\nP20EE";
@@ -427,28 +451,28 @@ namespace DtcDesk.WinForms
             lblLineCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblLineCount.AutoSize = true;
             lblLineCount.Font = new Font("Segoe UI", 8F);
-            lblLineCount.Location = new Point(12, 438);
+            lblLineCount.Location = new Point(12, 298);
             lblLineCount.Name = "lblLineCount";
             lblLineCount.TabIndex = 4;
-            lblLineCount.Text = "≡  0 líneas";
+            lblLineCount.Text = "≡ 0 líneas";
 
             // btnParse
-            btnParse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            btnParse.Location = new Point(12, 470);
+            btnParse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnParse.Location = new Point(12, 460);
             btnParse.Name = "btnParse";
-            btnParse.Size = new Size(200, 38);
+            btnParse.Size = new Size(185, 38);
             btnParse.TabIndex = 2;
-            btnParse.Text = "▶  PROCESAR CÓDIGOS";
-            
+            btnParse.Text = "Procesar codigo";
             btnParse.UseVisualStyleBackColor = true;
 
             // btnClear
             btnClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnClear.Location = new Point(218, 470);
+            btnClear.Location = new Point(208, 460);
             btnClear.Name = "btnClear";
-            btnClear.Size = new Size(80, 38);
+            btnClear.Size = new Size(90, 38);
             btnClear.TabIndex = 3;
-            btnClear.Text = "🗑  Limpiar";
+            btnClear.Text = "🗑\r\nLimpiar";
+            btnClear.TextAlign = ContentAlignment.MiddleCenter;
             btnClear.UseVisualStyleBackColor = true;
 
             // ──────────────────────────────────────────────────────────────
@@ -813,6 +837,8 @@ namespace DtcDesk.WinForms
         private TextBox txtInput;
         private Button btnParse;
         private Button btnClear;
+        private Button btnFormatObd;
+        private Button btnFormatSpn;
         private Label lblLineCount;
 
         // ── Right panel ──
