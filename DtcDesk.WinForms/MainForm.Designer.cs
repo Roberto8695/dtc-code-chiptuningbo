@@ -252,25 +252,25 @@ namespace DtcDesk.WinForms
             lblSearchMode.Text = "";
 
             // ──────────────────────────────────────────────────────────────
-            // panelStatsBar  (barra compacta de estadísticas)
+            // panelStatsBar  (columna compacta de estadísticas)
             // ──────────────────────────────────────────────────────────────
             panelStatsBar.Controls.Add(panelStatTotal);
             panelStatsBar.Controls.Add(panelStatFound);
             panelStatsBar.Controls.Add(panelStatNotFound);
-            panelStatsBar.Dock = DockStyle.Top;
-            panelStatsBar.Location = new Point(0, 124);
+            panelStatsBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panelStatsBar.Location = new Point(12, 300);
             panelStatsBar.Name = "panelStatsBar";
-            panelStatsBar.Size = new Size(1400, 48);
-            panelStatsBar.Padding = new Padding(12, 6, 12, 6);
+            panelStatsBar.Size = new Size(286, 132);
+            panelStatsBar.Padding = new Padding(0);
             panelStatsBar.TabIndex = 5;
 
             // ── Tarjeta TOTAL ──
             panelStatTotal.Controls.Add(lblStatTotalIcon);
             panelStatTotal.Controls.Add(lblStatTotalValue);
             panelStatTotal.Controls.Add(lblStatTotalLabel);
-            panelStatTotal.Location = new Point(12, 6);
+            panelStatTotal.Location = new Point(0, 0);
             panelStatTotal.Name = "panelStatTotal";
-            panelStatTotal.Size = new Size(155, 36);
+            panelStatTotal.Size = new Size(286, 44);
             panelStatTotal.TabIndex = 0;
             panelStatTotal.Padding = new Padding(6, 2, 6, 2);
 
@@ -305,9 +305,9 @@ namespace DtcDesk.WinForms
             panelStatFound.Controls.Add(lblStatFoundIcon);
             panelStatFound.Controls.Add(lblStatFoundValue);
             panelStatFound.Controls.Add(lblStatFoundLabel);
-            panelStatFound.Location = new Point(175, 6);
+            panelStatFound.Location = new Point(0, 42);
             panelStatFound.Name = "panelStatFound";
-            panelStatFound.Size = new Size(185, 36);
+            panelStatFound.Size = new Size(286, 44);
             panelStatFound.TabIndex = 1;
             panelStatFound.Padding = new Padding(6, 2, 6, 2);
 
@@ -342,9 +342,9 @@ namespace DtcDesk.WinForms
             panelStatNotFound.Controls.Add(lblStatNotFoundIcon);
             panelStatNotFound.Controls.Add(lblStatNotFoundValue);
             panelStatNotFound.Controls.Add(lblStatNotFoundLabel);
-            panelStatNotFound.Location = new Point(368, 6);
+            panelStatNotFound.Location = new Point(0, 84);
             panelStatNotFound.Name = "panelStatNotFound";
-            panelStatNotFound.Size = new Size(205, 36);
+            panelStatNotFound.Size = new Size(286, 44);
             panelStatNotFound.TabIndex = 2;
             panelStatNotFound.Padding = new Padding(6, 2, 6, 2);
 
@@ -393,6 +393,7 @@ namespace DtcDesk.WinForms
             panelLeft.Controls.Add(btnParse);
             panelLeft.Controls.Add(txtInput);
             panelLeft.Controls.Add(lblInput);
+            panelLeft.Controls.Add(panelStatsBar);
             panelLeft.Dock = DockStyle.Left;
             panelLeft.Location = new Point(0, 172);
             panelLeft.Name = "panelLeft";
@@ -417,7 +418,7 @@ namespace DtcDesk.WinForms
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(282, 350);
+            txtInput.Size = new Size(282, 258);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             txtInput.PlaceholderText = "Pega aquí tus códigos DTC...\r\n\r\nEjemplos:\r\nMID128 SID231 FMI5\r\nP20EE";
@@ -426,7 +427,7 @@ namespace DtcDesk.WinForms
             lblLineCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblLineCount.AutoSize = true;
             lblLineCount.Font = new Font("Segoe UI", 8F);
-            lblLineCount.Location = new Point(12, 412);
+            lblLineCount.Location = new Point(12, 438);
             lblLineCount.Name = "lblLineCount";
             lblLineCount.TabIndex = 4;
             lblLineCount.Text = "≡  0 líneas";
@@ -633,7 +634,7 @@ namespace DtcDesk.WinForms
             panelFilterSide.Dock = DockStyle.Right;
             panelFilterSide.Name = "panelFilterSide";
             panelFilterSide.Padding = new Padding(4, 8, 4, 8);
-            panelFilterSide.Size = new Size(150, 510);
+            panelFilterSide.Size = new Size(312, 510);
             panelFilterSide.TabIndex = 10;
 
             lblFilterTitle.AutoSize = false;
@@ -749,7 +750,6 @@ namespace DtcDesk.WinForms
             Controls.Add(panelRight);
             Controls.Add(panelFilterSide);
             Controls.Add(panelLeft);
-            Controls.Add(panelStatsBar);
             Controls.Add(panelTop);
             Controls.Add(menuStrip);
             Controls.Add(statusStrip);

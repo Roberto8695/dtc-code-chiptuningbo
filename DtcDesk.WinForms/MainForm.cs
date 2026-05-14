@@ -259,7 +259,7 @@ public partial class MainForm : Form
         lblStats.ForeColor = textSecondary; // invisible, mantenemos por compatibilidad
 
         // ─── Tarjetas de estadísticas ─────────────────────────────────────
-        panelStatsBar.BackColor = bgMain;
+        panelStatsBar.BackColor = bgSide;
 
         // Tarjeta TOTAL — borde izquierdo naranja
         StyleStatCard(panelStatTotal, bgCard, accentYellow);
@@ -468,14 +468,6 @@ public partial class MainForm : Form
         _rdoObd1.CheckedChanged += styleToggles;
         styleToggles(null, EventArgs.Empty);
 
-        // Bajar el cuadro de texto para hacerles espacio (garantizado en Top)
-        int desplazoY = 94 - txtInput.Top;
-        if (desplazoY > 0)
-        {
-            txtInput.Top = 94;
-            txtInput.Height -= desplazoY;
-        }
-
         panelLeft.Controls.Add(_rdoObd2);
         panelLeft.Controls.Add(_rdoObd1);
         _rdoObd2.BringToFront();
@@ -530,11 +522,10 @@ public partial class MainForm : Form
         _moduleButtonsPanel = new FlowLayoutPanel
         {
             Dock          = DockStyle.Fill,
-            FlowDirection = FlowDirection.TopDown,
-            WrapContents  = false,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents  = true,
             AutoScroll    = true,
-            // Sin padding lateral para que los botones puedan centrarse con sus propios márgenes
-            Padding       = new Padding(0, 6, 0, 4),
+            Padding       = new Padding(6, 6, 6, 6),
             BackColor     = ColorTranslator.FromHtml("#153C59")
         };
 
@@ -542,7 +533,7 @@ public partial class MainForm : Form
         {
             Text      = "+  Añadir Módulo",
             Height    = 34,
-            Width     = 114,
+            Width     = 126,
             FlatStyle = FlatStyle.Flat,
             Cursor    = Cursors.Hand
         };
@@ -552,10 +543,8 @@ public partial class MainForm : Form
         MakeRounded(_btnManageModules, 5);
         _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
         
-        // Centrar matemáticamente: FlowLayoutPanel tiene margen izq 4. Los modulos margen izq 14. 
-        // 4 + 14 = 18px en X desde el borde absoluto del panelFilterSide.
-        _btnManageModules.Location = new Point(18, panelFilterSide.Height - _btnManageModules.Height - panelFilterSide.Padding.Bottom);
-        _btnManageModules.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        _btnManageModules.Dock = DockStyle.Bottom;
+        _btnManageModules.Margin = new Padding(0);
 
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
         panelFilterSide.Controls.Add(_btnManageModules);
@@ -600,14 +589,13 @@ public partial class MainForm : Form
 
         foreach (var filter in _moduleFilters)
         {
-            // Ancho 114 y margen 14 dan (114+14+14) = 142px. Ésto es exactamente el espacio interior 
-            // del panel de 150px (que tiene 4px padding izq, 4px der). Esto asegura el centrado perfecto!
+            // Ancho pensado para que entren dos columnas dentro del panel lateral ampliado.
             var moduleButton = new Button
             {
                 Text      = filter.DisplayName,
-                Width     = 114,
+                Width     = 126,
                 Height    = 40,
-                Margin    = new Padding(14, 0, 0, 8),
+                Margin    = new Padding(6, 0, 6, 8),
                 Tag       = filter,
                 FlatStyle = FlatStyle.Flat,
                 Cursor    = Cursors.Hand
