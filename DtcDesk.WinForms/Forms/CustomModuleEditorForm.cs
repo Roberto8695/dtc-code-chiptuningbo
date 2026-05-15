@@ -172,6 +172,6 @@ public class CustomModuleEditorForm : Form
 
     private static bool IsValidDtcToken(string token)
     {
-        return Regex.IsMatch(token, @"^(?:[PU][0-9A-F]{4}|[CD][0-9A-F]{3}|[0-9A-F]{4})$");
+        return Regex.IsMatch(token, @"^(?:[PU][0-9A-F]{4}|[CD][0-9A-F]{3}|[0-9A-F]{4}|\d{2,4})$");
     }
 }

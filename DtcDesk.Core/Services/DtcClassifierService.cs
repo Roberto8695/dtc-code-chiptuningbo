@@ -59,6 +59,13 @@ public class DtcClassifierService
         if (_exactRules.TryGetValue(upperCode, out var exactMatch))
             return exactMatch;
 
+        // SPN numérico (2-4 dígitos): permitir match directo
+        if (upperCode.Length >= 2 && upperCode.Length <= 4 && upperCode.All(char.IsDigit))
+        {
+            if (_exactRules.TryGetValue(upperCode, out exactMatch))
+                return exactMatch;
+        }
+
         // Para códigos hex puros (ej. "2122"), intentar variantes con prefijo
         if (upperCode.Length == 4 && upperCode.All(c => Uri.IsHexDigit(c)))
         {
