@@ -11,10 +11,12 @@ public class CustomModuleEditorForm : Form
     private readonly Label _lblCount;
     private readonly Button _btnSave;
     private readonly Button _btnCancel;
+    private readonly Dictionary<string, string?> _existingCodeTypes = new(StringComparer.OrdinalIgnoreCase);
 
     public string ModuleDisplayName => _txtDisplayName.Text.Trim();
     public string? ModuleDescription => string.IsNullOrWhiteSpace(_txtDescription.Text) ? null : _txtDescription.Text.Trim();
     public List<string> ExactCodes { get; private set; } = new();
+    public List<DtcModuleRule> ExactRules { get; private set; } = new();
 
     public CustomModuleEditorForm(DtcModuleFilter? filter = null, IEnumerable<string>? existingCodes = null)
     {
@@ -125,6 +127,15 @@ public class CustomModuleEditorForm : Form
         UpdateCountLabel();
     }
 
+    public CustomModuleEditorForm(DtcModuleFilter filter, IEnumerable<DtcModuleRule> existingRules)
+        : this(filter, existingRules.Select(r => r.Code))
+    {
+        foreach (var rule in existingRules)
+        {
+            _existingCodeTypes[rule.Code] = rule.ObdType;
+        }
+    }
+
     private void SaveAndClose()
     {
         if (string.IsNullOrWhiteSpace(_txtDisplayName.Text))
@@ -143,6 +154,13 @@ public class CustomModuleEditorForm : Form
         }
 
         ExactCodes = parsedCodes;
+        ExactRules = parsedCodes
+            .Select(code => new DtcModuleRule
+            {
+                Code = code,
+                ObdType = _existingCodeTypes.TryGetValue(code, out var obdType) ? obdType : "OBD-II"
+            })
+            .ToList();
         DialogResult = DialogResult.OK;
         Close();
     }

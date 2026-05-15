@@ -228,7 +228,11 @@ public partial class AddEditCodeForm : Form
         {
             var exactRules = await _moduleRepository.GetAllExactRulesAsync();
             var rule = exactRules.FirstOrDefault(r =>
-                string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(r.ObdType, _currentObdType, StringComparison.OrdinalIgnoreCase))
+                ?? exactRules.FirstOrDefault(r =>
+                    string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase)
+                    && string.IsNullOrWhiteSpace(r.ObdType));
 
             if (rule != null)
                 _preselectedModule = rule.FilterName;
@@ -273,11 +277,14 @@ public partial class AddEditCodeForm : Form
 
             if (_isEditMode && _existingCode != null)
             {
+                var selectedModule = GetSelectedModule();
+
                 // Actualizar código existente
                 _existingCode.Description = txtDescription.Text.Trim();
                 _existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
                 _existingCode.ObdType = _currentObdType;
-                _existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
+                _existingCode.FilterTag = selectedModule?.Name;
+                _existingCode.Module = selectedModule?.DisplayName;
                 _existingCode.Source = txtSource.Text.Trim();
                 _existingCode.Notes = txtNotes.Text.Trim();
 
@@ -318,10 +325,13 @@ public partial class AddEditCodeForm : Form
                     var existingCode = await _repository.GetByCodeAsync(code, _currentObdType);
                     if (existingCode != null)
                     {
+                        var selectedModule = GetSelectedModule();
+
                         existingCode.Description = txtDescription.Text.Trim();
                         existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
                         existingCode.ObdType = _currentObdType;
-                        existingCode.Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim();
+                        existingCode.FilterTag = selectedModule?.Name;
+                        existingCode.Module = selectedModule?.DisplayName;
                         existingCode.Source = txtSource.Text.Trim();
                         existingCode.Notes = txtNotes.Text.Trim();
 
@@ -332,6 +342,8 @@ public partial class AddEditCodeForm : Form
                 }
                 else
                 {
+                    var selectedModule = GetSelectedModule();
+
                     // Insertar nuevo código
                     var newCode = new DtcCode
                     {
@@ -339,7 +351,8 @@ public partial class AddEditCodeForm : Form
                         Description = txtDescription.Text.Trim(),
                         Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text,
                         ObdType = _currentObdType,
-                        Module = string.IsNullOrWhiteSpace(cmbModule.Text) ? null : cmbModule.Text.Trim(),
+                        FilterTag = selectedModule?.Name,
+                        Module = selectedModule?.DisplayName,
                         Source = txtSource.Text.Trim(),
                         Notes = txtNotes.Text.Trim(),
                         IsActive = true
@@ -380,17 +393,24 @@ public partial class AddEditCodeForm : Form
             if (selected == null || string.IsNullOrWhiteSpace(selected.Name))
             {
                 // Eliminar regla si existía
-                await _moduleRepository.DeleteExactRuleByCodeAsync(code);
+                await _moduleRepository.DeleteExactRuleByCodeAsync(code, _currentObdType);
             }
             else
             {
-                await _moduleRepository.SaveExactRuleAsync(code, selected.Name);
+                await _moduleRepository.SaveExactRuleAsync(code, selected.Name, _currentObdType);
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AddEditForm] Error al guardar módulo: {ex.Message}");
         }
+    }
+
+    private DtcModuleFilter? GetSelectedModule()
+    {
+        return cmbModule.SelectedItem is DtcModuleFilter { Name: { Length: > 0 } } selected
+            ? selected
+            : null;
     }
 
     private bool IsValidCodeFormat(string code)

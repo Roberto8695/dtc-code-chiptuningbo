@@ -58,6 +58,7 @@ namespace DtcDesk.WinForms
             txtInput = new TextBox();
             lblInput = new Label();
             panelRight = new Panel();
+            panelResultsFrame = new Panel();
             dgvCodes = new CumulativeSelectionDataGridView();
             panelGridContainer = new Panel();
             panelEmptyState = new Panel();
@@ -99,6 +100,7 @@ namespace DtcDesk.WinForms
             panelStatNotFound.SuspendLayout();
             panelLeft.SuspendLayout();
             panelRight.SuspendLayout();
+            panelResultsFrame.SuspendLayout();
             panelGridContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCodes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
@@ -164,7 +166,6 @@ namespace DtcDesk.WinForms
             panelTop.Controls.Add(btnSearch);
             panelTop.Controls.Add(btnSearchClear);
             panelTop.Controls.Add(lblSearchMode);
-            panelTop.Controls.Add(picLogoRight);
             panelTop.Dock = DockStyle.Top;
             panelTop.Location = new Point(0, 24);
             panelTop.Name = "panelTop";
@@ -173,9 +174,9 @@ namespace DtcDesk.WinForms
 
             // picLogo — izquierda (logo AUTO TUNER actual)
             picLogo.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            picLogo.Location = new Point(10, 6);
+            picLogo.Location = new Point(10, 0);
             picLogo.Name = "picLogo";
-            picLogo.Size = new Size(48, 48);
+            picLogo.Size = new Size(280, 70);
             picLogo.SizeMode = PictureBoxSizeMode.Zoom;
             picLogo.TabIndex = 2;
             picLogo.TabStop = false;
@@ -183,7 +184,7 @@ namespace DtcDesk.WinForms
             // lblTitle — alineado a la izquierda
             lblTitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblTitle.Location = new Point(70, 6);
+            lblTitle.Location = new Point(1240, 6);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(220, 20);
             lblTitle.TabIndex = 0;
@@ -193,7 +194,7 @@ namespace DtcDesk.WinForms
             // lblSubtitle — debajo del título, alineado a la izquierda
             lblSubtitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblSubtitle.Font = new Font("Segoe UI", 7.5F, FontStyle.Regular);
-            lblSubtitle.Location = new Point(70, 26);
+            lblSubtitle.Location = new Point(1200, 26);
             lblSubtitle.Name = "lblSubtitle";
             lblSubtitle.Size = new Size(240, 16);
             lblSubtitle.TabIndex = 7;
@@ -208,26 +209,26 @@ namespace DtcDesk.WinForms
             picLogoRight.SizeMode = PictureBoxSizeMode.Zoom;
             picLogoRight.TabIndex = 8;
             picLogoRight.TabStop = false;
+            picLogoRight.Visible = false;
 
             // ── Grupo de búsqueda — centrado en el panel de forma fija ──
             // Panel 1400px ancho, grupo de búsqueda centrado
-            // Grupo: txtSearch(360) + 8 + btnSearch(86) + 8 + btnSearchClear(86) = 540px
-            // Inicio grupo: (1400-540)/2 = 430px
-            const int searchGroupLeft = 430;
+            // Grupo: txtSearch(160) + 10 + btnSearch(86) + 10 + btnSearchClear(86) = 352px
+            const int searchGroupLeft = 535;
 
             // txtSearch — entrada principal
             txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtSearch.Font = new Font("Segoe UI", 10F);
             txtSearch.Location = new Point(searchGroupLeft, 16);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(360, 24);
+            txtSearch.Size = new Size(160, 24);
             txtSearch.TabIndex = 10;
-            txtSearch.PlaceholderText = "🔍  Buscar código DTC, descripción o módulo...";
+            txtSearch.PlaceholderText = "🔍  Buscar código DTC...";
 
             // btnSearch — botón naranja BUSCAR
             btnSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnSearch.Location = new Point(searchGroupLeft + 368, 16);
+            btnSearch.Location = new Point(searchGroupLeft + 170, 16);
             btnSearch.Name = "btnSearch";
             btnSearch.Size = new Size(86, 24);
             btnSearch.TabIndex = 11;
@@ -237,7 +238,7 @@ namespace DtcDesk.WinForms
             // btnSearchClear — botón gris LIMPIAR
             btnSearchClear.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             btnSearchClear.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnSearchClear.Location = new Point(searchGroupLeft + 462, 16);
+            btnSearchClear.Location = new Point(searchGroupLeft + 266, 16);
             btnSearchClear.Name = "btnSearchClear";
             btnSearchClear.Size = new Size(86, 24);
             btnSearchClear.TabIndex = 12;
@@ -260,9 +261,9 @@ namespace DtcDesk.WinForms
             panelStatsBar.Controls.Add(panelStatFound);
             panelStatsBar.Controls.Add(panelStatNotFound);
             panelStatsBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panelStatsBar.Location = new Point(12, 320);
+            panelStatsBar.Location = new Point(12, 348);
             panelStatsBar.Name = "panelStatsBar";
-            panelStatsBar.Size = new Size(236, 132);
+            panelStatsBar.Size = new Size(236, 96);
             panelStatsBar.Padding = new Padding(0);
             panelStatsBar.TabIndex = 5;
 
@@ -272,33 +273,33 @@ namespace DtcDesk.WinForms
             panelStatTotal.Controls.Add(lblStatTotalLabel);
             panelStatTotal.Location = new Point(0, 0);
             panelStatTotal.Name = "panelStatTotal";
-            panelStatTotal.Size = new Size(236, 44);
+            panelStatTotal.Size = new Size(236, 32);
             panelStatTotal.TabIndex = 0;
             panelStatTotal.Padding = new Padding(6, 2, 6, 2);
 
             lblStatTotalIcon.AutoSize = false;
             lblStatTotalIcon.Location = new Point(6, 2);
             lblStatTotalIcon.Name = "lblStatTotalIcon";
-            lblStatTotalIcon.Size = new Size(28, 32);
-            lblStatTotalIcon.Font = new Font("Segoe UI Emoji", 14F);
+            lblStatTotalIcon.Size = new Size(24, 28);
+            lblStatTotalIcon.Font = new Font("Segoe UI Emoji", 12F);
             lblStatTotalIcon.Text = "🛢";
             lblStatTotalIcon.TextAlign = ContentAlignment.MiddleCenter;
             lblStatTotalIcon.TabIndex = 0;
 
             lblStatTotalValue.AutoSize = false;
-            lblStatTotalValue.Location = new Point(38, 2);
+            lblStatTotalValue.Location = new Point(34, 2);
             lblStatTotalValue.Name = "lblStatTotalValue";
-            lblStatTotalValue.Size = new Size(65, 20);
-            lblStatTotalValue.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+            lblStatTotalValue.Size = new Size(60, 18);
+            lblStatTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblStatTotalValue.Text = "0";
             lblStatTotalValue.TextAlign = ContentAlignment.MiddleLeft;
             lblStatTotalValue.TabIndex = 1;
 
             lblStatTotalLabel.AutoSize = false;
-            lblStatTotalLabel.Location = new Point(38, 22);
+            lblStatTotalLabel.Location = new Point(34, 18);
             lblStatTotalLabel.Name = "lblStatTotalLabel";
-            lblStatTotalLabel.Size = new Size(95, 12);
-            lblStatTotalLabel.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
+            lblStatTotalLabel.Size = new Size(95, 10);
+            lblStatTotalLabel.Font = new Font("Segoe UI", 6.5F, FontStyle.Bold);
             lblStatTotalLabel.Text = "TOTAL";
             lblStatTotalLabel.TextAlign = ContentAlignment.MiddleLeft;
             lblStatTotalLabel.TabIndex = 2;
@@ -307,35 +308,35 @@ namespace DtcDesk.WinForms
             panelStatFound.Controls.Add(lblStatFoundIcon);
             panelStatFound.Controls.Add(lblStatFoundValue);
             panelStatFound.Controls.Add(lblStatFoundLabel);
-            panelStatFound.Location = new Point(0, 42);
+            panelStatFound.Location = new Point(0, 32);
             panelStatFound.Name = "panelStatFound";
-            panelStatFound.Size = new Size(236, 44);
+            panelStatFound.Size = new Size(236, 32);
             panelStatFound.TabIndex = 1;
             panelStatFound.Padding = new Padding(6, 2, 6, 2);
 
             lblStatFoundIcon.AutoSize = false;
             lblStatFoundIcon.Location = new Point(6, 2);
             lblStatFoundIcon.Name = "lblStatFoundIcon";
-            lblStatFoundIcon.Size = new Size(28, 32);
-            lblStatFoundIcon.Font = new Font("Segoe UI Emoji", 14F);
+            lblStatFoundIcon.Size = new Size(24, 28);
+            lblStatFoundIcon.Font = new Font("Segoe UI Emoji", 12F);
             lblStatFoundIcon.Text = "✅";
             lblStatFoundIcon.TextAlign = ContentAlignment.MiddleCenter;
             lblStatFoundIcon.TabIndex = 0;
 
             lblStatFoundValue.AutoSize = false;
-            lblStatFoundValue.Location = new Point(38, 2);
+            lblStatFoundValue.Location = new Point(34, 2);
             lblStatFoundValue.Name = "lblStatFoundValue";
-            lblStatFoundValue.Size = new Size(65, 20);
-            lblStatFoundValue.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+            lblStatFoundValue.Size = new Size(60, 18);
+            lblStatFoundValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblStatFoundValue.Text = "0";
             lblStatFoundValue.TextAlign = ContentAlignment.MiddleLeft;
             lblStatFoundValue.TabIndex = 1;
 
             lblStatFoundLabel.AutoSize = false;
-            lblStatFoundLabel.Location = new Point(38, 22);
+            lblStatFoundLabel.Location = new Point(34, 18);
             lblStatFoundLabel.Name = "lblStatFoundLabel";
-            lblStatFoundLabel.Size = new Size(120, 12);
-            lblStatFoundLabel.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
+            lblStatFoundLabel.Size = new Size(120, 10);
+            lblStatFoundLabel.Font = new Font("Segoe UI", 6.5F, FontStyle.Bold);
             lblStatFoundLabel.Text = "ENCONTRADOS";
             lblStatFoundLabel.TextAlign = ContentAlignment.MiddleLeft;
             lblStatFoundLabel.TabIndex = 2;
@@ -344,35 +345,35 @@ namespace DtcDesk.WinForms
             panelStatNotFound.Controls.Add(lblStatNotFoundIcon);
             panelStatNotFound.Controls.Add(lblStatNotFoundValue);
             panelStatNotFound.Controls.Add(lblStatNotFoundLabel);
-            panelStatNotFound.Location = new Point(0, 84);
+            panelStatNotFound.Location = new Point(0, 64);
             panelStatNotFound.Name = "panelStatNotFound";
-            panelStatNotFound.Size = new Size(236, 44);
+            panelStatNotFound.Size = new Size(236, 32);
             panelStatNotFound.TabIndex = 2;
             panelStatNotFound.Padding = new Padding(6, 2, 6, 2);
 
             lblStatNotFoundIcon.AutoSize = false;
             lblStatNotFoundIcon.Location = new Point(6, 2);
             lblStatNotFoundIcon.Name = "lblStatNotFoundIcon";
-            lblStatNotFoundIcon.Size = new Size(28, 32);
-            lblStatNotFoundIcon.Font = new Font("Segoe UI Emoji", 14F);
+            lblStatNotFoundIcon.Size = new Size(24, 28);
+            lblStatNotFoundIcon.Font = new Font("Segoe UI Emoji", 12F);
             lblStatNotFoundIcon.Text = "❎";
             lblStatNotFoundIcon.TextAlign = ContentAlignment.MiddleCenter;
             lblStatNotFoundIcon.TabIndex = 0;
 
             lblStatNotFoundValue.AutoSize = false;
-            lblStatNotFoundValue.Location = new Point(38, 2);
+            lblStatNotFoundValue.Location = new Point(34, 2);
             lblStatNotFoundValue.Name = "lblStatNotFoundValue";
-            lblStatNotFoundValue.Size = new Size(65, 20);
-            lblStatNotFoundValue.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+            lblStatNotFoundValue.Size = new Size(60, 18);
+            lblStatNotFoundValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblStatNotFoundValue.Text = "0";
             lblStatNotFoundValue.TextAlign = ContentAlignment.MiddleLeft;
             lblStatNotFoundValue.TabIndex = 1;
 
             lblStatNotFoundLabel.AutoSize = false;
-            lblStatNotFoundLabel.Location = new Point(38, 22);
+            lblStatNotFoundLabel.Location = new Point(34, 18);
             lblStatNotFoundLabel.Name = "lblStatNotFoundLabel";
-            lblStatNotFoundLabel.Size = new Size(145, 12);
-            lblStatNotFoundLabel.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
+            lblStatNotFoundLabel.Size = new Size(145, 10);
+            lblStatNotFoundLabel.Font = new Font("Segoe UI", 6.5F, FontStyle.Bold);
             lblStatNotFoundLabel.Text = "NO ENCONTRADOS";
             lblStatNotFoundLabel.TextAlign = ContentAlignment.MiddleLeft;
             lblStatNotFoundLabel.TabIndex = 2;
@@ -442,7 +443,7 @@ namespace DtcDesk.WinForms
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(236, 215);
+            txtInput.Size = new Size(236, 245);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             txtInput.PlaceholderText = "Pega aquí tus códigos DTC...\r\n\r\nEjemplos:\r\nMID128 SID231 FMI5\r\nP20EE";
@@ -451,7 +452,7 @@ namespace DtcDesk.WinForms
             lblLineCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblLineCount.AutoSize = true;
             lblLineCount.Font = new Font("Segoe UI", 8F);
-            lblLineCount.Location = new Point(12, 298);
+            lblLineCount.Location = new Point(12, 328);
             lblLineCount.Name = "lblLineCount";
             lblLineCount.TabIndex = 4;
             lblLineCount.Text = "≡ 0 líneas";
@@ -478,9 +479,7 @@ namespace DtcDesk.WinForms
             // ──────────────────────────────────────────────────────────────
             // panelRight
             // ──────────────────────────────────────────────────────────────
-            panelRight.Controls.Add(panelGridContainer);
-            panelRight.Controls.Add(panelColumnCopy);
-            panelRight.Controls.Add(panelButtons);
+            panelRight.Controls.Add(panelResultsFrame);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
             panelRight.Location = new Point(260, 172);
@@ -500,14 +499,25 @@ namespace DtcDesk.WinForms
             lblResults.TabIndex = 0;
             lblResults.Text = "☰  RESULTADOS";
 
+            // panelResultsFrame — borde externo del área de resultados
+            panelResultsFrame.Controls.Add(panelGridContainer);
+            panelResultsFrame.Controls.Add(panelColumnCopy);
+            panelResultsFrame.Controls.Add(panelButtons);
+            panelResultsFrame.Dock = DockStyle.Fill;
+            panelResultsFrame.Location = new Point(10, 34);
+            panelResultsFrame.Name = "panelResultsFrame";
+            panelResultsFrame.Padding = new Padding(2, 2, 10, 2);
+            panelResultsFrame.Size = new Size(860, 468);
+            panelResultsFrame.TabIndex = 7;
+
             // panelColumnCopy
             panelColumnCopy.Controls.Add(btnClearSelectionTop);
             panelColumnCopy.Controls.Add(btnCopyCodeAltColumn);
             panelColumnCopy.Controls.Add(btnCopyCodeColumn);
             panelColumnCopy.Dock = DockStyle.Top;
-            panelColumnCopy.Location = new Point(10, 34);
+            panelColumnCopy.Location = new Point(2, 2);
             panelColumnCopy.Name = "panelColumnCopy";
-            panelColumnCopy.Size = new Size(948, 30);
+            panelColumnCopy.Size = new Size(856, 30);
             panelColumnCopy.TabIndex = 3;
             panelColumnCopy.Padding = new Padding(0, 3, 0, 3);
 
@@ -537,18 +547,18 @@ namespace DtcDesk.WinForms
             panelGridContainer.Controls.Add(panelEmptyState);
             panelGridContainer.Controls.Add(dgvCodes);
             panelGridContainer.Dock = DockStyle.Fill;
-            panelGridContainer.Location = new Point(10, 64);
+            panelGridContainer.Location = new Point(2, 32);
             panelGridContainer.Name = "panelGridContainer";
-            panelGridContainer.Padding = new Padding(1);
+            panelGridContainer.Padding = new Padding(0);
             panelGridContainer.TabIndex = 6;
 
             // dgvCodes — fill dentro del panelGridContainer
             dgvCodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvCodes.Dock = DockStyle.Fill;
-            dgvCodes.Location = new Point(1, 1);
+            dgvCodes.Location = new Point(0, 0);
             dgvCodes.Name = "dgvCodes";
             dgvCodes.RowTemplate.Height = 28;
-            dgvCodes.Size = new Size(946, 400);
+            dgvCodes.Size = new Size(856, 394);
             dgvCodes.TabIndex = 2;
 
             // panelEmptyState — se muestra sobre el dgvCodes cuando no hay resultados
@@ -556,9 +566,9 @@ namespace DtcDesk.WinForms
             panelEmptyState.Controls.Add(lblEmptyStateTitle);
             panelEmptyState.Controls.Add(lblEmptyStateDesc);
             panelEmptyState.Dock = DockStyle.Fill;
-            panelEmptyState.Location = new Point(1, 1);
+            panelEmptyState.Location = new Point(0, 0);
             panelEmptyState.Name = "panelEmptyState";
-            panelEmptyState.Size = new Size(946, 400);
+            panelEmptyState.Size = new Size(856, 394);
             panelEmptyState.TabIndex = 5;
 
             lblEmptyStateIcon.AutoSize = false;
@@ -599,9 +609,9 @@ namespace DtcDesk.WinForms
             panelButtons.Controls.Add(btnEdit);
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Dock = DockStyle.Bottom;
-            panelButtons.Location = new Point(10, 462);
+            panelButtons.Location = new Point(2, 424);
             panelButtons.Name = "panelButtons";
-            panelButtons.Size = new Size(948, 42);
+            panelButtons.Size = new Size(856, 42);
             panelButtons.TabIndex = 1;
             panelButtons.Padding = new Padding(0, 8, 0, 0);
 
@@ -793,6 +803,7 @@ namespace DtcDesk.WinForms
             panelRight.ResumeLayout(false);
             panelRight.PerformLayout();
             panelGridContainer.ResumeLayout(false);
+            panelResultsFrame.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvCodes).EndInit();
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             ((System.ComponentModel.ISupportInitialize)picLogoRight).EndInit();
@@ -840,6 +851,7 @@ namespace DtcDesk.WinForms
 
         // ── Right panel ──
         private Panel panelRight;
+        private Panel panelResultsFrame;
         private Label lblResults;
         private CumulativeSelectionDataGridView dgvCodes;
         private Panel panelGridContainer;

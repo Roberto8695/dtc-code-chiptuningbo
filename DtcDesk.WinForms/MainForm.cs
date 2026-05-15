@@ -162,6 +162,7 @@ public partial class MainForm : Form
         dgvCodes.Scroll += (s, e) => AlignCopyColumnButtons();
         dgvCodes.ColumnWidthChanged += (s, e) => AlignCopyColumnButtons();
         dgvCodes.Resize += (s, e) => AlignCopyColumnButtons();
+        panelEmptyState.Resize += (_, _) => CenterEmptyStateContent();
 
         // Contador de líneas en tiempo real
         txtInput.TextChanged += (s, e) =>
@@ -259,21 +260,47 @@ public partial class MainForm : Form
         if (panelEmptyState == null || dgvCodes == null) return;
         dgvCodes.Visible = !show;
         panelEmptyState.Visible = show;
+        if (show)
+        {
+            CenterEmptyStateContent();
+        }
+    }
+
+    private void CenterEmptyStateContent()
+    {
+        if (panelEmptyState == null || lblEmptyStateIcon == null || lblEmptyStateTitle == null || lblEmptyStateDesc == null)
+        {
+            return;
+        }
+
+        var contentWidth = Math.Min(620, Math.Max(260, panelEmptyState.ClientSize.Width - 48));
+        var totalHeight = lblEmptyStateIcon.Height + 8 + lblEmptyStateTitle.Height + 8 + lblEmptyStateDesc.Height;
+        var top = Math.Max(24, (panelEmptyState.ClientSize.Height - totalHeight) / 2);
+        var left = Math.Max(0, (panelEmptyState.ClientSize.Width - contentWidth) / 2);
+
+        lblEmptyStateIcon.Left = (panelEmptyState.ClientSize.Width - lblEmptyStateIcon.Width) / 2;
+        lblEmptyStateIcon.Top = top;
+
+        lblEmptyStateTitle.Width = contentWidth;
+        lblEmptyStateTitle.Left = left;
+        lblEmptyStateTitle.Top = lblEmptyStateIcon.Bottom + 8;
+
+        lblEmptyStateDesc.Width = contentWidth;
+        lblEmptyStateDesc.Left = left;
+        lblEmptyStateDesc.Top = lblEmptyStateTitle.Bottom + 8;
     }
 
     private void LoadLogo()
     {
         try
         {
-            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.jpg");
+            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.png");
             if (File.Exists(logoPath))
             {
                 var img = Image.FromFile(logoPath);
                 picLogo.Image = img;
                 picLogo.BackColor = Color.Transparent;
-                // Reutilizar el mismo logo en el panel derecho si no hay uno separado
-                picLogoRight.Image = img;
-                picLogoRight.BackColor = Color.Transparent;
+                picLogoRight.Visible = false;
             }
             else
             {
@@ -365,17 +392,19 @@ public partial class MainForm : Form
 
         // ─── Panel derecho ────────────────────────────────────────────────
         panelRight.BackColor = bgMain;
+        panelResultsFrame.BackColor = bgMain;
+        panelResultsFrame.Paint -= DrawResultsFrameBorder;
+        panelResultsFrame.Paint += DrawResultsFrameBorder;
         panelButtons.BackColor = bgMain;
         lblResults.ForeColor = accentYellow;
         lblResults.BackColor = Color.Transparent;
         panelRight.Paint -= DrawGridOuterBorder; // prevenir doble suscripción
-        panelRight.Paint += DrawGridOuterBorder;
+        MakeRounded(panelResultsFrame, 8);
 
         // Contenedor principal del DataGridView (crea el efecto de borde y también se redondea)
         if (panelGridContainer != null)
         {
             panelGridContainer.BackColor = bgMain;
-            MakeRounded(panelGridContainer, 8);
         }
         panelGridContainer.Padding = new Padding(0);
 
@@ -714,6 +743,41 @@ public partial class MainForm : Form
         }
     }
 
+    private void DrawResultsFrameBorder(object? sender, PaintEventArgs e)
+    {
+        if (sender is not Control c)
+        {
+            return;
+        }
+
+        var accent = ColorTranslator.FromHtml("#F8B41C");
+        using var pen = new Pen(accent, 1f);
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+
+        const float inset = 0.5f;
+        const float radius = 7f;
+        var d = radius * 2f;
+        var left = inset;
+        var top = inset;
+        var right = c.ClientSize.Width - inset - 1f;
+        var bottom = c.ClientSize.Height - inset - 1f;
+
+        if (right <= d || bottom <= d)
+        {
+            return;
+        }
+
+        using var path = new System.Drawing.Drawing2D.GraphicsPath();
+        path.AddArc(left, top, d, d, 180, 90);
+        path.AddArc(right - d, top, d, d, 270, 90);
+        path.AddArc(right - d, bottom - d, d, d, 0, 90);
+        path.AddArc(left, bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+
+        e.Graphics.DrawPath(pen, path);
+    }
+
     private void DrawGridOuterBorder(object? sender, PaintEventArgs e)
     {
         if (panelGridContainer == null || panelColumnCopy == null || panelButtons == null || sender is not Control host)
@@ -722,27 +786,30 @@ public partial class MainForm : Form
         }
 
         var accent = ColorTranslator.FromHtml("#F8B41C");
-        using var pen = new Pen(accent, 2f);
+        using var pen = new Pen(accent, 1f);
+        // Alineamos el trazo hacia el interior para evitar que al maximizar
+        // el borde quede recortado por los límites del control padre.
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
-        var rect = panelGridContainer.Bounds;
-        var top = Math.Min(panelColumnCopy.Top, rect.Top);
-        var bottom = Math.Max(panelButtons.Bottom, rect.Bottom);
-        rect = Rectangle.FromLTRB(rect.Left, top, rect.Right, bottom);
-        rect.Inflate(6, 6);
-        rect = Rectangle.Intersect(rect, host.ClientRectangle);
-        if (rect.Width <= 8 || rect.Height <= 8)
+        var left = panelGridContainer.Left + 4.5f;
+        var top = Math.Min(panelColumnCopy.Top, panelGridContainer.Top) + 3.5f;
+        var right = panelGridContainer.Right - 4.5f;
+        var bottom = Math.Min(host.ClientSize.Height - 4.5f, Math.Max(panelButtons.Bottom, panelGridContainer.Bottom) - 1.5f);
+
+        if (right - left <= 12 || bottom - top <= 12)
         {
             return;
         }
-
-        int r = 10;
-        int d = r * 2;
+        // Reducir ligeramente el rectángulo según el grosor del pen para
+        // que el trazo quede completamente dentro del área cliente.
+        const float r = 8f;
+        var d = r * 2f;
         using var path = new System.Drawing.Drawing2D.GraphicsPath();
-        path.AddArc(rect.X, rect.Y, d, d, 180, 90);
-        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
-        path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
-        path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+        path.AddArc(left, top, d, d, 180, 90);
+        path.AddArc(right - d, top, d, d, 270, 90);
+        path.AddArc(right - d, bottom - d, d, d, 0, 90);
+        path.AddArc(left, bottom - d, d, d, 90, 90);
         path.CloseFigure();
 
         e.Graphics.DrawPath(pen, path);
@@ -844,14 +911,14 @@ public partial class MainForm : Form
     {
         try
         {
-            var codes = await _moduleRepository.GetExactCodesByFilterAsync(filter.Name);
-            using var editor = new CustomModuleEditorForm(filter, codes);
+            var rules = await _moduleRepository.GetExactRulesByFilterAsync(filter.Name);
+            using var editor = new CustomModuleEditorForm(filter, rules);
             if (editor.ShowDialog(this) != DialogResult.OK)
             {
                 return;
             }
 
-            await _moduleRepository.UpdateCustomFilterAsync(filter.Id, editor.ModuleDisplayName, editor.ModuleDescription, editor.ExactCodes);
+            await _moduleRepository.UpdateCustomFilterAsync(filter.Id, editor.ModuleDisplayName, editor.ModuleDescription, editor.ExactRules);
             await RefreshClassifierAndButtonsAsync();
             MessageBox.Show("Módulo actualizado correctamente.", "Módulo actualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -2575,6 +2642,7 @@ public partial class MainForm : Form
     {
         var moduleKey = module.Name;
         var moduleLabel = module.DisplayName;
+        var currentObdType = _rdoObd2.Checked ? "OBD-II" : "OBD-I";
 
         if (_currentResults == null || _currentResults.Count == 0)
         {
@@ -2639,8 +2707,9 @@ public partial class MainForm : Form
 
         // Buscar los códigos que corresponden al módulo
         var toReplace = _currentResults
-            .Where(r => string.Equals(r.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
-                     || string.Equals(r.Module, moduleLabel, StringComparison.OrdinalIgnoreCase))
+            .Where(r => IsCurrentObdType(r, currentObdType)
+                     && (string.Equals(r.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
+                         || string.Equals(r.Module, moduleLabel, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
         if (toReplace.Count == 0)
@@ -2672,8 +2741,9 @@ public partial class MainForm : Form
         for (var i = 0; i < _currentResults.Count; i++)
         {
             var result = _currentResults[i];
-            var isTarget = string.Equals(result.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(result.Module, moduleLabel, StringComparison.OrdinalIgnoreCase);
+            var isTarget = IsCurrentObdType(result, currentObdType)
+                && (string.Equals(result.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(result.Module, moduleLabel, StringComparison.OrdinalIgnoreCase));
 
             if (!isTarget)
             {
@@ -2729,6 +2799,12 @@ public partial class MainForm : Form
         var found    = _currentResults.Count(r => r.Found);
         var notFound = _currentResults.Count - found;
         UpdateStatsCards(_currentResults.Count, found, notFound);
+    }
+
+    private static bool IsCurrentObdType(DtcLookupResult result, string currentObdType)
+    {
+        var resultObdType = string.IsNullOrWhiteSpace(result.ObdType) ? "OBD-II" : result.ObdType;
+        return string.Equals(resultObdType, currentObdType, StringComparison.OrdinalIgnoreCase);
     }
 }
 
