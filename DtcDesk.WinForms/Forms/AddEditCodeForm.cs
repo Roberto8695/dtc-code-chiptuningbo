@@ -120,21 +120,46 @@ public partial class AddEditCodeForm : Form
     private void PopulateModuleCombo(List<DtcModuleFilter> filters)
     {
         cmbModule.Items.Clear();
-        cmbModule.Items.Add("(Ninguno)");  // Primera opción en blanco
+        cmbModule.DisplayMember = nameof(DtcModuleFilter.DisplayName);
+        cmbModule.ValueMember = nameof(DtcModuleFilter.Name);
+
+        cmbModule.Items.Add(new DtcModuleFilter
+        {
+            Name = string.Empty,
+            DisplayName = "(Ninguno)"
+        });
 
         foreach (var f in filters)
-            cmbModule.Items.Add(f.Name);
+            cmbModule.Items.Add(f);
 
         // Preseleccionar el módulo si ya se conocía
         if (!string.IsNullOrWhiteSpace(_preselectedModule))
         {
-            var idx = cmbModule.Items.IndexOf(_preselectedModule);
-            cmbModule.SelectedIndex = idx >= 0 ? idx : 0;
+            foreach (var item in cmbModule.Items)
+            {
+                if (item is DtcModuleFilter filter
+                    && string.Equals(filter.Name, _preselectedModule, StringComparison.OrdinalIgnoreCase))
+                {
+                    cmbModule.SelectedItem = item;
+                    return;
+                }
+            }
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(_existingCode?.Module))
         {
-            cmbModule.SelectedIndex = 0;  // "(Ninguno)"
+            foreach (var item in cmbModule.Items)
+            {
+                if (item is DtcModuleFilter filter
+                    && string.Equals(filter.DisplayName, _existingCode.Module, StringComparison.OrdinalIgnoreCase))
+                {
+                    cmbModule.SelectedItem = item;
+                    return;
+                }
+            }
         }
+
+        cmbModule.SelectedIndex = 0;  // "(Ninguno)"
     }
 
     private void ApplyDarkTheme()
@@ -351,15 +376,15 @@ public partial class AddEditCodeForm : Form
     {
         try
         {
-            var selected = cmbModule.SelectedItem?.ToString();
-            if (string.IsNullOrEmpty(selected) || selected == "(Ninguno)")
+            var selected = cmbModule.SelectedItem as DtcModuleFilter;
+            if (selected == null || string.IsNullOrWhiteSpace(selected.Name))
             {
                 // Eliminar regla si existía
                 await _moduleRepository.DeleteExactRuleByCodeAsync(code);
             }
             else
             {
-                await _moduleRepository.SaveExactRuleAsync(code, selected);
+                await _moduleRepository.SaveExactRuleAsync(code, selected.Name);
             }
         }
         catch (Exception ex)

@@ -168,12 +168,12 @@ namespace DtcDesk.WinForms
             panelTop.Dock = DockStyle.Top;
             panelTop.Location = new Point(0, 24);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(1400, 70);
+            panelTop.Size = new Size(1400, 60);
             panelTop.TabIndex = 1;
 
             // picLogo — izquierda (logo AUTO TUNER actual)
             picLogo.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            picLogo.Location = new Point(10, 8);
+            picLogo.Location = new Point(10, 6);
             picLogo.Name = "picLogo";
             picLogo.Size = new Size(48, 48);
             picLogo.SizeMode = PictureBoxSizeMode.Zoom;
@@ -183,7 +183,7 @@ namespace DtcDesk.WinForms
             // lblTitle — alineado a la izquierda
             lblTitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblTitle.Location = new Point(70, 10);
+            lblTitle.Location = new Point(70, 6);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(220, 20);
             lblTitle.TabIndex = 0;
@@ -193,16 +193,16 @@ namespace DtcDesk.WinForms
             // lblSubtitle — debajo del título, alineado a la izquierda
             lblSubtitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblSubtitle.Font = new Font("Segoe UI", 7.5F, FontStyle.Regular);
-            lblSubtitle.Location = new Point(70, 30);
+            lblSubtitle.Location = new Point(70, 26);
             lblSubtitle.Name = "lblSubtitle";
             lblSubtitle.Size = new Size(240, 16);
             lblSubtitle.TabIndex = 7;
-            lblSubtitle.Text = "Diccionario DTC  v2.1";
+            lblSubtitle.Text = "Diccionario de Códigos DTC  v2.1";
             lblSubtitle.TextAlign = ContentAlignment.MiddleLeft;
 
             // picLogoRight — derecha (logo ECU Tuning)
             picLogoRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            picLogoRight.Location = new Point(1338, 8);
+            picLogoRight.Location = new Point(1338, 6);
             picLogoRight.Name = "picLogoRight";
             picLogoRight.Size = new Size(48, 48);
             picLogoRight.SizeMode = PictureBoxSizeMode.Zoom;
@@ -218,7 +218,7 @@ namespace DtcDesk.WinForms
             // txtSearch — entrada principal
             txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtSearch.Font = new Font("Segoe UI", 10F);
-            txtSearch.Location = new Point(searchGroupLeft, 20);
+            txtSearch.Location = new Point(searchGroupLeft, 16);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(360, 24);
             txtSearch.TabIndex = 10;
@@ -227,7 +227,7 @@ namespace DtcDesk.WinForms
             // btnSearch — botón naranja BUSCAR
             btnSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnSearch.Location = new Point(searchGroupLeft + 368, 20);
+            btnSearch.Location = new Point(searchGroupLeft + 368, 16);
             btnSearch.Name = "btnSearch";
             btnSearch.Size = new Size(86, 24);
             btnSearch.TabIndex = 11;
@@ -237,7 +237,7 @@ namespace DtcDesk.WinForms
             // btnSearchClear — botón gris LIMPIAR
             btnSearchClear.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             btnSearchClear.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnSearchClear.Location = new Point(searchGroupLeft + 462, 20);
+            btnSearchClear.Location = new Point(searchGroupLeft + 462, 16);
             btnSearchClear.Name = "btnSearchClear";
             btnSearchClear.Size = new Size(86, 24);
             btnSearchClear.TabIndex = 12;
@@ -248,7 +248,7 @@ namespace DtcDesk.WinForms
             lblSearchMode.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblSearchMode.AutoSize = true;
             lblSearchMode.Font = new Font("Segoe UI", 8F, FontStyle.Italic);
-            lblSearchMode.Location = new Point(searchGroupLeft, 46);
+            lblSearchMode.Location = new Point(searchGroupLeft, 38);
             lblSearchMode.Name = "lblSearchMode";
             lblSearchMode.TabIndex = 13;
             lblSearchMode.Text = "";
@@ -495,7 +495,7 @@ namespace DtcDesk.WinForms
             lblResults.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             lblResults.Location = new Point(10, 8);
             lblResults.Name = "lblResults";
-            lblResults.Height = 32;
+            lblResults.Height = 26;
             lblResults.Padding = new Padding(2, 0, 0, 0);
             lblResults.TabIndex = 0;
             lblResults.Text = "☰  RESULTADOS";
@@ -505,30 +505,30 @@ namespace DtcDesk.WinForms
             panelColumnCopy.Controls.Add(btnCopyCodeAltColumn);
             panelColumnCopy.Controls.Add(btnCopyCodeColumn);
             panelColumnCopy.Dock = DockStyle.Top;
-            panelColumnCopy.Location = new Point(10, 40);
+            panelColumnCopy.Location = new Point(10, 34);
             panelColumnCopy.Name = "panelColumnCopy";
-            panelColumnCopy.Size = new Size(948, 36);
+            panelColumnCopy.Size = new Size(948, 30);
             panelColumnCopy.TabIndex = 3;
             panelColumnCopy.Padding = new Padding(0, 3, 0, 3);
 
             btnClearSelectionTop.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearSelectionTop.Location = new Point(810, 3);
             btnClearSelectionTop.Name = "btnClearSelectionTop";
-            btnClearSelectionTop.Size = new Size(128, 28);
+            btnClearSelectionTop.Size = new Size(128, 24);
             btnClearSelectionTop.TabIndex = 2;
             btnClearSelectionTop.Text = "Deseleccionar";
             btnClearSelectionTop.UseVisualStyleBackColor = true;
 
             btnCopyCodeAltColumn.Location = new Point(108, 3);
             btnCopyCodeAltColumn.Name = "btnCopyCodeAltColumn";
-            btnCopyCodeAltColumn.Size = new Size(104, 28);
+            btnCopyCodeAltColumn.Size = new Size(104, 24);
             btnCopyCodeAltColumn.TabIndex = 1;
             btnCopyCodeAltColumn.Text = "Copiar COL. FFFF";
             btnCopyCodeAltColumn.UseVisualStyleBackColor = true;
 
             btnCopyCodeColumn.Location = new Point(0, 3);
             btnCopyCodeColumn.Name = "btnCopyCodeColumn";
-            btnCopyCodeColumn.Size = new Size(104, 28);
+            btnCopyCodeColumn.Size = new Size(104, 24);
             btnCopyCodeColumn.TabIndex = 0;
             btnCopyCodeColumn.Text = "Copiar CÓDIGO";
             btnCopyCodeColumn.UseVisualStyleBackColor = true;
@@ -537,7 +537,7 @@ namespace DtcDesk.WinForms
             panelGridContainer.Controls.Add(panelEmptyState);
             panelGridContainer.Controls.Add(dgvCodes);
             panelGridContainer.Dock = DockStyle.Fill;
-            panelGridContainer.Location = new Point(10, 76);
+            panelGridContainer.Location = new Point(10, 64);
             panelGridContainer.Name = "panelGridContainer";
             panelGridContainer.Padding = new Padding(1);
             panelGridContainer.TabIndex = 6;
@@ -547,8 +547,8 @@ namespace DtcDesk.WinForms
             dgvCodes.Dock = DockStyle.Fill;
             dgvCodes.Location = new Point(1, 1);
             dgvCodes.Name = "dgvCodes";
-            dgvCodes.RowTemplate.Height = 35;
-            dgvCodes.Size = new Size(946, 378);
+            dgvCodes.RowTemplate.Height = 28;
+            dgvCodes.Size = new Size(946, 400);
             dgvCodes.TabIndex = 2;
 
             // panelEmptyState — se muestra sobre el dgvCodes cuando no hay resultados
@@ -558,7 +558,7 @@ namespace DtcDesk.WinForms
             panelEmptyState.Dock = DockStyle.Fill;
             panelEmptyState.Location = new Point(1, 1);
             panelEmptyState.Name = "panelEmptyState";
-            panelEmptyState.Size = new Size(946, 378);
+            panelEmptyState.Size = new Size(946, 400);
             panelEmptyState.TabIndex = 5;
 
             lblEmptyStateIcon.AutoSize = false;
@@ -599,47 +599,47 @@ namespace DtcDesk.WinForms
             panelButtons.Controls.Add(btnEdit);
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Dock = DockStyle.Bottom;
-            panelButtons.Location = new Point(10, 454);
+            panelButtons.Location = new Point(10, 462);
             panelButtons.Name = "panelButtons";
-            panelButtons.Size = new Size(948, 48);
+            panelButtons.Size = new Size(948, 42);
             panelButtons.TabIndex = 1;
             panelButtons.Padding = new Padding(0, 8, 0, 0);
 
             btnZoomIn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnZoomIn.Location = new Point(873, 10);
+            btnZoomIn.Location = new Point(873, 8);
             btnZoomIn.Name = "btnZoomIn";
-            btnZoomIn.Size = new Size(68, 36);
+            btnZoomIn.Size = new Size(68, 32);
             btnZoomIn.TabIndex = 4;
             btnZoomIn.Text = "Lupa +";
             btnZoomIn.UseVisualStyleBackColor = true;
 
             btnZoomReset.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnZoomReset.Location = new Point(800, 10);
+            btnZoomReset.Location = new Point(800, 8);
             btnZoomReset.Name = "btnZoomReset";
-            btnZoomReset.Size = new Size(68, 36);
+            btnZoomReset.Size = new Size(68, 32);
             btnZoomReset.TabIndex = 3;
             btnZoomReset.Text = "100%";
             btnZoomReset.UseVisualStyleBackColor = true;
 
             btnZoomOut.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnZoomOut.Location = new Point(727, 10);
+            btnZoomOut.Location = new Point(727, 8);
             btnZoomOut.Name = "btnZoomOut";
-            btnZoomOut.Size = new Size(68, 36);
+            btnZoomOut.Size = new Size(68, 32);
             btnZoomOut.TabIndex = 2;
             btnZoomOut.Text = "Lupa -";
             btnZoomOut.UseVisualStyleBackColor = true;
 
-            btnEdit.Location = new Point(128, 10);
+            btnEdit.Location = new Point(128, 8);
             btnEdit.Name = "btnEdit";
-            btnEdit.Size = new Size(110, 36);
+            btnEdit.Size = new Size(110, 32);
             btnEdit.TabIndex = 1;
             btnEdit.Text = "✏  Editar";
             btnEdit.UseVisualStyleBackColor = true;
             btnEdit.Enabled = false;
 
-            btnAdd.Location = new Point(10, 10);
+            btnAdd.Location = new Point(10, 8);
             btnAdd.Name = "btnAdd";
-            btnAdd.Size = new Size(110, 36);
+            btnAdd.Size = new Size(110, 32);
             btnAdd.TabIndex = 0;
             btnAdd.Text = "+ Añadir";
             btnAdd.UseVisualStyleBackColor = true;
@@ -753,9 +753,6 @@ namespace DtcDesk.WinForms
             statusLabelSep1.Text = "    ";
             statusLabelSep1.Spring = true;
 
-            statusLabelMode.Name = "statusLabelMode";
-            statusLabelMode.Text = "🌙  Modo Oscuro  •";
-            statusLabelMode.Spring = false;
 
             statusLabelSep2.Name = "statusLabelSep2";
             statusLabelSep2.Text = "    ";

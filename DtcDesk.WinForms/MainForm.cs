@@ -368,14 +368,16 @@ public partial class MainForm : Form
         panelButtons.BackColor = bgMain;
         lblResults.ForeColor = accentYellow;
         lblResults.BackColor = Color.Transparent;
+        panelRight.Paint -= DrawGridOuterBorder; // prevenir doble suscripción
+        panelRight.Paint += DrawGridOuterBorder;
 
         // Contenedor principal del DataGridView (crea el efecto de borde y también se redondea)
         if (panelGridContainer != null)
         {
-            panelGridContainer.BackColor = separator;
+            panelGridContainer.BackColor = bgMain;
             MakeRounded(panelGridContainer, 8);
         }
-        panelGridContainer.Padding = new Padding(1);
+        panelGridContainer.Padding = new Padding(0);
 
         // Estado vacío
         panelEmptyState.BackColor = bgTop;
@@ -447,6 +449,18 @@ public partial class MainForm : Form
         btnCopyCodeColumn.Font    = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         btnCopyCodeAltColumn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         btnClearSelectionTop.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+        btnCopyCodeColumn.TextAlign = ContentAlignment.MiddleCenter;
+        btnCopyCodeAltColumn.TextAlign = ContentAlignment.MiddleCenter;
+        btnClearSelectionTop.TextAlign = ContentAlignment.MiddleCenter;
+        btnCopyCodeColumn.UseCompatibleTextRendering = true;
+        btnCopyCodeAltColumn.UseCompatibleTextRendering = true;
+        btnClearSelectionTop.UseCompatibleTextRendering = true;
+        btnCopyCodeColumn.FlatAppearance.MouseDownBackColor = btnCopyCodeColumn.BackColor;
+        btnCopyCodeAltColumn.FlatAppearance.MouseDownBackColor = btnCopyCodeAltColumn.BackColor;
+        btnClearSelectionTop.FlatAppearance.MouseDownBackColor = btnClearSelectionTop.BackColor;
+        btnCopyCodeColumn.FlatAppearance.MouseOverBackColor = btnCopyCodeColumn.BackColor;
+        btnCopyCodeAltColumn.FlatAppearance.MouseOverBackColor = btnCopyCodeAltColumn.BackColor;
+        btnClearSelectionTop.FlatAppearance.MouseOverBackColor = btnClearSelectionTop.BackColor;
 
         panelColumnCopy.BackColor = bgMain;
         AlignCopyColumnButtons();
@@ -461,7 +475,7 @@ public partial class MainForm : Form
         txtSearch.BackColor = bgMain;
         txtSearch.ForeColor = textMain;
         txtSearch.BorderStyle = BorderStyle.None; // Mejor interfaz al estar redondeado
-        StyleButton(btnSearch, accentYellow, Color.White);
+        StyleButton(btnSearch, accentYellow, Color.Black);
         btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         MakeRounded(btnSearch, 5);
         
@@ -700,6 +714,40 @@ public partial class MainForm : Form
         }
     }
 
+    private void DrawGridOuterBorder(object? sender, PaintEventArgs e)
+    {
+        if (panelGridContainer == null || panelColumnCopy == null || panelButtons == null || sender is not Control host)
+        {
+            return;
+        }
+
+        var accent = ColorTranslator.FromHtml("#F8B41C");
+        using var pen = new Pen(accent, 2f);
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        var rect = panelGridContainer.Bounds;
+        var top = Math.Min(panelColumnCopy.Top, rect.Top);
+        var bottom = Math.Max(panelButtons.Bottom, rect.Bottom);
+        rect = Rectangle.FromLTRB(rect.Left, top, rect.Right, bottom);
+        rect.Inflate(6, 6);
+        rect = Rectangle.Intersect(rect, host.ClientRectangle);
+        if (rect.Width <= 8 || rect.Height <= 8)
+        {
+            return;
+        }
+
+        int r = 10;
+        int d = r * 2;
+        using var path = new System.Drawing.Drawing2D.GraphicsPath();
+        path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+        path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+        path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+
+        e.Graphics.DrawPath(pen, path);
+    }
+
     private async Task LoadModuleButtonsAsync()
     {
         if (_moduleButtonsPanel == null) return;
@@ -870,7 +918,7 @@ public partial class MainForm : Form
         dgvCodes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
         dgvCodes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
         dgvCodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-        dgvCodes.RowTemplate.Height = 35;
+        dgvCodes.RowTemplate.Height = 28;
         dgvCodes.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         
         // Menú contextual para copiar
@@ -951,7 +999,7 @@ public partial class MainForm : Form
 
         // Evitar valores negativos/ocultos cuando hay scroll extremo.
         var top = Math.Max(3, btnCopyCodeColumn.Top);
-        var buttonHeight = 30;
+        var buttonHeight = 24;
 
         if (codeRect.Width > 0)
         {
@@ -992,8 +1040,8 @@ public partial class MainForm : Form
             dgvCodes.Columns["colCodeAlt"].DefaultCellStyle.Font = new Font("Consolas", 10F * scale, FontStyle.Bold);
         }
 
-        dgvCodes.RowTemplate.Height = (int)Math.Clamp(35 * scale, 24, 70);
-        dgvCodes.ColumnHeadersHeight = (int)Math.Clamp(28 * scale, 24, 56);
+        dgvCodes.RowTemplate.Height = (int)Math.Clamp(28 * scale, 22, 60);
+        dgvCodes.ColumnHeadersHeight = (int)Math.Clamp(24 * scale, 20, 48);
 
         foreach (DataGridViewRow row in dgvCodes.Rows)
         {
