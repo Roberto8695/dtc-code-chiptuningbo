@@ -143,6 +143,8 @@ public partial class MainForm : Form
         btnCopyCodeColumn.Click += async (s, e) => await CopyWholeColumnToClipboardAsync("colCode");
         btnCopyCodeAltColumn.Click += async (s, e) => await CopyWholeColumnToClipboardAsync("colCodeAlt");
         btnClearSelectionTop.Click += (s, e) => ClearGridSelection();
+        btnFormatObd.Click += (_, _) => SetObdMode(true);
+        btnFormatSpn.Click += (_, _) => SetObdMode(false);
         
         // Configurar eventos del menú
         menuImportar.Click += MenuImportar_Click;
@@ -466,19 +468,31 @@ public partial class MainForm : Form
         MakeRounded(_rdoObd1, 5);
 
         EventHandler styleToggles = (s, e) => {
-            _rdoObd2.BackColor = _rdoObd2.Checked ? accentYellow : separator;
-            _rdoObd2.ForeColor = _rdoObd2.Checked ? Color.Black : textMain;
-            _rdoObd1.BackColor = _rdoObd1.Checked ? accentYellow : separator;
-            _rdoObd1.ForeColor = _rdoObd1.Checked ? Color.Black : textMain;
+            var isObd2 = _rdoObd2.Checked;
+            _rdoObd2.BackColor = isObd2 ? accentYellow : separator;
+            _rdoObd2.ForeColor = isObd2 ? Color.Black : textMain;
+            _rdoObd1.BackColor = isObd2 ? separator : accentYellow;
+            _rdoObd1.ForeColor = isObd2 ? textMain : Color.Black;
+
+            btnFormatObd.BackColor = isObd2 ? accentYellow : separator;
+            btnFormatObd.ForeColor = isObd2 ? Color.Black : textMain;
+            btnFormatSpn.BackColor = isObd2 ? separator : accentYellow;
+            btnFormatSpn.ForeColor = isObd2 ? textMain : Color.Black;
         };
         _rdoObd2.CheckedChanged += styleToggles;
         _rdoObd1.CheckedChanged += styleToggles;
         styleToggles(null, EventArgs.Empty);
 
+        _rdoObd2.Visible = false;
+        _rdoObd1.Visible = false;
         panelLeft.Controls.Add(_rdoObd2);
         panelLeft.Controls.Add(_rdoObd1);
-        _rdoObd2.BringToFront();
-        _rdoObd1.BringToFront();
+    }
+
+    private void SetObdMode(bool isObd2)
+    {
+        _rdoObd2.Checked = isObd2;
+        _rdoObd1.Checked = !isObd2;
     }
 
     /// <summary>Dibuja el fondo con borde izquierdo de color para cada tarjeta de stat.</summary>
@@ -532,15 +546,14 @@ public partial class MainForm : Form
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents  = true,
             AutoScroll    = true,
-            Padding       = new Padding(18, 10, 0, 10), // Padding ajustado algebraicamente a 18px
+            Padding       = new Padding(16, 8, 16, 64),
             BackColor     = ColorTranslator.FromHtml("#153C59")
         };
 
         _btnManageModules = new Button
         {
             Text      = "+  Añadir Módulo",
-            Height    = 36,
-            Width     = 276, // Ancho combinado para las dos columnas
+            Height    = 38,
             FlatStyle = FlatStyle.Flat,
             Cursor    = Cursors.Hand
         };
@@ -549,13 +562,59 @@ public partial class MainForm : Form
         _btnManageModules.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
         MakeRounded(_btnManageModules, 6);
         _btnManageModules.Click += async (_, _) => await CreateCustomModuleAsync();
-        
-        _btnManageModules.Location = new Point(18, panelFilterSide.Height - _btnManageModules.Height - 12);
+
         _btnManageModules.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        UpdateModulePanelLayout();
+        panelFilterSide.Resize += (_, _) => UpdateModulePanelLayout();
+        _moduleButtonsPanel.SizeChanged += (_, _) => UpdateModuleButtonWidths();
 
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
         panelFilterSide.Controls.Add(_btnManageModules);
         _moduleButtonsPanel.BringToFront();
+    }
+
+    private void UpdateModulePanelLayout()
+    {
+        if (_btnManageModules == null || panelFilterSide == null)
+        {
+            return;
+        }
+
+        var sidePadding = 12;
+        var width = Math.Max(0, panelFilterSide.ClientSize.Width - (sidePadding * 2));
+        _btnManageModules.Width = width;
+        _btnManageModules.Left = sidePadding;
+        _btnManageModules.Top = Math.Max(0, panelFilterSide.ClientSize.Height - _btnManageModules.Height - 12);
+
+        UpdateModuleButtonWidths();
+    }
+
+    private void UpdateModuleButtonWidths()
+    {
+        if (_moduleButtonsPanel == null || panelFilterSide == null)
+        {
+            return;
+        }
+
+        const int gap = 12;
+        var scrollBar = _moduleButtonsPanel.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
+        var available = _moduleButtonsPanel.ClientSize.Width - _moduleButtonsPanel.Padding.Horizontal - scrollBar;
+        if (available <= 0)
+        {
+            return;
+        }
+
+        // Two columns: width + gap + width + gap <= available
+        var columnWidth = Math.Max(90, (available - (gap * 2)) / 2);
+
+        foreach (Control control in _moduleButtonsPanel.Controls)
+        {
+            if (control is Button button)
+            {
+                button.Width = columnWidth;
+                button.Margin = new Padding(0, 0, gap, 12);
+            }
+        }
     }
 
     private void DrawAccentBorder(object? sender, PaintEventArgs e)
@@ -591,6 +650,11 @@ public partial class MainForm : Form
         var bgMenu   = ColorTranslator.FromHtml("#102C44");
         var fgMenu   = ColorTranslator.FromHtml("#EAEAEA");
 
+        const int buttonGap = 12;
+        var scrollBar = _moduleButtonsPanel.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
+        var available = _moduleButtonsPanel.ClientSize.Width - _moduleButtonsPanel.Padding.Horizontal - scrollBar;
+        var columnWidth = Math.Max(90, available > 0 ? (available - (buttonGap * 2)) / 2 : 130);
+
         _moduleFilters = await _moduleRepository.GetAllFiltersAsync();
         _moduleButtonsPanel.Controls.Clear();
 
@@ -602,9 +666,9 @@ public partial class MainForm : Form
             var moduleButton = new Button
             {
                 Text      = filter.DisplayName,
-                Width     = 130,
-                Height    = 40,
-                Margin    = new Padding(0, 0, 16, 12),
+                Width     = columnWidth,
+                Height    = 36,
+                Margin    = new Padding(0, 0, buttonGap, 12),
                 Tag       = filter,
                 FlatStyle = FlatStyle.Flat,
                 Cursor    = Cursors.Hand
@@ -644,6 +708,8 @@ public partial class MainForm : Form
 
             _moduleButtonsPanel.Controls.Add(moduleButton);
         }
+
+        UpdateModuleButtonWidths();
     }
 
     private async Task CreateCustomModuleAsync()

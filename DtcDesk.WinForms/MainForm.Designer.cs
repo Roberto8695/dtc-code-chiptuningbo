@@ -412,7 +412,7 @@ namespace DtcDesk.WinForms
             lblInput.Height = 32;
             lblInput.Name = "lblInput";
             lblInput.TabIndex = 0;
-            lblInput.Text = "📋  PEGAR CÓDIGOS DTC";
+            lblInput.Text = "📥  PEGAR CÓDIGOS DTC AQUÍ";
             lblInput.TextAlign = ContentAlignment.MiddleLeft;
             lblInput.Padding = new Padding(0);
 
@@ -657,7 +657,7 @@ namespace DtcDesk.WinForms
             panelFilterSide.Controls.Add(lblFilterTitle);
             panelFilterSide.Dock = DockStyle.Right;
             panelFilterSide.Name = "panelFilterSide";
-            panelFilterSide.Padding = new Padding(4, 8, 4, 8);
+            panelFilterSide.Padding = new Padding(12, 8, 12, 8);
             panelFilterSide.Size = new Size(312, 510);
             panelFilterSide.TabIndex = 10;
 
