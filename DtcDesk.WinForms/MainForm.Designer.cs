@@ -155,7 +155,7 @@ namespace DtcDesk.WinForms
             menuEstadisticas.Text = "📊  Ver Estadísticas DB";
 
             // ──────────────────────────────────────────────────────────────
-            // panelTop  (altura 110: logo + título + búsqueda)
+            // panelTop  (altura compacta: logo + título + búsqueda)
             // ──────────────────────────────────────────────────────────────
             panelTop.Controls.Add(picLogo);
             panelTop.Controls.Add(lblTitle);
@@ -168,87 +168,87 @@ namespace DtcDesk.WinForms
             panelTop.Dock = DockStyle.Top;
             panelTop.Location = new Point(0, 24);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(1400, 100);
+            panelTop.Size = new Size(1400, 70);
             panelTop.TabIndex = 1;
 
             // picLogo — izquierda (logo AUTO TUNER actual)
             picLogo.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             picLogo.Location = new Point(10, 8);
             picLogo.Name = "picLogo";
-            picLogo.Size = new Size(130, 50);
+            picLogo.Size = new Size(48, 48);
             picLogo.SizeMode = PictureBoxSizeMode.Zoom;
             picLogo.TabIndex = 2;
             picLogo.TabStop = false;
 
-            // lblTitle — centrado (reserva espacio para los logos laterales)
-            lblTitle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblTitle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            lblTitle.Location = new Point(150, 6);
+            // lblTitle — alineado a la izquierda
+            lblTitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            lblTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblTitle.Location = new Point(70, 10);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(1100, 34);
+            lblTitle.Size = new Size(220, 20);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "DTC DESK";
-            lblTitle.TextAlign = ContentAlignment.MiddleCenter;
+            lblTitle.TextAlign = ContentAlignment.MiddleLeft;
 
-            // lblSubtitle — debajo del título centrado
-            lblSubtitle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblSubtitle.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-            lblSubtitle.Location = new Point(150, 40);
+            // lblSubtitle — debajo del título, alineado a la izquierda
+            lblSubtitle.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            lblSubtitle.Font = new Font("Segoe UI", 7.5F, FontStyle.Regular);
+            lblSubtitle.Location = new Point(70, 30);
             lblSubtitle.Name = "lblSubtitle";
-            lblSubtitle.Size = new Size(1100, 18);
+            lblSubtitle.Size = new Size(240, 16);
             lblSubtitle.TabIndex = 7;
-            lblSubtitle.Text = "- Diccionario de Códigos DTC -   v2.1";
-            lblSubtitle.TextAlign = ContentAlignment.MiddleCenter;
+            lblSubtitle.Text = "Diccionario DTC  v2.1";
+            lblSubtitle.TextAlign = ContentAlignment.MiddleLeft;
 
             // picLogoRight — derecha (logo ECU Tuning)
             picLogoRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            picLogoRight.Location = new Point(1268, 8);
+            picLogoRight.Location = new Point(1338, 8);
             picLogoRight.Name = "picLogoRight";
-            picLogoRight.Size = new Size(120, 60);
+            picLogoRight.Size = new Size(48, 48);
             picLogoRight.SizeMode = PictureBoxSizeMode.Zoom;
             picLogoRight.TabIndex = 8;
             picLogoRight.TabStop = false;
 
             // ── Grupo de búsqueda — centrado en el panel de forma fija ──
-            // Panel 1400px ancho, logos laterales ~150px c/u → zona central 420-1250
-            // Grupo: txtSearch(420) + 6 + btnSearch(100) + 6 + btnSearchClear(90) = 622px
-            // Inicio grupo: (1400-622)/2 = 389px  → redondeado a 395 para centrar mejor
-            const int searchGroupLeft = 395;
+            // Panel 1400px ancho, grupo de búsqueda centrado
+            // Grupo: txtSearch(360) + 8 + btnSearch(86) + 8 + btnSearchClear(86) = 540px
+            // Inicio grupo: (1400-540)/2 = 430px
+            const int searchGroupLeft = 430;
 
             // txtSearch — entrada principal
-            txtSearch.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            txtSearch.Font = new Font("Segoe UI", 10.5F);
-            txtSearch.Location = new Point(searchGroupLeft, 66);
+            txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            txtSearch.Font = new Font("Segoe UI", 10F);
+            txtSearch.Location = new Point(searchGroupLeft, 20);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(420, 28);
+            txtSearch.Size = new Size(360, 24);
             txtSearch.TabIndex = 10;
             txtSearch.PlaceholderText = "🔍  Buscar código DTC, descripción o módulo...";
 
             // btnSearch — botón naranja BUSCAR
-            btnSearch.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnSearch.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnSearch.Location = new Point(searchGroupLeft + 426, 66);
+            btnSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnSearch.Location = new Point(searchGroupLeft + 368, 20);
             btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(100, 28);
+            btnSearch.Size = new Size(86, 24);
             btnSearch.TabIndex = 11;
             btnSearch.Text = "BUSCAR";
             btnSearch.UseVisualStyleBackColor = true;
 
             // btnSearchClear — botón gris LIMPIAR
-            btnSearchClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnSearchClear.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnSearchClear.Location = new Point(searchGroupLeft + 532, 66);
+            btnSearchClear.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnSearchClear.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnSearchClear.Location = new Point(searchGroupLeft + 462, 20);
             btnSearchClear.Name = "btnSearchClear";
-            btnSearchClear.Size = new Size(90, 28);
+            btnSearchClear.Size = new Size(86, 24);
             btnSearchClear.TabIndex = 12;
             btnSearchClear.Text = "LIMPIAR";
             btnSearchClear.UseVisualStyleBackColor = true;
 
             // lblSearchMode — indicador de coincidencias debajo del input
-            lblSearchMode.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblSearchMode.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblSearchMode.AutoSize = true;
-            lblSearchMode.Font = new Font("Segoe UI", 8.5F, FontStyle.Italic);
-            lblSearchMode.Location = new Point(searchGroupLeft, 98);
+            lblSearchMode.Font = new Font("Segoe UI", 8F, FontStyle.Italic);
+            lblSearchMode.Location = new Point(searchGroupLeft, 46);
             lblSearchMode.Name = "lblSearchMode";
             lblSearchMode.TabIndex = 13;
             lblSearchMode.Text = "";

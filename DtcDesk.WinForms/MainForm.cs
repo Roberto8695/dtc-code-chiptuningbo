@@ -137,6 +137,7 @@ public partial class MainForm : Form
         btnClear.Click += BtnClear_Click;
         btnAdd.Click += BtnAdd_Click;
         btnEdit.Click += BtnEdit_Click;
+        btnEdit.Visible = false;
         btnZoomIn.Click += BtnZoomIn_Click;
         btnZoomOut.Click += BtnZoomOut_Click;
         btnZoomReset.Click += BtnZoomReset_Click;
@@ -542,13 +543,14 @@ public partial class MainForm : Form
 
         _moduleButtonsPanel = new FlowLayoutPanel
         {
-            Dock          = DockStyle.Fill,
+            Dock          = DockStyle.None,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents  = true,
             AutoScroll    = true,
             Padding       = new Padding(16, 8, 16, 64),
             BackColor     = ColorTranslator.FromHtml("#153C59")
         };
+        _moduleButtonsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
         _btnManageModules = new Button
         {
@@ -570,12 +572,12 @@ public partial class MainForm : Form
 
         panelFilterSide.Controls.Add(_moduleButtonsPanel);
         panelFilterSide.Controls.Add(_btnManageModules);
-        _moduleButtonsPanel.BringToFront();
+        _btnManageModules.BringToFront();
     }
 
     private void UpdateModulePanelLayout()
     {
-        if (_btnManageModules == null || panelFilterSide == null)
+        if (_btnManageModules == null || panelFilterSide == null || _moduleButtonsPanel == null)
         {
             return;
         }
@@ -585,6 +587,11 @@ public partial class MainForm : Form
         _btnManageModules.Width = width;
         _btnManageModules.Left = sidePadding;
         _btnManageModules.Top = Math.Max(0, panelFilterSide.ClientSize.Height - _btnManageModules.Height - 12);
+
+        var top = (lblFilterTitle?.Bottom ?? 0) + 6;
+        var height = Math.Max(0, _btnManageModules.Top - top - 6);
+        _moduleButtonsPanel.Location = new Point(0, top);
+        _moduleButtonsPanel.Size = new Size(panelFilterSide.ClientSize.Width, height);
 
         UpdateModuleButtonWidths();
     }
