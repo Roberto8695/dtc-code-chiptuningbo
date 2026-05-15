@@ -1,4 +1,7 @@
 using Microsoft.Data.Sqlite;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DtcDesk.Data.Db;
 
@@ -25,7 +28,7 @@ public class DbInitializer
         var createTableSql = @"
             CREATE TABLE IF NOT EXISTS DtcCodes (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                Code TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                Code TEXT NOT NULL COLLATE NOCASE,
                 Description TEXT NOT NULL,
                 Category TEXT,
                 Source TEXT,
@@ -35,7 +38,8 @@ public class DbInitializer
                 ObdType TEXT NOT NULL DEFAULT 'OBD-II',
                 CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
                 UpdatedAt TEXT,
-                IsActive INTEGER NOT NULL DEFAULT 1
+                IsActive INTEGER NOT NULL DEFAULT 1,
+                UNIQUE(Code, ObdType)
             );
 
             -- Índice en Code para búsquedas ultra-rápidas (crítico con 2000+ registros)
@@ -100,6 +104,8 @@ public class DbInitializer
         EnsureColumnExists(connection, "DtcCodes", "ObdType", "TEXT NOT NULL DEFAULT 'OBD-II'");
         EnsureColumnExists(connection, "DtcModuleFilters", "IsSystem", "INTEGER NOT NULL DEFAULT 0");
 
+        EnsureObdTypeCompositeKey(connection);
+
         using var moduleIndexCommand = connection.CreateCommand();
         moduleIndexCommand.CommandText = @"
             CREATE INDEX IF NOT EXISTS idx_dtc_module
@@ -114,6 +120,123 @@ public class DbInitializer
             WHERE UPPER(Name) IN ('VNT', 'DPF', 'EGR', 'NOX', 'SCR', 'MAF', 'TVA');
         ";
         markSystemModulesCommand.ExecuteNonQuery();
+    }
+
+    private static void EnsureObdTypeCompositeKey(SqliteConnection connection)
+    {
+        var hasComposite = false;
+        var hasCodeUnique = false;
+
+        using (var listCmd = connection.CreateCommand())
+        {
+            listCmd.CommandText = "PRAGMA index_list('DtcCodes');";
+            using var listReader = listCmd.ExecuteReader();
+            while (listReader.Read())
+            {
+                var indexName = listReader.GetString(1);
+                var isUnique = listReader.GetBoolean(2);
+                if (!isUnique)
+                {
+                    continue;
+                }
+
+                using var infoCmd = connection.CreateCommand();
+                infoCmd.CommandText = $"PRAGMA index_info('{indexName}');";
+                using var infoReader = infoCmd.ExecuteReader();
+                var columns = new List<string>();
+                while (infoReader.Read())
+                {
+                    columns.Add(infoReader.GetString(2));
+                }
+
+                if (columns.Count == 2
+                    && columns.Any(c => string.Equals(c, "Code", StringComparison.OrdinalIgnoreCase))
+                    && columns.Any(c => string.Equals(c, "ObdType", StringComparison.OrdinalIgnoreCase)))
+                {
+                    hasComposite = true;
+                }
+                else if (columns.Count == 1
+                    && columns.Any(c => string.Equals(c, "Code", StringComparison.OrdinalIgnoreCase)))
+                {
+                    hasCodeUnique = true;
+                }
+            }
+        }
+
+        if (hasComposite || !hasCodeUnique)
+        {
+            return;
+        }
+
+        using var transaction = connection.BeginTransaction();
+        try
+        {
+            using var createCmd = connection.CreateCommand();
+            createCmd.Transaction = transaction;
+            createCmd.CommandText = @"
+                CREATE TABLE DtcCodes_New (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Code TEXT NOT NULL COLLATE NOCASE,
+                    Description TEXT NOT NULL,
+                    Category TEXT,
+                    Source TEXT,
+                    Notes TEXT,
+                    FilterTag TEXT,
+                    Module TEXT,
+                    ObdType TEXT NOT NULL DEFAULT 'OBD-II',
+                    CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                    UpdatedAt TEXT,
+                    IsActive INTEGER NOT NULL DEFAULT 1,
+                    UNIQUE(Code, ObdType)
+                );
+            ";
+            createCmd.ExecuteNonQuery();
+
+            using var copyCmd = connection.CreateCommand();
+            copyCmd.Transaction = transaction;
+            copyCmd.CommandText = @"
+                INSERT INTO DtcCodes_New
+                (Id, Code, Description, Category, Source, Notes, FilterTag, Module, ObdType, CreatedAt, UpdatedAt, IsActive)
+                SELECT
+                    Id, Code, Description, Category, Source, Notes, FilterTag, Module,
+                    COALESCE(ObdType, 'OBD-II'), CreatedAt, UpdatedAt, IsActive
+                FROM DtcCodes;
+            ";
+            copyCmd.ExecuteNonQuery();
+
+            using var dropCmd = connection.CreateCommand();
+            dropCmd.Transaction = transaction;
+            dropCmd.CommandText = "DROP TABLE DtcCodes;";
+            dropCmd.ExecuteNonQuery();
+
+            using var renameCmd = connection.CreateCommand();
+            renameCmd.Transaction = transaction;
+            renameCmd.CommandText = "ALTER TABLE DtcCodes_New RENAME TO DtcCodes;";
+            renameCmd.ExecuteNonQuery();
+
+            using var indexCmd = connection.CreateCommand();
+            indexCmd.Transaction = transaction;
+            indexCmd.CommandText = @"
+                CREATE INDEX IF NOT EXISTS idx_dtc_code
+                    ON DtcCodes(Code COLLATE NOCASE);
+                CREATE INDEX IF NOT EXISTS idx_dtc_category
+                    ON DtcCodes(Category);
+                CREATE INDEX IF NOT EXISTS idx_dtc_active
+                    ON DtcCodes(IsActive);
+                CREATE INDEX IF NOT EXISTS idx_dtc_code_active
+                    ON DtcCodes(Code, IsActive);
+                CREATE INDEX IF NOT EXISTS idx_dtc_module
+                    ON DtcCodes(Module);
+            ";
+            indexCmd.ExecuteNonQuery();
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     private static void EnsureColumnExists(SqliteConnection connection, string tableName, string columnName, string columnType)

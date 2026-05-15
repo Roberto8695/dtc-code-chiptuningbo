@@ -1525,9 +1525,7 @@ public partial class MainForm : Form
             }
 
             // Buscar en base de datos
-            var rawDbCodes = await _repository.GetByCodesAsync(allCodesToSearch);
-            // Aislar estrictamente a los códigos del tipo activo para evitar descripciones cruzadas
-            var dbCodes = rawDbCodes.Where(c => c.ObdType == currentObdType).ToList();
+            var dbCodes = (await _repository.GetByCodesAsync(allCodesToSearch, currentObdType)).ToList();
 
             // Crear diccionario de resultados encontrados
             var dbCodesDict = dbCodes.ToDictionary(c => c.Code, c => c);
@@ -1976,7 +1974,8 @@ public partial class MainForm : Form
             }
             else
             {
-                dtcCode = await _repository.GetByCodeAsync(selectedResult.Code);
+                var obdType = string.IsNullOrWhiteSpace(selectedResult.ObdType) ? "OBD-II" : selectedResult.ObdType;
+                dtcCode = await _repository.GetByCodeAsync(selectedResult.Code, obdType);
             }
 
             if (dtcCode == null)
@@ -2169,7 +2168,8 @@ public partial class MainForm : Form
                 }
                 else
                 {
-                    dtcCode = await _repository.GetByCodeAsync(selectedResult.Code);
+                    var obdType = string.IsNullOrWhiteSpace(selectedResult.ObdType) ? "OBD-II" : selectedResult.ObdType;
+                    dtcCode = await _repository.GetByCodeAsync(selectedResult.Code, obdType);
                 }
 
                 if (dtcCode == null)

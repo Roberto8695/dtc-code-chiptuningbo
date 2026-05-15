@@ -59,6 +59,18 @@ public class DtcClassifierService
         if (_exactRules.TryGetValue(upperCode, out var exactMatch))
             return exactMatch;
 
+        // Para códigos hex puros (ej. "2122"), intentar variantes con prefijo
+        if (upperCode.Length == 4 && upperCode.All(c => Uri.IsHexDigit(c)))
+        {
+            var prefixedP = "P" + upperCode;
+            if (_exactRules.TryGetValue(prefixedP, out exactMatch))
+                return exactMatch;
+
+            var prefixedU = "U" + upperCode;
+            if (_exactRules.TryGetValue(prefixedU, out exactMatch))
+                return exactMatch;
+        }
+
         // 2. Keywords en descripción (solo si hay descripción)
         if (string.IsNullOrWhiteSpace(description))
             return null;

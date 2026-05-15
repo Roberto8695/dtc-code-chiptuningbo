@@ -35,6 +35,30 @@ public class DtcRepository
     }
 
     /// <summary>
+    /// Busca un código DTC por su código y tipo OBD (case-insensitive)
+    /// </summary>
+    public async Task<DtcCode?> GetByCodeAsync(string code, string obdType)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
+                   ObdType, CreatedAt, UpdatedAt, IsActive
+            FROM DtcCodes
+            WHERE Code = @Code COLLATE NOCASE
+              AND ObdType = @ObdType
+              AND IsActive = 1
+            LIMIT 1;
+        ";
+
+        return await connection.QuerySingleOrDefaultAsync<DtcCode>(sql, new
+        {
+            Code = code.ToUpperInvariant(),
+            ObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType
+        });
+    }
+
+    /// <summary>
     /// Busca un código DTC por su ID
     /// </summary>
     public async Task<DtcCode?> GetByIdAsync(int id)
@@ -72,6 +96,34 @@ public class DtcRepository
         ";
 
         return await connection.QueryAsync<DtcCode>(sql, new { Codes = normalizedCodes });
+    }
+
+    /// <summary>
+    /// Busca múltiples códigos DTC filtrando por tipo OBD
+    /// </summary>
+    public async Task<IEnumerable<DtcCode>> GetByCodesAsync(IEnumerable<string> codes, string obdType)
+    {
+        if (!codes.Any())
+            return Enumerable.Empty<DtcCode>();
+
+        using var connection = _connectionFactory.CreateConnection();
+
+        var normalizedCodes = codes.Select(c => c.ToUpperInvariant()).ToList();
+
+        const string sql = @"
+            SELECT Id, Code, Description, Category, Source, Notes, FilterTag, Module,
+                   ObdType, CreatedAt, UpdatedAt, IsActive
+            FROM DtcCodes
+            WHERE Code IN @Codes
+              AND ObdType = @ObdType
+              AND IsActive = 1;
+        ";
+
+        return await connection.QueryAsync<DtcCode>(sql, new
+        {
+            Codes = normalizedCodes,
+            ObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType
+        });
     }
 
     /// <summary>
@@ -244,6 +296,29 @@ public class DtcRepository
         const string sql = "SELECT COUNT(1) FROM DtcCodes WHERE Code = @Code COLLATE NOCASE;";
 
         var count = await connection.ExecuteScalarAsync<int>(sql, new { Code = code.ToUpperInvariant() });
+        return count > 0;
+    }
+
+    /// <summary>
+    /// Verifica si un código existe para un tipo OBD específico
+    /// </summary>
+    public async Task<bool> ExistsAsync(string code, string obdType)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT COUNT(1)
+            FROM DtcCodes
+            WHERE Code = @Code COLLATE NOCASE
+              AND ObdType = @ObdType;
+        ";
+
+        var count = await connection.ExecuteScalarAsync<int>(sql, new
+        {
+            Code = code.ToUpperInvariant(),
+            ObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType
+        });
+
         return count > 0;
     }
 

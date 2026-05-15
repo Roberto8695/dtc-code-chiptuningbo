@@ -275,7 +275,7 @@ public partial class AddEditCodeForm : Form
             else
             {
                 // Verificar si ya existe
-                var exists = await _repository.ExistsAsync(code);
+                var exists = await _repository.ExistsAsync(code, _currentObdType);
                 if (exists)
                 {
                     var result = MessageBox.Show(
@@ -290,7 +290,7 @@ public partial class AddEditCodeForm : Form
                     }
 
                     // Cargar y actualizar
-                    var existingCode = await _repository.GetByCodeAsync(code);
+                    var existingCode = await _repository.GetByCodeAsync(code, _currentObdType);
                     if (existingCode != null)
                     {
                         existingCode.Description = txtDescription.Text.Trim();

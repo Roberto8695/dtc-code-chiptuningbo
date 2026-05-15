@@ -130,21 +130,31 @@ public class ModuleFilterRepository
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
-        await using var cmd = connection.CreateCommand();
-        // Primero intentamos actualizar; si no existe, insertamos
-        cmd.CommandText = @"
-            INSERT INTO DtcModuleExactRules (FilterName, Code)
-            VALUES (@FilterName, @Code)
-            ON CONFLICT(FilterName, Code) DO NOTHING;
+        var normalizedCode = code.ToUpperInvariant();
 
-            -- Si el mismo código ya tenía un filtro diferente, actualizarlo
-            UPDATE DtcModuleExactRules
-            SET FilterName = @FilterName
-            WHERE Code = @Code COLLATE NOCASE AND FilterName != @FilterName;
-        ";
-        cmd.Parameters.AddWithValue("@FilterName", filterName);
-        cmd.Parameters.AddWithValue("@Code", code.ToUpperInvariant());
-        await cmd.ExecuteNonQueryAsync();
+        await using (var deleteCmd = connection.CreateCommand())
+        {
+            deleteCmd.CommandText = @"
+                DELETE FROM DtcModuleExactRules
+                WHERE Code = @Code COLLATE NOCASE
+                  AND FilterName != @FilterName;
+            ";
+            deleteCmd.Parameters.AddWithValue("@FilterName", filterName);
+            deleteCmd.Parameters.AddWithValue("@Code", normalizedCode);
+            await deleteCmd.ExecuteNonQueryAsync();
+        }
+
+        await using (var insertCmd = connection.CreateCommand())
+        {
+            insertCmd.CommandText = @"
+                INSERT INTO DtcModuleExactRules (FilterName, Code)
+                VALUES (@FilterName, @Code)
+                ON CONFLICT(FilterName, Code) DO NOTHING;
+            ";
+            insertCmd.Parameters.AddWithValue("@FilterName", filterName);
+            insertCmd.Parameters.AddWithValue("@Code", normalizedCode);
+            await insertCmd.ExecuteNonQueryAsync();
+        }
     }
 
     /// <summary>
@@ -456,23 +466,31 @@ public class ModuleFilterRepository
             return;
         }
 
-        await using var insertRuleCmd = connection.CreateCommand();
-        insertRuleCmd.Transaction = transaction;
-        insertRuleCmd.CommandText = @"
-            INSERT INTO DtcModuleExactRules (FilterName, Code)
-            VALUES (@FilterName, @Code)
-            ON CONFLICT(FilterName, Code) DO NOTHING;
-
-            UPDATE DtcModuleExactRules
-            SET FilterName = @FilterName
-            WHERE Code = @Code COLLATE NOCASE AND FilterName != @FilterName;";
-
         foreach (var code in normalizedCodes)
         {
-            insertRuleCmd.Parameters.Clear();
-            insertRuleCmd.Parameters.AddWithValue("@FilterName", filterName);
-            insertRuleCmd.Parameters.AddWithValue("@Code", code);
-            await insertRuleCmd.ExecuteNonQueryAsync();
+            await using (var deleteCmd = connection.CreateCommand())
+            {
+                deleteCmd.Transaction = transaction;
+                deleteCmd.CommandText = @"
+                    DELETE FROM DtcModuleExactRules
+                    WHERE Code = @Code COLLATE NOCASE
+                      AND FilterName != @FilterName;";
+                deleteCmd.Parameters.AddWithValue("@FilterName", filterName);
+                deleteCmd.Parameters.AddWithValue("@Code", code);
+                await deleteCmd.ExecuteNonQueryAsync();
+            }
+
+            await using (var insertCmd = connection.CreateCommand())
+            {
+                insertCmd.Transaction = transaction;
+                insertCmd.CommandText = @"
+                    INSERT INTO DtcModuleExactRules (FilterName, Code)
+                    VALUES (@FilterName, @Code)
+                    ON CONFLICT(FilterName, Code) DO NOTHING;";
+                insertCmd.Parameters.AddWithValue("@FilterName", filterName);
+                insertCmd.Parameters.AddWithValue("@Code", code);
+                await insertCmd.ExecuteNonQueryAsync();
+            }
         }
     }
 
