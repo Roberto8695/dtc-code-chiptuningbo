@@ -46,6 +46,7 @@ public partial class MainForm : Form
     private int _gridZoomPercent = GridZoomDefault;
     private FlowLayoutPanel? _moduleButtonsPanel;
     private Button? _btnManageModules;
+    private FlowLayoutPanel? _zoomPanel;
     private int _dbTotalCodes = 0;
     
     // Controles para seleccionar tipo de OBD
@@ -177,6 +178,7 @@ public partial class MainForm : Form
         // Estado vacío visible al inicio
         ShowEmptyState(true);
 
+        SetupZoomPanel();
         SetupDynamicModulePanel();
 
         // Fallback de seguridad: al mostrarse la ventana, asegurar que los botones estén renderizados.
@@ -199,6 +201,57 @@ public partial class MainForm : Form
                 await ExecuteSearchAsync();
             }
         };
+    }
+
+    private void SetupZoomPanel()
+    {
+        if (_zoomPanel != null)
+        {
+            return;
+        }
+
+        _zoomPanel = new FlowLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            Margin = new Padding(0),
+            Padding = new Padding(0),
+            BackColor = panelButtons.BackColor
+        };
+
+        panelButtons.Controls.Remove(btnZoomOut);
+        panelButtons.Controls.Remove(btnZoomReset);
+        panelButtons.Controls.Remove(btnZoomIn);
+
+        btnZoomOut.Margin = new Padding(0, 0, 6, 0);
+        btnZoomReset.Margin = new Padding(0, 0, 6, 0);
+        btnZoomIn.Margin = new Padding(0, 0, 0, 0);
+
+        btnZoomOut.Visible = true;
+        btnZoomOut.Enabled = true;
+
+        _zoomPanel.Controls.Add(btnZoomOut);
+        _zoomPanel.Controls.Add(btnZoomReset);
+        _zoomPanel.Controls.Add(btnZoomIn);
+
+        panelButtons.Controls.Add(_zoomPanel);
+        panelButtons.Resize += (_, _) => PositionZoomPanel();
+        PositionZoomPanel();
+    }
+
+    private void PositionZoomPanel()
+    {
+        if (_zoomPanel == null)
+        {
+            return;
+        }
+
+        var rightPadding = 8;
+        var topPadding = 8;
+        var x = Math.Max(0, panelButtons.ClientSize.Width - _zoomPanel.Width - rightPadding);
+        _zoomPanel.Location = new Point(x, topPadding);
     }
 
     private void ShowEmptyState(bool show)
