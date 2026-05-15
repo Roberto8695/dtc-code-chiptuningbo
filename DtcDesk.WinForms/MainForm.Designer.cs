@@ -262,7 +262,7 @@ namespace DtcDesk.WinForms
             panelStatsBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelStatsBar.Location = new Point(12, 320);
             panelStatsBar.Name = "panelStatsBar";
-            panelStatsBar.Size = new Size(286, 132);
+            panelStatsBar.Size = new Size(236, 132);
             panelStatsBar.Padding = new Padding(0);
             panelStatsBar.TabIndex = 5;
 
@@ -272,7 +272,7 @@ namespace DtcDesk.WinForms
             panelStatTotal.Controls.Add(lblStatTotalLabel);
             panelStatTotal.Location = new Point(0, 0);
             panelStatTotal.Name = "panelStatTotal";
-            panelStatTotal.Size = new Size(286, 44);
+            panelStatTotal.Size = new Size(236, 44);
             panelStatTotal.TabIndex = 0;
             panelStatTotal.Padding = new Padding(6, 2, 6, 2);
 
@@ -309,7 +309,7 @@ namespace DtcDesk.WinForms
             panelStatFound.Controls.Add(lblStatFoundLabel);
             panelStatFound.Location = new Point(0, 42);
             panelStatFound.Name = "panelStatFound";
-            panelStatFound.Size = new Size(286, 44);
+            panelStatFound.Size = new Size(236, 44);
             panelStatFound.TabIndex = 1;
             panelStatFound.Padding = new Padding(6, 2, 6, 2);
 
@@ -346,7 +346,7 @@ namespace DtcDesk.WinForms
             panelStatNotFound.Controls.Add(lblStatNotFoundLabel);
             panelStatNotFound.Location = new Point(0, 84);
             panelStatNotFound.Name = "panelStatNotFound";
-            panelStatNotFound.Size = new Size(286, 44);
+            panelStatNotFound.Size = new Size(236, 44);
             panelStatNotFound.TabIndex = 2;
             panelStatNotFound.Padding = new Padding(6, 2, 6, 2);
 
@@ -402,7 +402,7 @@ namespace DtcDesk.WinForms
             panelLeft.Location = new Point(0, 172);
             panelLeft.Name = "panelLeft";
             panelLeft.Padding = new Padding(12);
-            panelLeft.Size = new Size(310, 510);
+            panelLeft.Size = new Size(260, 510);
             panelLeft.TabIndex = 2;
 
             // lblInput
@@ -419,7 +419,7 @@ namespace DtcDesk.WinForms
             // btnFormatObd
             btnFormatObd.Location = new Point(12, 40);
             btnFormatObd.Name = "btnFormatObd";
-            btnFormatObd.Size = new Size(138, 28);
+            btnFormatObd.Size = new Size(114, 28);
             btnFormatObd.TabIndex = 5;
             btnFormatObd.Text = "OBD-II";
             btnFormatObd.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
@@ -427,9 +427,9 @@ namespace DtcDesk.WinForms
             btnFormatObd.FlatStyle = FlatStyle.Flat;
 
             // btnFormatSpn
-            btnFormatSpn.Location = new Point(160, 40);
+            btnFormatSpn.Location = new Point(134, 40);
             btnFormatSpn.Name = "btnFormatSpn";
-            btnFormatSpn.Size = new Size(138, 28);
+            btnFormatSpn.Size = new Size(114, 28);
             btnFormatSpn.TabIndex = 6;
             btnFormatSpn.Text = "SPN";
             btnFormatSpn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
@@ -442,7 +442,7 @@ namespace DtcDesk.WinForms
             txtInput.Multiline = true;
             txtInput.Name = "txtInput";
             txtInput.ScrollBars = ScrollBars.Vertical;
-            txtInput.Size = new Size(286, 215);
+            txtInput.Size = new Size(236, 215);
             txtInput.TabIndex = 1;
             txtInput.Font = new Font("Consolas", 10F);
             txtInput.PlaceholderText = "Pega aquí tus códigos DTC...\r\n\r\nEjemplos:\r\nMID128 SID231 FMI5\r\nP20EE";
@@ -460,16 +460,16 @@ namespace DtcDesk.WinForms
             btnParse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnParse.Location = new Point(12, 460);
             btnParse.Name = "btnParse";
-            btnParse.Size = new Size(185, 38);
+            btnParse.Size = new Size(150, 38);
             btnParse.TabIndex = 2;
             btnParse.Text = "Procesar codigo";
             btnParse.UseVisualStyleBackColor = true;
 
             // btnClear
             btnClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnClear.Location = new Point(208, 460);
+            btnClear.Location = new Point(178, 460);
             btnClear.Name = "btnClear";
-            btnClear.Size = new Size(90, 38);
+            btnClear.Size = new Size(70, 38);
             btnClear.TabIndex = 3;
             btnClear.Text = "🗑\r\nLimpiar";
             btnClear.TextAlign = ContentAlignment.MiddleCenter;
@@ -483,10 +483,10 @@ namespace DtcDesk.WinForms
             panelRight.Controls.Add(panelButtons);
             panelRight.Controls.Add(lblResults);
             panelRight.Dock = DockStyle.Fill;
-            panelRight.Location = new Point(310, 172);
+            panelRight.Location = new Point(260, 172);
             panelRight.Name = "panelRight";
             panelRight.Padding = new Padding(10, 8, 10, 8);
-            panelRight.Size = new Size(968, 510);
+            panelRight.Size = new Size(880, 510);
             panelRight.TabIndex = 3;
 
             // lblResults
@@ -658,7 +658,7 @@ namespace DtcDesk.WinForms
             panelFilterSide.Dock = DockStyle.Right;
             panelFilterSide.Name = "panelFilterSide";
             panelFilterSide.Padding = new Padding(12, 8, 12, 8);
-            panelFilterSide.Size = new Size(312, 510);
+            panelFilterSide.Size = new Size(260, 510);
             panelFilterSide.TabIndex = 10;
 
             lblFilterTitle.AutoSize = false;
