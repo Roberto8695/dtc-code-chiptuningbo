@@ -90,6 +90,7 @@ namespace DtcDesk.WinForms
             statusLabelSep1 = new ToolStripStatusLabel();
             statusLabelMode = new ToolStripStatusLabel();
             statusLabelSep2 = new ToolStripStatusLabel();
+            statusLabelWhatsapp = new ToolStripStatusLabel();
             statusLabelCount = new ToolStripStatusLabel();
 
             menuStrip.SuspendLayout();
@@ -746,6 +747,7 @@ namespace DtcDesk.WinForms
                 statusLabelSep1,
                 statusLabelMode,
                 statusLabelSep2,
+                statusLabelWhatsapp,
                 statusLabelCount
             });
             statusStrip.Location = new Point(0, 682);
@@ -767,6 +769,11 @@ namespace DtcDesk.WinForms
             statusLabelSep2.Name = "statusLabelSep2";
             statusLabelSep2.Text = "    ";
             statusLabelSep2.Spring = false;
+
+            statusLabelWhatsapp.Name = "statusLabelWhatsapp";
+            statusLabelWhatsapp.Text = "Whatsapp: +591 76441669";
+            statusLabelWhatsapp.Spring = false;
+            statusLabelWhatsapp.AutoSize = true;
 
             statusLabelCount.Name = "statusLabelCount";
             statusLabelCount.Text = "0 códigos disponibles";
@@ -905,6 +912,7 @@ namespace DtcDesk.WinForms
         private ToolStripStatusLabel statusLabelSep1;
         private ToolStripStatusLabel statusLabelMode;
         private ToolStripStatusLabel statusLabelSep2;
+        private ToolStripStatusLabel statusLabelWhatsapp;
         private ToolStripStatusLabel statusLabelCount;
     }
 }

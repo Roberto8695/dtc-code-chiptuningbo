@@ -405,8 +405,8 @@ public partial class MainForm : Form
         if (panelGridContainer != null)
         {
             panelGridContainer.BackColor = bgMain;
+            panelGridContainer.Padding = new Padding(0);
         }
-        panelGridContainer.Padding = new Padding(0);
 
         // Estado vacío
         panelEmptyState.BackColor = bgTop;
@@ -523,6 +523,7 @@ public partial class MainForm : Form
             item.ForeColor = textSecondary;
             item.BackColor = bgSide;
         }
+        statusLabelWhatsapp.ForeColor = Color.White;
         statusLabelCount.ForeColor = accentYellow;
 
         // ─── Panel de módulos dinámico ────────────────────────────────────

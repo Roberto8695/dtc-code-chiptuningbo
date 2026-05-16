@@ -158,7 +158,7 @@ public class CustomModuleEditorForm : Form
             .Select(code => new DtcModuleRule
             {
                 Code = code,
-                ObdType = _existingCodeTypes.TryGetValue(code, out var obdType) ? obdType : "OBD-II"
+                ObdType = _existingCodeTypes.TryGetValue(code, out var obdType) ? obdType ?? "OBD-II" : "OBD-II"
             })
             .ToList();
         DialogResult = DialogResult.OK;
