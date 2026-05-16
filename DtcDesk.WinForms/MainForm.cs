@@ -1958,6 +1958,19 @@ public partial class MainForm : Form
         return null;
     }
 
+    private void ApplyEditedCodeToResult(DtcLookupResult target, DtcCode updatedCode)
+    {
+        target.Found = true;
+        target.Description = updatedCode.Description;
+        target.Category = updatedCode.Category;
+        target.Source = updatedCode.Source;
+        target.Notes = updatedCode.Notes;
+        target.FilterTag = updatedCode.FilterTag;
+        target.Module = GetDisplayModule(updatedCode);
+        target.ObdType = string.IsNullOrWhiteSpace(updatedCode.ObdType) ? "OBD-II" : updatedCode.ObdType;
+        target.DtcId = updatedCode.Id;
+    }
+
     private void ApplyModuleDisplayNames()
     {
         if (_currentResults.Count == 0 || _moduleFilters.Count == 0)
@@ -2157,7 +2170,11 @@ public partial class MainForm : Form
             var editForm = new AddEditCodeForm(dtcCode);
             if (editForm.ShowDialog() == DialogResult.OK)
             {
-                BtnParse_Click(sender, e); // Re-parsear para actualizar
+                if (editForm.DtcCode != null)
+                {
+                    ApplyEditedCodeToResult(selectedResult, editForm.DtcCode);
+                }
+                dgvCodes.Refresh();
                 LoadStatistics();
             }
         }
@@ -2320,7 +2337,7 @@ public partial class MainForm : Form
         {
             return;
         }
-        
+
         // Doble clic abre editar/añadir usando la fila clickeada,
         // sin depender de la selección actual de celdas.
         var selectedResult = dgvCodes.Rows[e.RowIndex].DataBoundItem as DtcLookupResult;
@@ -2351,7 +2368,11 @@ public partial class MainForm : Form
                 var editForm = new AddEditCodeForm(dtcCode);
                 if (editForm.ShowDialog() == DialogResult.OK)
                 {
-                    BtnParse_Click(sender, EventArgs.Empty); // Re-parsear para actualizar
+                    if (editForm.DtcCode != null)
+                    {
+                        ApplyEditedCodeToResult(selectedResult, editForm.DtcCode);
+                    }
+                    dgvCodes.Refresh();
                     LoadStatistics();
                 }
             }
@@ -2369,7 +2390,8 @@ public partial class MainForm : Form
             {
                 if (addForm.DtcCode != null && _currentResults.Any(r => r.Code == addForm.DtcCode.Code))
                 {
-                    BtnParse_Click(sender, EventArgs.Empty); // Re-parsear para actualizar
+                    ApplyEditedCodeToResult(selectedResult, addForm.DtcCode);
+                    dgvCodes.Refresh();
                 }
 
                 LoadStatistics();
