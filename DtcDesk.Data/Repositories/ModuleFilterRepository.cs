@@ -62,7 +62,7 @@ public class ModuleFilterRepository
         await connection.OpenAsync();
 
         await using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, FilterName, Code FROM DtcModuleExactRules;";
+        cmd.CommandText = "SELECT Id, FilterName, Code, ObdType FROM DtcModuleExactRules;";
 
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
@@ -71,7 +71,8 @@ public class ModuleFilterRepository
             {
                 Id         = reader.GetInt32(0),
                 FilterName = reader.GetString(1),
-                Code       = reader.GetString(2)
+                Code       = reader.GetString(2),
+                ObdType    = reader.IsDBNull(3) ? "OBD-II" : reader.GetString(3)
             });
         }
 
@@ -127,34 +128,79 @@ public class ModuleFilterRepository
     /// </summary>
     public async Task SaveExactRuleAsync(string code, string filterName)
     {
+        await SaveExactRuleAsync(code, filterName, "OBD-II");
+    }
+
+    /// <summary>
+    /// Guarda (inserta o actualiza) la regla exacta codigo -> modulo para un tipo OBD.
+    /// </summary>
+    public async Task SaveExactRuleAsync(string code, string filterName, string obdType)
+    {
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var normalizedCode = code.ToUpperInvariant();
+        var normalizedObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType;
 
         await using (var deleteCmd = connection.CreateCommand())
         {
             deleteCmd.CommandText = @"
                 DELETE FROM DtcModuleExactRules
                 WHERE Code = @Code COLLATE NOCASE
+                  AND ObdType = @ObdType COLLATE NOCASE
                   AND FilterName != @FilterName;
             ";
             deleteCmd.Parameters.AddWithValue("@FilterName", filterName);
             deleteCmd.Parameters.AddWithValue("@Code", normalizedCode);
+            deleteCmd.Parameters.AddWithValue("@ObdType", normalizedObdType);
             await deleteCmd.ExecuteNonQueryAsync();
         }
 
         await using (var insertCmd = connection.CreateCommand())
         {
             insertCmd.CommandText = @"
-                INSERT INTO DtcModuleExactRules (FilterName, Code)
-                VALUES (@FilterName, @Code)
-                ON CONFLICT(FilterName, Code) DO NOTHING;
+                INSERT INTO DtcModuleExactRules (FilterName, Code, ObdType)
+                VALUES (@FilterName, @Code, @ObdType)
+                ON CONFLICT(FilterName, Code, ObdType) DO NOTHING;
             ";
             insertCmd.Parameters.AddWithValue("@FilterName", filterName);
             insertCmd.Parameters.AddWithValue("@Code", normalizedCode);
+            insertCmd.Parameters.AddWithValue("@ObdType", normalizedObdType);
             await insertCmd.ExecuteNonQueryAsync();
         }
+    }
+
+    /// <summary>
+    /// Obtiene todas las reglas exactas asociadas a un filtro.
+    /// </summary>
+    public async Task<List<DtcModuleRule>> GetExactRulesByFilterAsync(string filterName)
+    {
+        var rules = new List<DtcModuleRule>();
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var cmd = connection.CreateCommand();
+        cmd.CommandText = @"
+            SELECT Id, FilterName, Code, ObdType
+            FROM DtcModuleExactRules
+            WHERE FilterName = @FilterName COLLATE NOCASE
+            ORDER BY Code, ObdType;";
+        cmd.Parameters.AddWithValue("@FilterName", filterName);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            rules.Add(new DtcModuleRule
+            {
+                Id = reader.GetInt32(0),
+                FilterName = reader.GetString(1),
+                Code = reader.GetString(2),
+                ObdType = reader.IsDBNull(3) ? "OBD-II" : reader.GetString(3)
+            });
+        }
+
+        return rules;
     }
 
     /// <summary>
@@ -230,6 +276,20 @@ public class ModuleFilterRepository
     /// </summary>
     public async Task UpdateCustomFilterAsync(int filterId, string displayName, string? description, IEnumerable<string> exactCodes)
     {
+        var exactRules = exactCodes.Select(code => new DtcModuleRule
+        {
+            Code = code,
+            ObdType = "OBD-II"
+        });
+
+        await UpdateCustomFilterAsync(filterId, displayName, description, exactRules);
+    }
+
+    /// <summary>
+    /// Actualiza un modulo personalizado y reemplaza sus reglas exactas asociadas.
+    /// </summary>
+    public async Task UpdateCustomFilterAsync(int filterId, string displayName, string? description, IEnumerable<DtcModuleRule> exactRules)
+    {
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
@@ -256,7 +316,7 @@ public class ModuleFilterRepository
                 await updateFilterCmd.ExecuteNonQueryAsync();
             }
 
-            await ReplaceExactRulesAsync(connection, (SqliteTransaction)transaction, filter.Name, exactCodes);
+            await ReplaceExactRulesAsync(connection, (SqliteTransaction)transaction, filter.Name, exactRules);
             await transaction.CommitAsync();
         }
         catch
@@ -314,6 +374,24 @@ public class ModuleFilterRepository
         await cmd.ExecuteNonQueryAsync();
     }
 
+    /// <summary>
+    /// Elimina cualquier regla exacta asociada a un codigo y tipo OBD.
+    /// </summary>
+    public async Task DeleteExactRuleByCodeAsync(string code, string obdType)
+    {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var cmd = connection.CreateCommand();
+        cmd.CommandText = @"
+            DELETE FROM DtcModuleExactRules
+            WHERE Code = @Code COLLATE NOCASE
+              AND ObdType = @ObdType COLLATE NOCASE;";
+        cmd.Parameters.AddWithValue("@Code", code.ToUpperInvariant());
+        cmd.Parameters.AddWithValue("@ObdType", string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
     // ─────────────────────────────────────────────────────────────
     // SEEDING INICIAL
     // ─────────────────────────────────────────────────────────────
@@ -357,14 +435,15 @@ public class ModuleFilterRepository
             {
                 cmd.Transaction = (SqliteTransaction)transaction;
                 cmd.CommandText = @"
-                    INSERT OR IGNORE INTO DtcModuleExactRules (FilterName, Code)
-                    VALUES (@FilterName, @Code);";
+                    INSERT OR IGNORE INTO DtcModuleExactRules (FilterName, Code, ObdType)
+                    VALUES (@FilterName, @Code, @ObdType);";
 
                 foreach (var (filterName, code) in DtcDesk.Data.Db.ModuleRulesSeeder.DefaultExactRules)
                 {
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@FilterName", filterName);
                     cmd.Parameters.AddWithValue("@Code",       code.ToUpperInvariant());
+                    cmd.Parameters.AddWithValue("@ObdType",    "OBD-II");
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -453,20 +532,41 @@ public class ModuleFilterRepository
         string filterName,
         IEnumerable<string> exactCodes)
     {
+        var exactRules = exactCodes.Select(code => new DtcModuleRule
+        {
+            Code = code,
+            ObdType = "OBD-II"
+        });
+
+        await ReplaceExactRulesAsync(connection, transaction, filterName, exactRules);
+    }
+
+    private static async Task ReplaceExactRulesAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        string filterName,
+        IEnumerable<DtcModuleRule> exactRules)
+    {
         await DeleteRulesByFilterAsync(connection, transaction, filterName);
 
-        var normalizedCodes = exactCodes
-            .Select(c => c.Trim().ToUpperInvariant())
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+        var normalizedRules = exactRules
+            .Select(rule => new DtcModuleRule
+            {
+                FilterName = filterName,
+                Code = rule.Code.Trim().ToUpperInvariant(),
+                ObdType = string.IsNullOrWhiteSpace(rule.ObdType) ? "OBD-II" : rule.ObdType
+            })
+            .Where(rule => !string.IsNullOrWhiteSpace(rule.Code))
+            .GroupBy(rule => $"{rule.Code}|{rule.ObdType}", StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
             .ToList();
 
-        if (normalizedCodes.Count == 0)
+        if (normalizedRules.Count == 0)
         {
             return;
         }
 
-        foreach (var code in normalizedCodes)
+        foreach (var rule in normalizedRules)
         {
             await using (var deleteCmd = connection.CreateCommand())
             {
@@ -474,9 +574,11 @@ public class ModuleFilterRepository
                 deleteCmd.CommandText = @"
                     DELETE FROM DtcModuleExactRules
                     WHERE Code = @Code COLLATE NOCASE
+                      AND ObdType = @ObdType COLLATE NOCASE
                       AND FilterName != @FilterName;";
                 deleteCmd.Parameters.AddWithValue("@FilterName", filterName);
-                deleteCmd.Parameters.AddWithValue("@Code", code);
+                deleteCmd.Parameters.AddWithValue("@Code", rule.Code);
+                deleteCmd.Parameters.AddWithValue("@ObdType", rule.ObdType);
                 await deleteCmd.ExecuteNonQueryAsync();
             }
 
@@ -484,11 +586,12 @@ public class ModuleFilterRepository
             {
                 insertCmd.Transaction = transaction;
                 insertCmd.CommandText = @"
-                    INSERT INTO DtcModuleExactRules (FilterName, Code)
-                    VALUES (@FilterName, @Code)
-                    ON CONFLICT(FilterName, Code) DO NOTHING;";
+                    INSERT INTO DtcModuleExactRules (FilterName, Code, ObdType)
+                    VALUES (@FilterName, @Code, @ObdType)
+                    ON CONFLICT(FilterName, Code, ObdType) DO NOTHING;";
                 insertCmd.Parameters.AddWithValue("@FilterName", filterName);
-                insertCmd.Parameters.AddWithValue("@Code", code);
+                insertCmd.Parameters.AddWithValue("@Code", rule.Code);
+                insertCmd.Parameters.AddWithValue("@ObdType", rule.ObdType);
                 await insertCmd.ExecuteNonQueryAsync();
             }
         }

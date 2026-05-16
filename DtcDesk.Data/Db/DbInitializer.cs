@@ -77,7 +77,8 @@ public class DbInitializer
                 Id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 FilterName  TEXT NOT NULL COLLATE NOCASE,
                 Code        TEXT NOT NULL COLLATE NOCASE,
-                UNIQUE(FilterName, Code)
+                ObdType     TEXT NOT NULL DEFAULT 'OBD-II',
+                UNIQUE(FilterName, Code, ObdType)
             );
 
             CREATE INDEX IF NOT EXISTS idx_exact_rules_code
@@ -103,8 +104,10 @@ public class DbInitializer
         EnsureColumnExists(connection, "DtcCodes", "Module", "TEXT");
         EnsureColumnExists(connection, "DtcCodes", "ObdType", "TEXT NOT NULL DEFAULT 'OBD-II'");
         EnsureColumnExists(connection, "DtcModuleFilters", "IsSystem", "INTEGER NOT NULL DEFAULT 0");
+        EnsureColumnExists(connection, "DtcModuleExactRules", "ObdType", "TEXT NOT NULL DEFAULT 'OBD-II'");
 
         EnsureObdTypeCompositeKey(connection);
+        EnsureExactRulesObdTypeCompositeKey(connection);
 
         using var moduleIndexCommand = connection.CreateCommand();
         moduleIndexCommand.CommandText = @"
@@ -227,6 +230,106 @@ public class DbInitializer
                     ON DtcCodes(Code, IsActive);
                 CREATE INDEX IF NOT EXISTS idx_dtc_module
                     ON DtcCodes(Module);
+            ";
+            indexCmd.ExecuteNonQuery();
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+    private static void EnsureExactRulesObdTypeCompositeKey(SqliteConnection connection)
+    {
+        var hasComposite = false;
+        var hasOldUnique = false;
+
+        using (var listCmd = connection.CreateCommand())
+        {
+            listCmd.CommandText = "PRAGMA index_list('DtcModuleExactRules');";
+            using var listReader = listCmd.ExecuteReader();
+            while (listReader.Read())
+            {
+                var indexName = listReader.GetString(1);
+                var isUnique = listReader.GetBoolean(2);
+                if (!isUnique)
+                {
+                    continue;
+                }
+
+                using var infoCmd = connection.CreateCommand();
+                infoCmd.CommandText = $"PRAGMA index_info('{indexName}');";
+                using var infoReader = infoCmd.ExecuteReader();
+                var columns = new List<string>();
+                while (infoReader.Read())
+                {
+                    columns.Add(infoReader.GetString(2));
+                }
+
+                if (columns.Count == 3
+                    && columns.Any(c => string.Equals(c, "FilterName", StringComparison.OrdinalIgnoreCase))
+                    && columns.Any(c => string.Equals(c, "Code", StringComparison.OrdinalIgnoreCase))
+                    && columns.Any(c => string.Equals(c, "ObdType", StringComparison.OrdinalIgnoreCase)))
+                {
+                    hasComposite = true;
+                }
+                else if (columns.Count == 2
+                    && columns.Any(c => string.Equals(c, "FilterName", StringComparison.OrdinalIgnoreCase))
+                    && columns.Any(c => string.Equals(c, "Code", StringComparison.OrdinalIgnoreCase)))
+                {
+                    hasOldUnique = true;
+                }
+            }
+        }
+
+        if (hasComposite || !hasOldUnique)
+        {
+            return;
+        }
+
+        using var transaction = connection.BeginTransaction();
+        try
+        {
+            using var createCmd = connection.CreateCommand();
+            createCmd.Transaction = transaction;
+            createCmd.CommandText = @"
+                CREATE TABLE DtcModuleExactRules_New (
+                    Id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    FilterName  TEXT NOT NULL COLLATE NOCASE,
+                    Code        TEXT NOT NULL COLLATE NOCASE,
+                    ObdType     TEXT NOT NULL DEFAULT 'OBD-II',
+                    UNIQUE(FilterName, Code, ObdType)
+                );
+            ";
+            createCmd.ExecuteNonQuery();
+
+            using var copyCmd = connection.CreateCommand();
+            copyCmd.Transaction = transaction;
+            copyCmd.CommandText = @"
+                INSERT INTO DtcModuleExactRules_New (Id, FilterName, Code, ObdType)
+                SELECT Id, FilterName, Code, COALESCE(ObdType, 'OBD-II')
+                FROM DtcModuleExactRules;
+            ";
+            copyCmd.ExecuteNonQuery();
+
+            using var dropCmd = connection.CreateCommand();
+            dropCmd.Transaction = transaction;
+            dropCmd.CommandText = "DROP TABLE DtcModuleExactRules;";
+            dropCmd.ExecuteNonQuery();
+
+            using var renameCmd = connection.CreateCommand();
+            renameCmd.Transaction = transaction;
+            renameCmd.CommandText = "ALTER TABLE DtcModuleExactRules_New RENAME TO DtcModuleExactRules;";
+            renameCmd.ExecuteNonQuery();
+
+            using var indexCmd = connection.CreateCommand();
+            indexCmd.Transaction = transaction;
+            indexCmd.CommandText = @"
+                CREATE INDEX IF NOT EXISTS idx_exact_rules_code
+                    ON DtcModuleExactRules(Code COLLATE NOCASE);
             ";
             indexCmd.ExecuteNonQuery();
 

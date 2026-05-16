@@ -28,9 +28,10 @@ public class DtcClassifierService
     {
         // Construir lookup exacto: código UPPER → FilterName
         _exactRules = exactRules
+            .GroupBy(r => r.Code.ToUpperInvariant(), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
-                r => r.Code.ToUpperInvariant(),
-                r => r.FilterName,
+                g => g.Key,
+                g => g.First().FilterName,
                 StringComparer.OrdinalIgnoreCase);
 
         // Agrupar keywords por filtro

@@ -17,4 +17,9 @@ public class DtcModuleRule
     /// Código DTC exacto en mayúsculas (ej. "C29E", "P0122")
     /// </summary>
     public string Code { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Tipo de protocolo asociado a la regla (OBD-II u OBD-I).
+    /// </summary>
+    public string ObdType { get; set; } = "OBD-II";
 }

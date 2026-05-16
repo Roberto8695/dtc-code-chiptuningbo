@@ -9,8 +9,16 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Pp]ublish/
+[Dd]ist/
 [Ll]og/
 [Ll]ogs/
+
+# Installer outputs
+InstallerApp/Payload.zip
+InstallerNetFx/Payload.zip
+
+# IDE / build caches
+*.lscache
 
 # Visual Studio cache/options
 .vs/
