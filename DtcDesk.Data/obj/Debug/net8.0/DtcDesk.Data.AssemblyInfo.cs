@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DtcDesk.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b65a6a73f3a284e88fcd065059f0159ddcb8660")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+289a14658669ead2ef25e8847680fb3976897d9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("DtcDesk.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DtcDesk.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
