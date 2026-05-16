@@ -38,7 +38,7 @@ internal static class Program
             });
 
             ShowMessage(
-                "DTCDesk se instalo correctamente. Se creo un acceso directo en el escritorio.",
+                "DTCDesk se instalo o actualizo correctamente.\nLos datos del usuario se conservan automaticamente.",
                 "Instalacion completada",
                 0x00000040);
         }
