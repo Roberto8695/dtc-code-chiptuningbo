@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {}
+    "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {}
   },
   "projects": {
-    "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+    "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
         "projectName": "DtcDesk.Core",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
+        "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj",
+        "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\VICTUS\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0",
@@ -43,7 +43,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -70,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
         },
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
@@ -96,26 +97,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
+    "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
+        "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
         "projectName": "DtcDesk.Data",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\obj\\",
+        "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj",
+        "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\VICTUS\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -127,8 +123,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
+              "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+                "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
               }
             }
           }
@@ -142,7 +138,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -173,26 +170,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {
+    "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+        "projectUniqueName": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
         "projectName": "DTCDesk",
-        "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
-        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-        "outputPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",
+        "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\DtcDesk.WinForms.csproj",
+        "packagesPath": "C:\\Users\\VICTUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.WinForms\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\VICTUS\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0-windows"
@@ -204,11 +196,11 @@
           "net8.0-windows7.0": {
             "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
+              "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj": {
+                "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Core\\DtcDesk.Core.csproj"
               },
-              "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
-                "projectPath": "D:\\TRABAJOS Y DEMAS\\Codes\\CDT\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj"
+              "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj": {
+                "projectPath": "C:\\Users\\VICTUS\\Desktop\\dtc-code-chiptuningbo\\DtcDesk.Data\\DtcDesk.Data.csproj"
               }
             }
           }
@@ -222,7 +214,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0-windows7.0": {
@@ -246,12 +239,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
