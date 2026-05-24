@@ -12,6 +12,7 @@ public class CustomModuleEditorForm : Form
     private readonly Button _btnSave;
     private readonly Button _btnCancel;
     private readonly Dictionary<string, string?> _existingCodeTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<Label> _labels = new();
 
     public string ModuleDisplayName => _txtDisplayName.Text.Trim();
     public string? ModuleDescription => string.IsNullOrWhiteSpace(_txtDescription.Text) ? null : _txtDescription.Text.Trim();
@@ -113,6 +114,13 @@ public class CustomModuleEditorForm : Form
         AcceptButton = _btnSave;
         CancelButton = _btnCancel;
 
+        _labels.Add(lblName);
+        _labels.Add(lblDescription);
+        _labels.Add(lblCodes);
+        _labels.Add(_lblCount);
+
+        ApplyDarkTheme();
+
         if (filter != null)
         {
             _txtDisplayName.Text = filter.DisplayName;
@@ -125,6 +133,46 @@ public class CustomModuleEditorForm : Form
         }
 
         UpdateCountLabel();
+    }
+
+    private void ApplyDarkTheme()
+    {
+        var bgMain = ColorTranslator.FromHtml("#0F1E2B");
+        var bgInput = ColorTranslator.FromHtml("#112233");
+        var textMain = ColorTranslator.FromHtml("#EAEAEA");
+        var textSecondary = ColorTranslator.FromHtml("#B0B7BE");
+        var accentYellow = ColorTranslator.FromHtml("#F8B41C");
+        var separator = ColorTranslator.FromHtml("#2A3B4C");
+
+        BackColor = bgMain;
+
+        foreach (var label in _labels)
+        {
+            label.ForeColor = label == _lblCount ? textSecondary : textMain;
+            label.BackColor = Color.Transparent;
+        }
+
+        _txtDisplayName.BackColor = bgInput;
+        _txtDisplayName.ForeColor = textMain;
+        _txtDisplayName.BorderStyle = BorderStyle.FixedSingle;
+
+        _txtDescription.BackColor = bgInput;
+        _txtDescription.ForeColor = textMain;
+        _txtDescription.BorderStyle = BorderStyle.FixedSingle;
+
+        _txtCodes.BackColor = bgInput;
+        _txtCodes.ForeColor = textMain;
+        _txtCodes.BorderStyle = BorderStyle.FixedSingle;
+
+        _btnSave.BackColor = accentYellow;
+        _btnSave.ForeColor = Color.Black;
+        _btnSave.FlatStyle = FlatStyle.Flat;
+        _btnSave.FlatAppearance.BorderSize = 0;
+
+        _btnCancel.BackColor = separator;
+        _btnCancel.ForeColor = textMain;
+        _btnCancel.FlatStyle = FlatStyle.Flat;
+        _btnCancel.FlatAppearance.BorderSize = 0;
     }
 
     public CustomModuleEditorForm(DtcModuleFilter filter, IEnumerable<DtcModuleRule> existingRules)

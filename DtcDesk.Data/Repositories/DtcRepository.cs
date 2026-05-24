@@ -230,6 +230,53 @@ public class DtcRepository
     }
 
     /// <summary>
+    /// Inserta o actualiza múltiples códigos (útil para importaciones JSON).
+    /// </summary>
+    public async Task<int> UpsertManyAsync(IEnumerable<DtcCode> dtcCodes)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        await connection.OpenAsync();
+
+        using var transaction = connection.BeginTransaction();
+        try
+        {
+            const string sql = @"
+                INSERT INTO DtcCodes (Code, Description, Category, Source, Notes, FilterTag, Module, ObdType, CreatedAt, UpdatedAt, IsActive)
+                VALUES (@Code, @Description, @Category, @Source, @Notes, @FilterTag, @Module, @ObdType, @CreatedAt, @UpdatedAt, @IsActive)
+                ON CONFLICT(Code, ObdType) DO UPDATE SET
+                    Description = excluded.Description,
+                    Category = excluded.Category,
+                    Source = excluded.Source,
+                    Notes = excluded.Notes,
+                    FilterTag = excluded.FilterTag,
+                    Module = excluded.Module,
+                    UpdatedAt = excluded.UpdatedAt,
+                    IsActive = excluded.IsActive;
+            ";
+
+            var now = DateTime.UtcNow;
+            var codes = dtcCodes.Select(c =>
+            {
+                c.Code = c.Code.ToUpperInvariant();
+                c.ObdType = string.IsNullOrWhiteSpace(c.ObdType) ? "OBD-II" : c.ObdType;
+                c.CreatedAt = c.CreatedAt == default ? now : c.CreatedAt;
+                c.UpdatedAt = now;
+                return c;
+            }).ToList();
+
+            var affectedRows = await connection.ExecuteAsync(sql, codes, transaction);
+
+            await transaction.CommitAsync();
+            return affectedRows;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Actualiza un código DTC existente
     /// </summary>
     public async Task<bool> UpdateAsync(DtcCode dtcCode)

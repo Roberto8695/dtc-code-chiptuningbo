@@ -32,9 +32,9 @@ namespace DtcDesk.WinForms
             lblInfo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblInfo.Location = new Point(20, 20);
             lblInfo.Name = "lblInfo";
-            lblInfo.Size = new Size(220, 21);
+            lblInfo.Size = new Size(236, 21);
             lblInfo.TabIndex = 0;
-            lblInfo.Text = "Importar Códigos DTC desde CSV";
+            lblInfo.Text = "Importar Códigos DTC (CSV/JSON)";
             // 
             // lblInstructions
             // 
@@ -44,10 +44,8 @@ namespace DtcDesk.WinForms
             lblInstructions.ForeColor = Color.White;
             lblInstructions.TabIndex = 1;
             lblInstructions.ForeColor = Color.LightGray;
-            lblInstructions.Text = "El archivo CSV debe tener las siguientes columnas:\n" +
-                "• Code (obligatorio): código DTC\n" +
-                "• Description (obligatorio): descripción del código\n" +
-                "• Category, Source, Notes (opcionales)";
+            lblInstructions.Text = "CSV: Code, Description, Category, Source, Notes\n" +
+                "JSON: backup completo con códigos y módulos (opcional)";
             // 
             // lblFile
             // 
@@ -66,7 +64,7 @@ namespace DtcDesk.WinForms
             txtFilePath.ReadOnly = true;
             txtFilePath.Size = new Size(450, 23);
             txtFilePath.TabIndex = 3;
-            txtFilePath.PlaceholderText = "Selecciona un archivo CSV...";
+            txtFilePath.PlaceholderText = "Selecciona un archivo CSV o JSON...";
             // 
             // btnSelectFile
             // 

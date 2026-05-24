@@ -19,11 +19,8 @@ namespace DtcDesk.WinForms
         {
             lblInfo = new Label();
             lblFormat = new Label();
-            chkIncludeDescription = new CheckBox();
-            chkIncludeCategory = new CheckBox();
-            chkOnlyNotFound = new CheckBox();
-            btnExportTxt = new Button();
-            btnExportCsv = new Button();
+            chkIncludeModules = new CheckBox();
+            btnExportJson = new Button();
             btnCancel = new Button();
             groupOptions = new GroupBox();
             groupOptions.SuspendLayout();
@@ -35,9 +32,9 @@ namespace DtcDesk.WinForms
             lblInfo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblInfo.Location = new Point(20, 20);
             lblInfo.Name = "lblInfo";
-            lblInfo.Size = new Size(200, 21);
+            lblInfo.Size = new Size(182, 21);
             lblInfo.TabIndex = 0;
-            lblInfo.Text = "Exportar códigos DTC";
+            lblInfo.Text = "Exportar backup DTC";
             // 
             // lblFormat
             // 
@@ -45,87 +42,52 @@ namespace DtcDesk.WinForms
             lblFormat.Font = new Font("Segoe UI", 9F);
             lblFormat.Location = new Point(20, 55);
             lblFormat.Name = "lblFormat";
-            lblFormat.Size = new Size(280, 15);
+            lblFormat.Size = new Size(232, 15);
             lblFormat.TabIndex = 1;
-            lblFormat.Text = "Selecciona el formato y las opciones de exportación:";
+            lblFormat.Text = "Selecciona las opciones del backup:";
             // 
             // groupOptions
             // 
-            groupOptions.Controls.Add(chkOnlyNotFound);
-            groupOptions.Controls.Add(chkIncludeCategory);
-            groupOptions.Controls.Add(chkIncludeDescription);
+            groupOptions.Controls.Add(chkIncludeModules);
             groupOptions.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             groupOptions.Location = new Point(20, 85);
             groupOptions.Name = "groupOptions";
-            groupOptions.Size = new Size(460, 130);
+            groupOptions.Size = new Size(460, 70);
             groupOptions.TabIndex = 2;
             groupOptions.TabStop = false;
             groupOptions.Text = "Opciones";
+            groupOptions.ForeColor = Color.FromArgb(232, 232, 232);
             // 
-            // chkIncludeDescription
+            // chkIncludeModules
             // 
-            chkIncludeDescription.AutoSize = true;
-            chkIncludeDescription.Checked = true;
-            chkIncludeDescription.CheckState = CheckState.Checked;
-            chkIncludeDescription.Font = new Font("Segoe UI", 9F);
-            chkIncludeDescription.Location = new Point(20, 30);
-            chkIncludeDescription.Name = "chkIncludeDescription";
-            chkIncludeDescription.Size = new Size(141, 19);
-            chkIncludeDescription.TabIndex = 0;
-            chkIncludeDescription.Text = "Incluir descripción";
-            chkIncludeDescription.UseVisualStyleBackColor = true;
+            chkIncludeModules.AutoSize = true;
+            chkIncludeModules.Checked = true;
+            chkIncludeModules.CheckState = CheckState.Checked;
+            chkIncludeModules.Font = new Font("Segoe UI", 9F);
+            chkIncludeModules.Location = new Point(20, 30);
+            chkIncludeModules.Name = "chkIncludeModules";
+            chkIncludeModules.Size = new Size(245, 19);
+            chkIncludeModules.TabIndex = 0;
+            chkIncludeModules.Text = "Incluir módulos y reglas";
+            chkIncludeModules.UseVisualStyleBackColor = true;
             // 
-            // chkIncludeCategory
+            // btnExportJson
             // 
-            chkIncludeCategory.AutoSize = true;
-            chkIncludeCategory.Checked = true;
-            chkIncludeCategory.CheckState = CheckState.Checked;
-            chkIncludeCategory.Font = new Font("Segoe UI", 9F);
-            chkIncludeCategory.Location = new Point(20, 60);
-            chkIncludeCategory.Name = "chkIncludeCategory";
-            chkIncludeCategory.Size = new Size(180, 19);
-            chkIncludeCategory.TabIndex = 1;
-            chkIncludeCategory.Text = "Incluir categoría y fuente";
-            chkIncludeCategory.UseVisualStyleBackColor = true;
-            // 
-            // chkOnlyNotFound
-            // 
-            chkOnlyNotFound.AutoSize = true;
-            chkOnlyNotFound.Font = new Font("Segoe UI", 9F);
-            chkOnlyNotFound.Location = new Point(20, 90);
-            chkOnlyNotFound.Name = "chkOnlyNotFound";
-            chkOnlyNotFound.Size = new Size(210, 19);
-            chkOnlyNotFound.TabIndex = 2;
-            chkOnlyNotFound.Text = "Solo códigos no encontrados";
-            chkOnlyNotFound.UseVisualStyleBackColor = true;
-            // 
-            // btnExportTxt
-            // 
-            btnExportTxt.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnExportTxt.Location = new Point(20, 235);
-            btnExportTxt.Name = "btnExportTxt";
-            btnExportTxt.Size = new Size(210, 50);
-            btnExportTxt.TabIndex = 3;
-            btnExportTxt.Text = "📄 Exportar como TXT";
-            btnExportTxt.UseVisualStyleBackColor = true;
-            // 
-            // btnExportCsv
-            // 
-            btnExportCsv.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnExportCsv.Location = new Point(270, 235);
-            btnExportCsv.Name = "btnExportCsv";
-            btnExportCsv.Size = new Size(210, 50);
-            btnExportCsv.TabIndex = 4;
-            btnExportCsv.Text = "📊 Exportar como CSV";
-            btnExportCsv.UseVisualStyleBackColor = true;
+            btnExportJson.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnExportJson.Location = new Point(20, 175);
+            btnExportJson.Name = "btnExportJson";
+            btnExportJson.Size = new Size(460, 45);
+            btnExportJson.TabIndex = 3;
+            btnExportJson.Text = "🧩 Exportar backup JSON";
+            btnExportJson.UseVisualStyleBackColor = true;
             // 
             // btnCancel
             // 
             btnCancel.Font = new Font("Segoe UI", 9F);
-            btnCancel.Location = new Point(20, 300);
+            btnCancel.Location = new Point(20, 235);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(100, 35);
-            btnCancel.TabIndex = 5;
+            btnCancel.TabIndex = 4;
             btnCancel.Text = "Cancelar";
             btnCancel.UseVisualStyleBackColor = true;
             // 
@@ -133,10 +95,9 @@ namespace DtcDesk.WinForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(500, 360);
+            ClientSize = new Size(500, 290);
             Controls.Add(btnCancel);
-            Controls.Add(btnExportCsv);
-            Controls.Add(btnExportTxt);
+            Controls.Add(btnExportJson);
             Controls.Add(groupOptions);
             Controls.Add(lblFormat);
             Controls.Add(lblInfo);
@@ -157,11 +118,8 @@ namespace DtcDesk.WinForms
         private Label lblInfo;
         private Label lblFormat;
         private GroupBox groupOptions;
-        private CheckBox chkIncludeDescription;
-        private CheckBox chkIncludeCategory;
-        private CheckBox chkOnlyNotFound;
-        private Button btnExportTxt;
-        private Button btnExportCsv;
+        private CheckBox chkIncludeModules;
+        private Button btnExportJson;
         private Button btnCancel;
     }
 }

@@ -392,6 +392,122 @@ public class ModuleFilterRepository
         await cmd.ExecuteNonQueryAsync();
     }
 
+    /// <summary>
+    /// Importa módulos con sus reglas exactas y keywords (upsert por Name).
+    /// </summary>
+    public async Task ImportFiltersAsync(
+        IEnumerable<DtcModuleFilter> filters,
+        IEnumerable<DtcModuleRule> exactRules,
+        IEnumerable<DtcModuleKeyword> keywords)
+    {
+        var filterList = filters
+            .Where(f => !string.IsNullOrWhiteSpace(f.Name))
+            .ToList();
+
+        if (filterList.Count == 0)
+        {
+            return;
+        }
+
+        var filterNames = filterList
+            .Select(f => f.Name)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var filterNameSet = new HashSet<string>(filterNames, StringComparer.OrdinalIgnoreCase);
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            foreach (var filter in filterList)
+            {
+                await using var upsertFilterCmd = connection.CreateCommand();
+                upsertFilterCmd.Transaction = (SqliteTransaction)transaction;
+                upsertFilterCmd.CommandText = @"
+                    INSERT INTO DtcModuleFilters (Name, DisplayName, Description, SortOrder, IsSystem)
+                    VALUES (@Name, @DisplayName, @Description, @SortOrder, @IsSystem)
+                    ON CONFLICT(Name) DO UPDATE SET
+                        DisplayName = excluded.DisplayName,
+                        Description = excluded.Description,
+                        SortOrder = excluded.SortOrder,
+                        IsSystem = excluded.IsSystem;
+                ";
+                upsertFilterCmd.Parameters.AddWithValue("@Name", filter.Name.Trim());
+                upsertFilterCmd.Parameters.AddWithValue("@DisplayName", filter.DisplayName.Trim());
+                upsertFilterCmd.Parameters.AddWithValue("@Description", (object?)filter.Description ?? DBNull.Value);
+                upsertFilterCmd.Parameters.AddWithValue("@SortOrder", filter.SortOrder);
+                upsertFilterCmd.Parameters.AddWithValue("@IsSystem", filter.IsSystem ? 1 : 0);
+                await upsertFilterCmd.ExecuteNonQueryAsync();
+            }
+
+            foreach (var filterName in filterNames)
+            {
+                await using var deleteExactCmd = connection.CreateCommand();
+                deleteExactCmd.Transaction = (SqliteTransaction)transaction;
+                deleteExactCmd.CommandText = "DELETE FROM DtcModuleExactRules WHERE FilterName = @FilterName COLLATE NOCASE;";
+                deleteExactCmd.Parameters.AddWithValue("@FilterName", filterName);
+                await deleteExactCmd.ExecuteNonQueryAsync();
+
+                await using var deleteKeywordCmd = connection.CreateCommand();
+                deleteKeywordCmd.Transaction = (SqliteTransaction)transaction;
+                deleteKeywordCmd.CommandText = "DELETE FROM DtcModuleKeywords WHERE FilterName = @FilterName COLLATE NOCASE;";
+                deleteKeywordCmd.Parameters.AddWithValue("@FilterName", filterName);
+                await deleteKeywordCmd.ExecuteNonQueryAsync();
+            }
+
+            foreach (var rule in exactRules)
+            {
+                if (string.IsNullOrWhiteSpace(rule.FilterName)
+                    || string.IsNullOrWhiteSpace(rule.Code)
+                    || !filterNameSet.Contains(rule.FilterName))
+                {
+                    continue;
+                }
+
+                await using var insertRuleCmd = connection.CreateCommand();
+                insertRuleCmd.Transaction = (SqliteTransaction)transaction;
+                insertRuleCmd.CommandText = @"
+                    INSERT OR IGNORE INTO DtcModuleExactRules (FilterName, Code, ObdType)
+                    VALUES (@FilterName, @Code, @ObdType);
+                ";
+                insertRuleCmd.Parameters.AddWithValue("@FilterName", rule.FilterName.Trim());
+                insertRuleCmd.Parameters.AddWithValue("@Code", rule.Code.Trim().ToUpperInvariant());
+                insertRuleCmd.Parameters.AddWithValue("@ObdType", string.IsNullOrWhiteSpace(rule.ObdType) ? "OBD-II" : rule.ObdType);
+                await insertRuleCmd.ExecuteNonQueryAsync();
+            }
+
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword.FilterName)
+                    || string.IsNullOrWhiteSpace(keyword.Keyword)
+                    || !filterNameSet.Contains(keyword.FilterName))
+                {
+                    continue;
+                }
+
+                await using var insertKeywordCmd = connection.CreateCommand();
+                insertKeywordCmd.Transaction = (SqliteTransaction)transaction;
+                insertKeywordCmd.CommandText = @"
+                    INSERT OR IGNORE INTO DtcModuleKeywords (FilterName, Keyword)
+                    VALUES (@FilterName, @Keyword);
+                ";
+                insertKeywordCmd.Parameters.AddWithValue("@FilterName", keyword.FilterName.Trim());
+                insertKeywordCmd.Parameters.AddWithValue("@Keyword", keyword.Keyword.Trim().ToLowerInvariant());
+                await insertKeywordCmd.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────
     // SEEDING INICIAL
     // ─────────────────────────────────────────────────────────────

@@ -1,16 +1,24 @@
 using DtcDesk.Core.Models;
+using DtcDesk.Data.Db;
+using DtcDesk.Data.Repositories;
 using System.Text;
+using System.Text.Json;
 
 namespace DtcDesk.WinForms;
 
 public partial class ExportForm : Form
 {
-    private readonly List<DtcLookupResult> _results;
+    private readonly DtcRepository _repository;
+    private readonly ModuleFilterRepository _moduleRepository;
 
-    public ExportForm(List<DtcLookupResult> results)
+    public ExportForm()
     {
         InitializeComponent();
-        _results = results;
+
+        var dbPath = ConnectionFactory.GetDefaultDatabasePath();
+        var connectionFactory = new ConnectionFactory(dbPath);
+        _repository = new DtcRepository(connectionFactory);
+        _moduleRepository = new ModuleFilterRepository(connectionFactory.GetConnectionString());
 
         SetupUI();
     }
@@ -19,11 +27,10 @@ public partial class ExportForm : Form
     {
         ApplyDarkTheme();
 
-        btnExportTxt.Click += (s, e) => ExportAs("txt");
-        btnExportCsv.Click += (s, e) => ExportAs("csv");
+        btnExportJson.Click += async (s, e) => await ExportBackupAsync();
         btnCancel.Click += (s, e) => this.Close();
 
-        lblInfo.Text = $"Exportar {_results.Count} código(s) DTC";
+        lblInfo.Text = "Exportar backup DTC";
     }
 
     private void ApplyDarkTheme()
@@ -38,32 +45,25 @@ public partial class ExportForm : Form
         lblInfo.ForeColor = textMain;
         lblFormat.ForeColor = textMain;
 
-        chkIncludeDescription.ForeColor = textMain;
-        chkIncludeCategory.ForeColor = textMain;
-        chkOnlyNotFound.ForeColor = textMain;
-
-        btnExportTxt.BackColor = accentYellow;
-        btnExportTxt.ForeColor = Color.Black;
-        btnExportTxt.FlatStyle = FlatStyle.Flat;
-        btnExportTxt.FlatAppearance.BorderSize = 0;
-
-        btnExportCsv.BackColor = accentGreen;
-        btnExportCsv.ForeColor = Color.White;
-        btnExportCsv.FlatStyle = FlatStyle.Flat;
-        btnExportCsv.FlatAppearance.BorderSize = 0;
+        chkIncludeModules.ForeColor = textMain;
 
         btnCancel.BackColor = separator;
         btnCancel.ForeColor = textMain;
         btnCancel.FlatStyle = FlatStyle.Flat;
         btnCancel.FlatAppearance.BorderSize = 0;
+
+        btnExportJson.BackColor = accentYellow;
+        btnExportJson.ForeColor = Color.Black;
+        btnExportJson.FlatStyle = FlatStyle.Flat;
+        btnExportJson.FlatAppearance.BorderSize = 0;
     }
 
-    private void ExportAs(string format)
+    private async Task ExportBackupAsync()
     {
         var saveDialog = new SaveFileDialog
         {
-            Filter = format == "txt" ? "Archivo de texto|*.txt" : "Archivo CSV|*.csv",
-            FileName = $"dtc_codes_{DateTime.Now:yyyyMMdd_HHmmss}.{format}"
+            Filter = "Archivo JSON|*.json",
+            FileName = $"dtc_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json"
         };
 
         if (saveDialog.ShowDialog() != DialogResult.OK)
@@ -71,27 +71,12 @@ public partial class ExportForm : Form
 
         try
         {
-            var results = chkOnlyNotFound.Checked 
-                ? _results.Where(r => !r.Found).ToList() 
-                : _results;
+            var exportSummary = await ExportToJsonAsync(saveDialog.FileName, chkIncludeModules.Checked);
+            var moduleInfo = exportSummary.Modules > 0
+                ? $"\nMódulos: {exportSummary.Modules}\nReglas exactas: {exportSummary.ExactRules}\nKeywords: {exportSummary.Keywords}"
+                : "\nMódulos: no incluidos";
 
-            if (results.Count == 0)
-            {
-                MessageBox.Show("No hay códigos para exportar con los filtros seleccionados.",
-                    "Sin datos", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (format == "txt")
-            {
-                ExportToTxt(saveDialog.FileName, results);
-            }
-            else
-            {
-                ExportToCsv(saveDialog.FileName, results);
-            }
-
-            MessageBox.Show($"Exportación exitosa:\n{saveDialog.FileName}\n\n{results.Count} código(s) exportado(s).",
+            MessageBox.Show($"Exportación JSON exitosa:\n{saveDialog.FileName}\n\nCódigos: {exportSummary.Codes}{moduleInfo}",
                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             this.Close();
@@ -103,91 +88,43 @@ public partial class ExportForm : Form
         }
     }
 
-    private void ExportToTxt(string filePath, List<DtcLookupResult> results)
+    private async Task<(int Codes, int Modules, int ExactRules, int Keywords)> ExportToJsonAsync(string filePath, bool includeModules)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("═══════════════════════════════════════════════════════");
-        sb.AppendLine("  CÓDIGOS DTC - EXPORTACIÓN");
-        sb.AppendLine($"  Fecha: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
-        sb.AppendLine($"  Total: {results.Count} código(s)");
-        sb.AppendLine("═══════════════════════════════════════════════════════");
-        sb.AppendLine();
+        var codes = (await _repository.GetAllAsync()).ToList();
 
-        foreach (var result in results)
+        var package = new DtcExportPackage
         {
-            sb.AppendLine($"Código: {result.Code}");
-            
-            if (chkIncludeDescription.Checked)
-            {
-                sb.AppendLine($"  Descripción: {result.Description ?? "Sin descripción"}");
-            }
-            
-            if (chkIncludeCategory.Checked)
-            {
-                sb.AppendLine($"  Categoría: {result.Category ?? "N/A"}");
-                if (!string.IsNullOrEmpty(result.Source))
-                {
-                    sb.AppendLine($"  Fuente: {result.Source}");
-                }
-            }
-            
-            sb.AppendLine($"  Estado: {(result.Found ? "Encontrado" : "No encontrado")}");
-            sb.AppendLine();
+            ExportedAtUtc = DateTime.UtcNow,
+            Codes = codes
+        };
+
+        var modules = 0;
+        var exactRules = 0;
+        var keywords = 0;
+
+        if (includeModules)
+        {
+            var filters = await _moduleRepository.GetAllFiltersAsync();
+            var rules = await _moduleRepository.GetAllExactRulesAsync();
+            var kws = await _moduleRepository.GetAllKeywordsAsync();
+
+            package.Modules = filters;
+            package.ExactRules = rules;
+            package.Keywords = kws;
+
+            modules = filters.Count;
+            exactRules = rules.Count;
+            keywords = kws.Count;
         }
 
-        File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-    }
-
-    private void ExportToCsv(string filePath, List<DtcLookupResult> results)
-    {
-        var sb = new StringBuilder();
-        
-        // Encabezados
-        var headers = new List<string> { "Código" };
-        if (chkIncludeDescription.Checked) headers.Add("Descripción");
-        if (chkIncludeCategory.Checked)
+        var options = new JsonSerializerOptions
         {
-            headers.Add("Categoría");
-            headers.Add("Fuente");
-        }
-        headers.Add("Estado");
-        
-        sb.AppendLine(string.Join(",", headers.Select(h => $"\"{h}\"")));
+            WriteIndented = true
+        };
 
-        // Datos
-        foreach (var result in results)
-        {
-            var values = new List<string> { EscapeCsv(result.Code) };
-            
-            if (chkIncludeDescription.Checked)
-            {
-                values.Add(EscapeCsv(result.Description ?? ""));
-            }
-            
-            if (chkIncludeCategory.Checked)
-            {
-                values.Add(EscapeCsv(result.Category ?? ""));
-                values.Add(EscapeCsv(result.Source ?? ""));
-            }
-            
-            values.Add(EscapeCsv(result.Found ? "Encontrado" : "No encontrado"));
-            
-            sb.AppendLine(string.Join(",", values));
-        }
+        var json = JsonSerializer.Serialize(package, options);
+        File.WriteAllText(filePath, json, Encoding.UTF8);
 
-        File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-    }
-
-    private string EscapeCsv(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return "\"\"";
-
-        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
-        {
-            return $"\"{value.Replace("\"", "\"\"")}\"";
-        }
-
-        return $"\"{value}\"";
+        return (codes.Count, modules, exactRules, keywords);
     }
 }

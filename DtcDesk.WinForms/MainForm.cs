@@ -132,6 +132,7 @@ public partial class MainForm : Form
         
         // Cargar logo
         LoadLogo();
+        LoadAppIcon();
 
         // Configurar eventos
         btnParse.Click += BtnParse_Click;
@@ -312,6 +313,22 @@ public partial class MainForm : Form
         {
             picLogo.Visible = false;
             picLogoRight.Visible = false;
+        }
+    }
+
+    private void LoadAppIcon()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo-apk.ico");
+            if (File.Exists(iconPath))
+            {
+                this.Icon = new Icon(iconPath);
+            }
+        }
+        catch
+        {
+            // No-op: fallback to default icon if load fails.
         }
     }
 
@@ -2187,23 +2204,20 @@ public partial class MainForm : Form
 
     private void BtnExport_Click(object? sender, EventArgs e)
     {
-        if (_currentResults.Count == 0)
-        {
-            MessageBox.Show("No hay códigos para exportar.", 
-                "Sin datos", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        var exportForm = new ExportForm(_currentResults);
+        var exportForm = new ExportForm();
         exportForm.ShowDialog();
     }
 
-    private void BtnImport_Click(object? sender, EventArgs e)
+    private async void BtnImport_Click(object? sender, EventArgs e)
     {
         var importForm = new ImportForm();
         if (importForm.ShowDialog() == DialogResult.OK)
         {
             LoadStatistics();
+            if (importForm.ModulesImported)
+            {
+                await RefreshClassifierAndButtonsAsync();
+            }
         }
     }
 

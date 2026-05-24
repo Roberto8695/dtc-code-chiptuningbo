@@ -128,7 +128,7 @@ namespace DtcDesk.WinForms
 
             menuImportar.Name = "menuImportar";
             menuImportar.Size = new Size(200, 22);
-            menuImportar.Text = "📥  Importar CSV...";
+            menuImportar.Text = "📥  Importar...";
 
             menuExportar.Name = "menuExportar";
             menuExportar.Size = new Size(200, 22);
