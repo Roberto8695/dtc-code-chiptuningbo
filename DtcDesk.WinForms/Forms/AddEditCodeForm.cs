@@ -12,7 +12,8 @@ public partial class AddEditCodeForm : Form
     private DtcCode? _existingCode;
     private readonly bool _isEditMode;
     private readonly string _currentObdType;
-    private string? _preselectedModule;  // Usado en modo edición para mostrar el módulo actual
+    private readonly List<string> _preselectedModules = new();
+    private readonly List<string> _preselectedModuleDisplays = new();
 
     public DtcCode? DtcCode { get; private set; }
 
@@ -107,9 +108,9 @@ public partial class AddEditCodeForm : Form
 
             // Volver al hilo de UI para actualizar el combo
             if (InvokeRequired)
-                Invoke(() => PopulateModuleCombo(filters));
+                Invoke(() => PopulateModuleChecklist(filters));
             else
-                PopulateModuleCombo(filters);
+                PopulateModuleChecklist(filters);
         }
         catch (Exception ex)
         {
@@ -117,49 +118,42 @@ public partial class AddEditCodeForm : Form
         }
     }
 
-    private void PopulateModuleCombo(List<DtcModuleFilter> filters)
+    private void PopulateModuleChecklist(List<DtcModuleFilter> filters)
     {
-        cmbModule.Items.Clear();
-        cmbModule.DisplayMember = nameof(DtcModuleFilter.DisplayName);
-        cmbModule.ValueMember = nameof(DtcModuleFilter.Name);
-
-        cmbModule.Items.Add(new DtcModuleFilter
-        {
-            Name = string.Empty,
-            DisplayName = "(Ninguno)"
-        });
+        clbModules.Items.Clear();
+        clbModules.DisplayMember = nameof(DtcModuleFilter.DisplayName);
+        clbModules.ValueMember = nameof(DtcModuleFilter.Name);
 
         foreach (var f in filters)
-            cmbModule.Items.Add(f);
-
-        // Preseleccionar el módulo si ya se conocía
-        if (!string.IsNullOrWhiteSpace(_preselectedModule))
         {
-            foreach (var item in cmbModule.Items)
-            {
-                if (item is DtcModuleFilter filter
-                    && string.Equals(filter.Name, _preselectedModule, StringComparison.OrdinalIgnoreCase))
-                {
-                    cmbModule.SelectedItem = item;
-                    return;
-                }
-            }
+            clbModules.Items.Add(f, false);
         }
 
-        if (!string.IsNullOrWhiteSpace(_existingCode?.Module))
+        ApplyModuleSelectionsFromList();
+    }
+
+    private void ApplyModuleSelectionsFromList()
+    {
+        if (clbModules.Items.Count == 0)
         {
-            foreach (var item in cmbModule.Items)
-            {
-                if (item is DtcModuleFilter filter
-                    && string.Equals(filter.DisplayName, _existingCode.Module, StringComparison.OrdinalIgnoreCase))
-                {
-                    cmbModule.SelectedItem = item;
-                    return;
-                }
-            }
+            return;
         }
 
-        cmbModule.SelectedIndex = 0;  // "(Ninguno)"
+        var selectedNames = new HashSet<string>(_preselectedModules, StringComparer.OrdinalIgnoreCase);
+        var selectedDisplays = new HashSet<string>(_preselectedModuleDisplays, StringComparer.OrdinalIgnoreCase);
+
+        for (var i = 0; i < clbModules.Items.Count; i++)
+        {
+            if (clbModules.Items[i] is not DtcModuleFilter filter)
+            {
+                continue;
+            }
+
+            if (selectedNames.Contains(filter.Name) || selectedDisplays.Contains(filter.DisplayName))
+            {
+                clbModules.SetItemChecked(i, true);
+            }
+        }
     }
 
     private void ApplyDarkTheme()
@@ -192,6 +186,12 @@ public partial class AddEditCodeForm : Form
                 comboBox.ForeColor = textMain;
                 comboBox.FlatStyle = FlatStyle.Flat;
             }
+            else if (control is CheckedListBox checkedList)
+            {
+                checkedList.BackColor = panelSide;
+                checkedList.ForeColor = textMain;
+                checkedList.BorderStyle = BorderStyle.FixedSingle;
+            }
         }
 
         // Botones
@@ -219,7 +219,6 @@ public partial class AddEditCodeForm : Form
         else
             cmbCategory.Text = _existingCode.Category ?? "Powertrain";
 
-        cmbModule.Text = _existingCode.Module ?? "";
         txtSource.Text = _existingCode.Source ?? "";
         txtNotes.Text = _existingCode.Notes ?? "";
 
@@ -227,15 +226,25 @@ public partial class AddEditCodeForm : Form
         try
         {
             var exactRules = await _moduleRepository.GetAllExactRulesAsync();
-            var rule = exactRules.FirstOrDefault(r =>
-                    string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(r.ObdType, _currentObdType, StringComparison.OrdinalIgnoreCase))
-                ?? exactRules.FirstOrDefault(r =>
-                    string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase)
-                    && string.IsNullOrWhiteSpace(r.ObdType));
+            var rules = exactRules
+                .Where(r => string.Equals(r.Code, _existingCode.Code, StringComparison.OrdinalIgnoreCase)
+                    && (string.Equals(r.ObdType, _currentObdType, StringComparison.OrdinalIgnoreCase)
+                        || string.IsNullOrWhiteSpace(r.ObdType)))
+                .Select(r => r.FilterName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-            if (rule != null)
-                _preselectedModule = rule.FilterName;
+            if (rules.Count > 0)
+            {
+                _preselectedModules.AddRange(rules);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_existingCode.Module))
+            {
+                _preselectedModuleDisplays.AddRange(SplitModuleList(_existingCode.Module));
+            }
+
+            ApplyModuleSelectionsFromList();
         }
         catch { /* silent — no es crítico */ }
     }
@@ -277,14 +286,16 @@ public partial class AddEditCodeForm : Form
 
             if (_isEditMode && _existingCode != null)
             {
-                var selectedModule = GetSelectedModule();
+                var selectedModules = GetSelectedModules();
+                var filterTagList = BuildModuleList(selectedModules, m => m.Name);
+                var moduleList = BuildModuleList(selectedModules, m => m.DisplayName);
 
                 // Actualizar código existente
                 _existingCode.Description = txtDescription.Text.Trim();
                 _existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
                 _existingCode.ObdType = _currentObdType;
-                _existingCode.FilterTag = selectedModule?.Name;
-                _existingCode.Module = selectedModule?.DisplayName;
+                _existingCode.FilterTag = filterTagList;
+                _existingCode.Module = moduleList;
                 _existingCode.Source = txtSource.Text.Trim();
                 _existingCode.Notes = txtNotes.Text.Trim();
 
@@ -293,7 +304,7 @@ public partial class AddEditCodeForm : Form
                 if (updated)
                 {
                     DtcCode = _existingCode;
-                    await SaveModuleRuleAsync(_existingCode.Code);
+                    await SaveModuleRulesAsync(_existingCode.Code, selectedModules);
                     MessageBox.Show("Código actualizado correctamente.", 
                         "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
@@ -325,24 +336,28 @@ public partial class AddEditCodeForm : Form
                     var existingCode = await _repository.GetByCodeAsync(code, _currentObdType);
                     if (existingCode != null)
                     {
-                        var selectedModule = GetSelectedModule();
+                        var selectedModules = GetSelectedModules();
+                        var filterTagList = BuildModuleList(selectedModules, m => m.Name);
+                        var moduleList = BuildModuleList(selectedModules, m => m.DisplayName);
 
                         existingCode.Description = txtDescription.Text.Trim();
                         existingCode.Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text;
                         existingCode.ObdType = _currentObdType;
-                        existingCode.FilterTag = selectedModule?.Name;
-                        existingCode.Module = selectedModule?.DisplayName;
+                        existingCode.FilterTag = filterTagList;
+                        existingCode.Module = moduleList;
                         existingCode.Source = txtSource.Text.Trim();
                         existingCode.Notes = txtNotes.Text.Trim();
 
                         await _repository.UpdateAsync(existingCode);
-                        await SaveModuleRuleAsync(code);
+                        await SaveModuleRulesAsync(code, selectedModules);
                         DtcCode = existingCode;
                     }
                 }
                 else
                 {
-                    var selectedModule = GetSelectedModule();
+                    var selectedModules = GetSelectedModules();
+                    var filterTagList = BuildModuleList(selectedModules, m => m.Name);
+                    var moduleList = BuildModuleList(selectedModules, m => m.DisplayName);
 
                     // Insertar nuevo código
                     var newCode = new DtcCode
@@ -351,8 +366,8 @@ public partial class AddEditCodeForm : Form
                         Description = txtDescription.Text.Trim(),
                         Category = _currentObdType == "OBD-I" ? "Hex" : cmbCategory.Text,
                         ObdType = _currentObdType,
-                        FilterTag = selectedModule?.Name,
-                        Module = selectedModule?.DisplayName,
+                        FilterTag = filterTagList,
+                        Module = moduleList,
                         Source = txtSource.Text.Trim(),
                         Notes = txtNotes.Text.Trim(),
                         IsActive = true
@@ -361,7 +376,7 @@ public partial class AddEditCodeForm : Form
                     var id = await _repository.InsertAsync(newCode);
                     newCode.Id = id;
                     DtcCode = newCode;
-                    await SaveModuleRuleAsync(code);
+                    await SaveModuleRulesAsync(code, selectedModules);
                     
                     MessageBox.Show("Código añadido correctamente.", 
                         "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -383,20 +398,21 @@ public partial class AddEditCodeForm : Form
     }
 
     /// <summary>
-    /// Guarda o elimina la regla exacta código→módulo según la selección del ComboBox.
+    /// Guarda las reglas exactas código→módulo según la selección múltiple.
     /// </summary>
-    private async Task SaveModuleRuleAsync(string code)
+    private async Task SaveModuleRulesAsync(string code, List<DtcModuleFilter> selectedModules)
     {
         try
         {
-            var selected = cmbModule.SelectedItem as DtcModuleFilter;
-            if (selected == null || string.IsNullOrWhiteSpace(selected.Name))
+            await _moduleRepository.DeleteExactRuleByCodeAsync(code, _currentObdType);
+
+            foreach (var selected in selectedModules)
             {
-                // Eliminar regla si existía
-                await _moduleRepository.DeleteExactRuleByCodeAsync(code, _currentObdType);
-            }
-            else
-            {
+                if (string.IsNullOrWhiteSpace(selected.Name))
+                {
+                    continue;
+                }
+
                 await _moduleRepository.SaveExactRuleAsync(code, selected.Name, _currentObdType);
             }
         }
@@ -406,11 +422,38 @@ public partial class AddEditCodeForm : Form
         }
     }
 
-    private DtcModuleFilter? GetSelectedModule()
+    private List<DtcModuleFilter> GetSelectedModules()
     {
-        return cmbModule.SelectedItem is DtcModuleFilter { Name: { Length: > 0 } } selected
-            ? selected
-            : null;
+        return clbModules.CheckedItems
+            .OfType<DtcModuleFilter>()
+            .Where(m => !string.IsNullOrWhiteSpace(m.Name))
+            .ToList();
+    }
+
+    private static string? BuildModuleList(IEnumerable<DtcModuleFilter> modules, Func<DtcModuleFilter, string> selector)
+    {
+        var list = modules
+            .Select(selector)
+            .Select(value => value.Trim())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return list.Count == 0 ? null : string.Join(", ", list);
+    }
+
+    private static List<string> SplitModuleList(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new List<string>();
+        }
+
+        return value
+            .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(item => item.Trim())
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .ToList();
     }
 
     private bool IsValidCodeFormat(string code)

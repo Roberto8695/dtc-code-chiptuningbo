@@ -2000,14 +2000,21 @@ public partial class MainForm : Form
 
         foreach (var result in _currentResults)
         {
-            if (string.IsNullOrWhiteSpace(result.FilterTag))
+            var tags = SplitModuleList(result.FilterTag);
+            if (tags.Count == 0)
             {
                 continue;
             }
 
-            if (filterDisplayByName.TryGetValue(result.FilterTag, out var displayName))
+            var displayNames = tags
+                .Select(tag => filterDisplayByName.TryGetValue(tag, out var displayName) ? displayName : tag)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (displayNames.Count > 0)
             {
-                result.Module = displayName;
+                result.Module = string.Join(", ", displayNames);
             }
         }
     }
@@ -2745,8 +2752,8 @@ public partial class MainForm : Form
         // Buscar los códigos que corresponden al módulo
         var toReplace = _currentResults
             .Where(r => IsCurrentObdType(r, currentObdType)
-                     && (string.Equals(r.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
-                         || string.Equals(r.Module, moduleLabel, StringComparison.OrdinalIgnoreCase)))
+                     && (ContainsModuleToken(r.FilterTag, moduleKey)
+                         || ContainsModuleToken(r.Module, moduleLabel)))
             .ToList();
 
         if (toReplace.Count == 0)
@@ -2779,8 +2786,8 @@ public partial class MainForm : Form
         {
             var result = _currentResults[i];
             var isTarget = IsCurrentObdType(result, currentObdType)
-                && (string.Equals(result.FilterTag, moduleKey, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(result.Module, moduleLabel, StringComparison.OrdinalIgnoreCase));
+                && (ContainsModuleToken(result.FilterTag, moduleKey)
+                    || ContainsModuleToken(result.Module, moduleLabel));
 
             if (!isTarget)
             {
@@ -2842,6 +2849,31 @@ public partial class MainForm : Form
     {
         var resultObdType = string.IsNullOrWhiteSpace(result.ObdType) ? "OBD-II" : result.ObdType;
         return string.Equals(resultObdType, currentObdType, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsModuleToken(string? value, string token)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(token))
+        {
+            return false;
+        }
+
+        return SplitModuleList(value)
+            .Any(item => string.Equals(item, token, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static List<string> SplitModuleList(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new List<string>();
+        }
+
+        return value
+            .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(item => item.Trim())
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .ToList();
     }
 }
 

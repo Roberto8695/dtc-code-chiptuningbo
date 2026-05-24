@@ -24,7 +24,7 @@ namespace DtcDesk.WinForms
             lblCategory = new Label();
             cmbCategory = new ComboBox();
             lblModule = new Label();
-            cmbModule = new ComboBox();
+            clbModules = new CheckedListBox();
             lblSource = new Label();
             txtSource = new TextBox();
             lblNotes = new Label();
@@ -103,21 +103,21 @@ namespace DtcDesk.WinForms
             lblModule.TabIndex = 12;
             lblModule.Text = "Módulo:";
             // 
-            // cmbModule
+            // clbModules
             // 
-            cmbModule.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbModule.Font = new Font("Segoe UI", 10F);
-            cmbModule.FormattingEnabled = true;
-            cmbModule.Location = new Point(290, 230);
-            cmbModule.Name = "cmbModule";
-            cmbModule.Size = new Size(250, 25);
-            cmbModule.TabIndex = 13;
+            clbModules.CheckOnClick = true;
+            clbModules.Font = new Font("Segoe UI", 9F);
+            clbModules.FormattingEnabled = true;
+            clbModules.Location = new Point(290, 230);
+            clbModules.Name = "clbModules";
+            clbModules.Size = new Size(250, 120);
+            clbModules.TabIndex = 13;
             // 
             // lblSource
             // 
             lblSource.AutoSize = true;
             lblSource.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblSource.Location = new Point(20, 270);
+            lblSource.Location = new Point(20, 360);
             lblSource.Name = "lblSource";
             lblSource.Size = new Size(63, 19);
             lblSource.TabIndex = 6;
@@ -126,7 +126,7 @@ namespace DtcDesk.WinForms
             // txtSource
             // 
             txtSource.Font = new Font("Segoe UI", 10F);
-            txtSource.Location = new Point(20, 295);
+            txtSource.Location = new Point(20, 385);
             txtSource.Name = "txtSource";
             txtSource.Size = new Size(560, 25);
             txtSource.TabIndex = 7;
@@ -136,7 +136,7 @@ namespace DtcDesk.WinForms
             // 
             lblNotes.AutoSize = true;
             lblNotes.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblNotes.Location = new Point(20, 335);
+            lblNotes.Location = new Point(20, 425);
             lblNotes.Name = "lblNotes";
             lblNotes.Size = new Size(55, 19);
             lblNotes.TabIndex = 8;
@@ -145,7 +145,7 @@ namespace DtcDesk.WinForms
             // txtNotes
             // 
             txtNotes.Font = new Font("Segoe UI", 9F);
-            txtNotes.Location = new Point(20, 360);
+            txtNotes.Location = new Point(20, 450);
             txtNotes.Multiline = true;
             txtNotes.Name = "txtNotes";
             txtNotes.ScrollBars = ScrollBars.Vertical;
@@ -156,7 +156,7 @@ namespace DtcDesk.WinForms
             // btnSave
             // 
             btnSave.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnSave.Location = new Point(380, 460);
+            btnSave.Location = new Point(380, 550);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(200, 45);
             btnSave.TabIndex = 10;
@@ -166,7 +166,7 @@ namespace DtcDesk.WinForms
             // btnCancel
             // 
             btnCancel.Font = new Font("Segoe UI", 10F);
-            btnCancel.Location = new Point(20, 460);
+            btnCancel.Location = new Point(20, 550);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(120, 45);
             btnCancel.TabIndex = 11;
@@ -177,14 +177,14 @@ namespace DtcDesk.WinForms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(600, 525);
+            ClientSize = new Size(600, 625);
             Controls.Add(btnCancel);
             Controls.Add(btnSave);
             Controls.Add(txtNotes);
             Controls.Add(lblNotes);
             Controls.Add(txtSource);
             Controls.Add(lblSource);
-            Controls.Add(cmbModule);
+            Controls.Add(clbModules);
             Controls.Add(lblModule);
             Controls.Add(cmbCategory);
             Controls.Add(lblCategory);
@@ -211,7 +211,7 @@ namespace DtcDesk.WinForms
         private Label lblCategory;
         private ComboBox cmbCategory;
         private Label lblModule;
-        private ComboBox cmbModule;
+        private CheckedListBox clbModules;
         private Label lblSource;
         private TextBox txtSource;
         private Label lblNotes;

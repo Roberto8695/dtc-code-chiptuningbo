@@ -142,20 +142,6 @@ public class ModuleFilterRepository
         var normalizedCode = code.ToUpperInvariant();
         var normalizedObdType = string.IsNullOrWhiteSpace(obdType) ? "OBD-II" : obdType;
 
-        await using (var deleteCmd = connection.CreateCommand())
-        {
-            deleteCmd.CommandText = @"
-                DELETE FROM DtcModuleExactRules
-                WHERE Code = @Code COLLATE NOCASE
-                  AND ObdType = @ObdType COLLATE NOCASE
-                  AND FilterName != @FilterName;
-            ";
-            deleteCmd.Parameters.AddWithValue("@FilterName", filterName);
-            deleteCmd.Parameters.AddWithValue("@Code", normalizedCode);
-            deleteCmd.Parameters.AddWithValue("@ObdType", normalizedObdType);
-            await deleteCmd.ExecuteNonQueryAsync();
-        }
-
         await using (var insertCmd = connection.CreateCommand())
         {
             insertCmd.CommandText = @"
